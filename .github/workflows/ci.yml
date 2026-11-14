@@ -32,11 +32,13 @@ jobs:
         run: ./scripts/fetch-vendor.ps1
       - name: Self-test (Linux, virtual display)
         if: runner.os == 'Linux'
-        run: xvfb-run -a --server-args="-screen 0 1920x1080x24" npx --yes electron@33.2.0 . --no-sandbox --nx-selftest --nx-userdata="$RUNNER_TEMP/nexora"
+        run: |
+          xvfb-run -a --server-args="-screen 0 1920x1080x24" npx --yes electron@33.2.0 . --no-sandbox --nx-selftest --nx-userdata="$RUNNER_TEMP/nexora"
       - name: Self-test
         if: runner.os != 'Linux'
         shell: bash
-        run: npx --yes electron@33.2.0 . --nx-selftest --nx-userdata="$RUNNER_TEMP/nexora"
+        run: |
+          npx --yes electron@33.2.0 . --nx-selftest --nx-userdata="$RUNNER_TEMP/nexora"
 
   release:
     name: Build and publish the release
@@ -55,10 +57,12 @@ jobs:
         shell: pwsh
         env:
           GAS_URL: ${{ secrets.GAS_URL }}
-        run: if ($env:GAS_URL) { @{ url = $env:GAS_URL } | ConvertTo-Json | Set-Content electron/gas.config.json -Encoding utf8NoBOM; 'online sign-in included' } else { 'no GAS_URL secret: local accounts only' }
+        run: |
+          if ($env:GAS_URL) { @{ url = $env:GAS_URL } | ConvertTo-Json | Set-Content electron/gas.config.json -Encoding utf8NoBOM; 'online sign-in included' } else { 'no GAS_URL secret: local accounts only' }
       - name: Version must match the tag
         shell: pwsh
-        run: $v = (Get-Content package.json -Raw | ConvertFrom-Json).version; if ("v$v" -ne $env:GITHUB_REF_NAME) { throw "package.json says $v but the tag is $env:GITHUB_REF_NAME" }
+        run: |
+          $v = (Get-Content package.json -Raw | ConvertFrom-Json).version; if ("v$v" -ne $env:GITHUB_REF_NAME) { throw "package.json says $v but the tag is $env:GITHUB_REF_NAME" }
       - name: Package
         shell: pwsh
         run: ./scripts/package.ps1 -OutDir dist
