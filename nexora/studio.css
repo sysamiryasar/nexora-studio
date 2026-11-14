@@ -188,6 +188,11 @@ body.color-page #over{opacity:0;pointer-events:none}
 .mp-list td{padding:4px 6px;border-bottom:1px solid #0b0c0e;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#c9d0d8}
 .mp-list td.mono{font:10.5px Consolas,monospace}.mp-list .mp-n{color:#fff}
 .mp-list tr{cursor:pointer}.mp-list tbody tr:hover td{background:var(--bg3)}.mp-list tr.on td{background:var(--accsoft)}
+/* update notice */
+#updateBar{position:fixed;left:12px;bottom:58px;z-index:500;width:min(520px,calc(100vw - 24px));display:flex;flex-wrap:wrap;align-items:center;gap:8px;padding:10px 12px;background:#0d0e10;border:1px solid #5cb8ff66;border-radius:4px;box-shadow:0 12px 40px #000c,0 0 24px #5cb8ff26;font-size:12.5px;animation:au-in .3s ease-out}
+#updateBar b{color:#fff;font-weight:600}#updateBar button{height:26px;padding:0 10px}
+.up-dot{width:8px;height:8px;border-radius:50%;background:var(--acc);box-shadow:0 0 8px var(--acc)}
+.up-notes{display:none;width:100%;margin:4px 0 0;padding-left:18px;color:#c9d0d8;line-height:1.5}#updateBar.open .up-notes{display:block}
 /* secondary */
 .cp-sec{background:var(--bg1)}
 .sec-col{flex:1;min-width:0;padding:10px 14px;display:flex;flex-direction:column;gap:7px;border-right:1px solid #000;overflow:auto}.sec-col:last-child{border-right:0}

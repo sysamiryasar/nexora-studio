@@ -61,6 +61,8 @@ contextBridge.exposeInMainWorld('nxai', {
   onDelta: cb => { const f = (_e, id, d) => cb(id, d); ipcRenderer.on('nxai:delta', f); return () => ipcRenderer.removeListener('nxai:delta', f); },
   test: (op, a) => ipcRenderer.invoke('nxaitest', op, a)
 });
+/* update check (electron/updates.js): reads the latest public release on GitHub */
+contextBridge.exposeInMainWorld('nxupdate', { check: automatic => ipcRenderer.invoke('nxupdate:check', !!automatic), test: rel => ipcRenderer.invoke('nxupdatetest', rel) });
 contextBridge.exposeInMainWorld('nxcap', {
   sources: () => ipcRenderer.invoke('nxcap:sources'),
   choose: id => ipcRenderer.invoke('nxcap:choose', id),

@@ -14,8 +14,10 @@ function Get-Verified($url, $dest, $sha) {
 }
 try {
   # FFmpeg 9.0.2 essentials (Gyan Doshi), GPL v3: the archive is checked, then ffmpeg.exe inside it
-  $ff = Join-Path $root 'vendor\ffmpeg\win32-x64\ffmpeg.exe'
-  if (-not ((Test-Path $ff) -and ((Get-FileHash $ff -Algorithm SHA256).Hash.ToLower() -eq '3256173f3f8bffd7df12227c68adf68025edb1832273a9530688a7bb1ed8edec'))) {
+  # FFmpeg ships in the Windows build only; set NEXORA_FFMPEG=1 to fetch it on another system (e.g. to package Windows there)
+  $ff = Join-Path $root 'vendor/ffmpeg/win32-x64/ffmpeg.exe'
+  if (-not ([Environment]::OSVersion.Platform -eq 'Win32NT' -or $env:NEXORA_FFMPEG -eq '1')) { 'skip    FFmpeg (Windows only)' }
+  elseif (-not ((Test-Path $ff) -and ((Get-FileHash $ff -Algorithm SHA256).Hash.ToLower() -eq '3256173f3f8bffd7df12227c68adf68025edb1832273a9530688a7bb1ed8edec'))) {
     $zip = Join-Path $tmp 'ffmpeg.zip'
     Get-Verified 'https://github.com/GyanD/codexffmpeg/releases/download/9.0.2/ffmpeg-9.0.2-essentials_build.zip' $zip '60f467265b1e312373dbcd92200c2618a74850f98d3d078e94296bb3fa2047ba'
     Add-Type -AssemblyName System.IO.Compression.FileSystem; $z = [IO.Compression.ZipFile]::OpenRead($zip)
@@ -30,6 +32,6 @@ try {
     @('Xenova/whisper-base', 'onnx/encoder_model_quantized.onnx', '3e345e977b55620a37c0c2b2af0644e019afdfad562dcf71eb929bb7274285f9'),
     @('Xenova/whisper-tiny.en', 'onnx/decoder_model_merged_quantized.onnx', 'dbb2e063b7fbc41d9803b9698f93ecb035c50cbb3fb87b56cb131e4a5eb99059'),
     @('Xenova/whisper-tiny.en', 'onnx/encoder_model_quantized.onnx', '8cc3c6f8563d1b3fbd2c5af9f64c2bed8b020bc593c402d1ef53b9f08fbf1b90'))
-  foreach ($m in $models) { Get-Verified "https://huggingface.co/$($m[0])/resolve/main/$($m[1])" (Join-Path $root ("vendor\ai\models\" + $m[0].Replace('/', '\') + '\' + $m[1].Replace('/', '\'))) $m[2] }
+  foreach ($m in $models) { Get-Verified "https://huggingface.co/$($m[0])/resolve/main/$($m[1])" (Join-Path $root ('vendor/ai/models/' + $m[0] + '/' + $m[1])) $m[2] }
   'All third-party files are present and verified.'
 } finally { Remove-Item -Recurse -Force $tmp -ErrorAction SilentlyContinue }

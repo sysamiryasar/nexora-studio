@@ -7,6 +7,11 @@ const { Readable } = require('stream');
 
 /* nxmedia://f/<encoded absolute path> streams files from disk with HTTP Range support (video seeking) and CORS
    (so canvases that draw the media stay readable for effects/export). Registered before app ready. */
+/* automated runs:
+     --nx-selftest            run the whole test suite hidden, print the result and exit (0 = all passed)
+     --nx-userdata=<folder>   keep settings and the project library in that folder instead of the user's own */
+if (process.argv.includes('--nx-selftest') && !process.argv.includes('--nx-hidden')) process.argv.push('--nx-hidden');
+{ const ud = process.argv.find(a => a.startsWith('--nx-userdata=')); if (ud) { const d = path.resolve(ud.slice(14)); fs.mkdirSync(d, { recursive: true }); app.setPath('userData', d); } }
 // macOS 13+: let screen capture include system audio through ScreenCaptureKit
 if (process.platform === 'darwin') app.commandLine.appendSwitch('enable-features', 'MacLoopbackAudioForScreenShare,MacSckSystemAudioLoopbackOverride');
 protocol.registerSchemesAsPrivileged([{ scheme: 'nxmedia', privileges: { standard: true, secure: true, supportFetchAPI: true, stream: true, corsEnabled: true, bypassCSP: true } }]);
@@ -91,6 +96,26 @@ function createWindow() {
   win.loadFile(path.join(__dirname, '..', 'index.html'));
   win.webContents.setWindowOpenHandler(({ url }) => { shell.openExternal(url); return { action: 'deny' }; });
   if (!process.argv.includes('--nx-hidden')) win.maximize(); else win.setSize(1600, 960);
+  if (process.argv.includes('--nx-selftest')) selfTest(wc);
+}
+/** --nx-selftest: same suite as tests/run.html, inside the real app, in a throw-away project */
+function selfTest(wc) {
+  const done = (code, line) => { process.stdout.write(line + '\n'); logLine('selftest', line); setTimeout(() => app.exit(code), 200); };
+  const limit = setTimeout(() => done(2, 'NEXORA-SELFTEST timeout after 30 min'), 30 * 60e3);
+  wc.once('did-finish-load', () => setTimeout(async () => {
+    try {
+      const r = await wc.executeJavaScript(`(async () => {
+        if (!window.NexoraTests) await new Promise((ok, no) => { const s = document.createElement('script'); s.src = 'tests/tests.js'; s.onload = ok; s.onerror = () => no(new Error('tests.js did not load')); document.body.append(s); });
+        await Shell.newProject('video', { name: '__selftest__' });
+        const t = await NexoraTests.run(null);
+        try { const id = Projects.current.id, f = Projects.current.folder; Shell.go('home'); await Projects.remove(id); if (f) await nxfs.remove(f); } catch (e) { }
+        return { pass: t.pass, fail: t.fail, fails: t.lines.filter(l => l.startsWith('FAIL')) };
+      })()`, true);
+      clearTimeout(limit);
+      for (const f of r.fails) process.stdout.write(f + '\n');
+      done(r.fail ? 1 : 0, `NEXORA-SELFTEST ${r.pass}/${r.pass + r.fail} passed on ${process.platform}-${process.arch}`);
+    } catch (e) { clearTimeout(limit); done(3, 'NEXORA-SELFTEST crashed: ' + (e && e.message || e)); }
+  }, 2500));
 }
 
 app.whenReady().then(() => {
@@ -123,6 +148,7 @@ app.whenReady().then(() => {
   require('./auth').create(app, shell, ipcMain, safeStorage, logLine);
   require('./ai').register(ipcMain, app, safeStorage, logLine);
   require('./music').register(ipcMain, logLine);
+  require('./updates').register(ipcMain, app, logLine);
   // macOS needs an app menu for Cmd+C / V / X / Z / A to work in text fields; other platforms run without a menu bar
   Menu.setApplicationMenu(process.platform === 'darwin' ? Menu.buildFromTemplate([{ role: 'appMenu' }, { role: 'editMenu' }, { role: 'windowMenu' }]) : null);
   createWindow();

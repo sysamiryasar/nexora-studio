@@ -354,6 +354,19 @@ const NexoraTests = (() => {
       ok(cloneLayer(L).label === 'navy', 'label survives duplicate');
     } finally { removeLayer(L.id); document.getElementById('menuPop').classList.add('hidden'); }
   });
+  test('updates: version compare and the update notice', async () => {
+    if (!window.nxupdate) return;
+    const old = localStorage.getItem('nx.update.skip'); localStorage.removeItem('nx.update.skip');
+    try {
+      await nxupdate.test({ tag_name: 'v99.0.0', name: 'NEXORA Studio 99.0.0', html_url: 'https://github.com/x/y/releases/tag/v99.0.0', body: '## Highlights\n- Faster timeline\n- **New** Color tools' });
+      const r = await Updates.check(false); ok(r.ok && r.newer && r.latest === '99.0.0' && r.notes.length === 2 && r.notes[1] === 'New Color tools', JSON.stringify(r));
+      const bar = document.getElementById('updateBar'); ok(bar && /99\.0\.0 is available/.test(bar.textContent), 'notice shown');
+      [...bar.querySelectorAll('button')].find(b => b.textContent === 'Later').click(); ok(!document.getElementById('updateBar') && localStorage.getItem('nx.update.skip') === '99.0.0', 'Later hides this version');
+      await Updates.check(false); ok(!document.getElementById('updateBar'), 'skipped version stays hidden on automatic checks');
+      await nxupdate.test({ tag_name: 'v0.9.0', html_url: 'x', body: '' }); const s = await Updates.check(false); ok(s.ok && !s.newer, 'older release is not offered');
+      await nxupdate.test({ tag_name: 'v99.0.0-beta.1', prerelease: true, html_url: 'x', body: '' }); ok(!(await Updates.check(false)).newer, 'pre-releases are not offered');
+    } finally { await nxupdate.test(null); Updates.hide(); if (old == null) localStorage.removeItem('nx.update.skip'); else localStorage.setItem('nx.update.skip', old); }
+  });
   test('timeline: speed presets keep the source range and ripple later clips', () => {
     const id = 'spd' + uid(); media[id] = { id, name: 's.mp4', kind: 'video', w: 1920, h: 1080, dur: 20 };
     const A = mkLayer('video', { media: id, start: 0, dur: 4 }), B = mkLayer('solid', { start: 4, dur: 2 }); A.kf.op = [{ t: 2, v: 50, e: 'linear' }]; addLayer(A); addLayer(B); P.markers = [5];

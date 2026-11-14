@@ -2,6 +2,14 @@
 
 _Last updated: milestone 10 (limits removed: pro codecs, render cache, GPU everywhere, PSD, TIFF, real healing / content-aware fill). Every "Available" item below is exercised by `tests/tests.js` (all passing in Chrome and in the packaged Electron 33 app) or by manual real-input testing._
 
+## Milestone 24 (v2.1.0): update notice, automatic builds
+- **Update notice**: once a day the desktop app reads the latest public release from GitHub (no account, no identifiers, generic User-Agent). If it is newer, a small bar offers What's new, Download and Later; Later hides that version only. Check manually with "Help: Check for updates" in the command palette, where automatic checks can also be turned off. Pre-releases are never offered.
+- **Self-test mode**: `--nx-selftest` runs the whole suite inside the real app, prints the result and exits with 0 when everything passes. `--nx-userdata=<folder>` keeps a test run's settings and library away from the user's own.
+- **Packaging script**: `scripts/package.ps1` builds all four zips from Electron's official builds, checked against Electron's checksums.
+  - The Windows zip it produced passed 222/222 tests after unzipping.
+  - The deepest path inside it is 162 characters, so unzipping into a very deep folder can exceed Windows' 260-character limit.
+- **GitHub Actions** (`.github/workflows/ci.yml`): every push runs the self-test on Windows, macOS and Linux. A `v*` tag also builds the zips and publishes the release, with notes from RELEASE_NOTES.md.
+
 ## Milestone 23: secondary grading (qualifier + window)
 - **Color page › Secondary** grades only part of the picture.
   - **Qualifier**: a hue band (centre, width, softness) plus saturation and luma ranges. Pick colour samples the graded clip on its own, so titles above it are ignored. A near-grey pick selects by brightness.
