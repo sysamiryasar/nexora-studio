@@ -1,0 +1,4 @@
+﻿FFmpeg 9.0.2 essentials build by Gyan Doshi (https://www.gyan.dev/ffmpeg/builds/), from https://github.com/GyanD/codexffmpeg/releases/tag/9.0.2
+Archive SHA-256 60f467265b1e312373dbcd92200c2618a74850f98d3d078e94296bb3fa2047ba (matches the GitHub release digest and gyan.dev's published checksum).
+Licensed GPL v3 (see LICENSE.txt). Source code: https://ffmpeg.org/download.html and the build's component list in README at the URL above.
+NEXORA runs it as a separate, unmodified program.

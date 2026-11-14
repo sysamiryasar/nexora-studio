@@ -1,0 +1,30 @@
+{
+  "name": "nexora-studio",
+  "productName": "NEXORA Studio",
+  "version": "2.0.0",
+  "description": "NEXORA Studio — unified creative suite: video editing, layered image editing, motion, shared assets",
+  "main": "electron/main.js",
+  "repository": { "type": "git", "url": "https://github.com/sysamiryasar/nexora-studio.git" },
+  "homepage": "https://github.com/sysamiryasar/nexora-studio",
+  "author": "NEXORA Studio",
+  "license": "MIT",
+  "scripts": {
+    "start": "electron .",
+    "dist": "electron-builder --win nsis portable",
+    "dist:mac": "electron-builder --mac",
+    "dist:linux": "electron-builder --linux AppImage"
+  },
+  "devDependencies": {
+    "electron": "^33.2.0",
+    "electron-builder": "^25.1.8"
+  },
+  "build": {
+    "appId": "com.nexora.studio",
+    "productName": "NEXORA Studio",
+    "files": ["electron/**/*", "index.html", "styles.css", "fx.js", "engine.js", "viewport.js", "panels.js", "timeline.js", "features.js", "main.js", "vendor/**/*", "nexora/**/*", "tests/**/*", "package.json"],
+    "asarUnpack": ["vendor/ffmpeg/**"],
+    "directories": { "output": "release" },
+    "win": { "target": ["nsis", "portable"] },
+    "nsis": { "oneClick": false, "allowToChangeInstallationDirectory": true }
+  }
+}

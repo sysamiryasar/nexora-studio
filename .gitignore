@@ -1,0 +1,26 @@
+# build output and release packages (published as GitHub Releases, not in git)
+NEXORA-Studio-*/
+*.zip
+release/
+dist/
+node_modules/
+
+# large third-party binaries: run scripts/fetch-vendor.ps1 to download and verify them
+vendor/ffmpeg/*/ffmpeg.exe
+vendor/ffmpeg/*/ffmpeg
+vendor/ai/models/**/*.onnx
+
+# local configuration that points at a private server
+electron/gas.config.json
+electron/auth.config.json
+electron/cloud.config.json
+
+# personal renders and editor state
+exports/
+.claude/
+*.log
+.DS_Store
+Thumbs.db
+
+# the AI editor's bundled SDK is part of the app (not installed by npm)
+!vendor/anthropic/node_modules/

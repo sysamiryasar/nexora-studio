@@ -1,0 +1,187 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>NEXORA Studio</title>
+<link rel="stylesheet" href="styles.css">
+<link rel="stylesheet" href="nexora/nexora.css">
+<link rel="stylesheet" href="nexora/pro.css">
+<link rel="stylesheet" href="nexora/studio.css">
+</head>
+<body>
+<div id="app">
+  <!-- ================= Home (launcher, templates, library) ================= -->
+  <div id="homeShell" class="hidden"><aside id="homeNav"></aside><main id="homeMain"></main></div>
+
+  <!-- ================= Studio (one project, every mode on the left rail) ================= -->
+  <div id="studio" class="hidden">
+  <header id="top">
+    <button id="btnHome" class="ibtn" data-icon="back" title="Back to Home (saves the project)">Home</button>
+    <div class="brand-mark" title="NEXORA Studio"></div>
+    <input id="projName" class="projname" value="Untitled Project" spellcheck="false" title="Project name">
+    <span id="saveState" class="dim"></span>
+    <span id="ctxChip" class="ctxchip hidden"></span>
+    <div class="spacer"></div>
+    <button id="btnPalette" class="ibtn" data-icon="command" title="Command palette (Ctrl+K)">Commands</button>
+    <button id="btnTheme" class="ibtn only" data-icon="theme" title="Switch accent theme"></button>
+    <button id="btnUndo" class="ibtn only" data-icon="undo" title="Undo (Ctrl+Z)"></button>
+    <button id="btnRedo" class="ibtn only" data-icon="redo" title="Redo (Ctrl+Shift+Z)"></button>
+    <button id="btnAI" class="ibtn" data-icon="ai" title="AI Editor">AI Editor</button>
+    <button id="btnExport" class="primary ibtn" data-icon="export">Export</button>
+    <span id="acctTop"></span>
+  </header>
+  <div id="studioBody">
+  <div id="wsHost">
+
+  <!-- ================= Edit (video + motion engine) ================= -->
+  <div id="ws-edit" class="workspace">
+    <div class="wsrow">
+      <nav id="menubar">
+        <div class="menu"><button data-menu="file">File</button></div>
+        <div class="menu"><button data-menu="edit">Edit</button></div>
+        <div class="menu"><button data-menu="layer">Layer</button></div>
+        <div class="menu"><button data-menu="view">View</button></div>
+      </nav>
+      <div id="optbar"></div>
+      <div class="spacer"></div>
+      <button id="btnSettings" class="ibtn" data-icon="settings" title="Canvas / project settings">Canvas</button>
+    </div>
+    <main id="main">
+      <aside id="left">
+        <div class="phead"><span id="leftHead">Media Pool</span></div>
+        <div id="leftTabs" class="tabs"></div>
+        <div id="leftBody"></div>
+      </aside>
+      <section id="center">
+        <div id="viewHead" class="phead"><span>Viewer</span><span id="viewName" class="dim"></span><div class="spacer"></div><button id="bGuides" class="ibtn" data-icon="grid" title="Safe areas, thirds and crop frames" onclick="guidesMenu(this)">Guides</button><span id="tc">00:00:00:00</span><span class="dim tcsep">/</span><span id="tcDur" class="dim">00:00:00:00</span></div>
+        <div id="tools"></div>
+        <div id="stageWrap">
+          <div id="stage">
+            <div id="checker"></div>
+            <canvas id="view"></canvas>
+            <canvas id="over"></canvas>
+          </div>
+          <div id="hud"></div>
+          <div id="drophint">Drop video, image or audio files to import</div>
+        </div>
+        <div id="meters"></div>
+        <div id="transport">
+          <select id="bPreviewQ" title="Preview resolution. Exports are always full resolution." aria-label="Preview resolution"><option value="auto">Auto</option><option value="1">Full</option><option value="0.5">1/2</option><option value="0.25">1/4</option></select>
+          <button id="bProxy" class="pill-btn" title="Play back with proxy media">Proxy</button>
+          <span id="perfRead" class="perf" title="Render time per frame"></span>
+          <div class="spacer"></div>
+          <button id="bStart" data-icon="tstart" title="Go to start (Home)"></button>
+          <button id="bPrev" data-icon="tprev" title="Previous frame (←)"></button>
+          <button id="bPlay" class="primary" data-icon="tplay" title="Play/Pause (Space)"></button>
+          <button id="bNext" data-icon="tnext" title="Next frame (→)"></button>
+          <button id="bEnd" data-icon="tend" title="Go to end (End)"></button>
+          <button id="bLoop" class="ibtn only" data-icon="tloop" title="Loop"></button>
+          <div class="spacer"></div>
+          <button id="bFit" title="Fit to window">Fit</button>
+          <button id="b100" title="100%">100%</button>
+          <span id="zoomRead" class="dim">100%</span>
+        </div>
+      </section>
+      <aside id="right"><div class="phead" id="rightHead"><span>Inspector</span></div><div id="inspector"></div><div id="colorScopes"><div class="phead"><span>Scopes</span></div></div></aside>
+    </main>
+    <section id="tl">
+      <div id="tlbar">
+        <span id="tlTC" title="Playhead timecode (hours:minutes:seconds:frames)">00:00:00:00</span>
+        <button id="tSplit" class="ibtn" data-icon="split" title="Split at playhead (S)">Split</button>
+        <button id="tDup" class="ibtn" data-icon="duplicate" title="Duplicate (Ctrl+D)">Duplicate</button>
+        <button id="tDel" class="ibtn" data-icon="trash" title="Delete (Del)">Delete</button>
+        <button id="tSnap" class="on ibtn" data-icon="magnet" title="Snapping">Snap</button>
+        <button id="tGraph" class="ibtn" data-icon="graph" title="Keyframe graph editor">Graph</button>
+        <button id="tExit" class="hidden primary ibtn" data-icon="back" title="Return to parent composition">Exit composition</button>
+        <span id="compName" class="dim"></span>
+        <button id="tTracks" class="ibtn" data-icon="layers" title="Tracks: clips share rows. Off: one row per layer">Tracks</button>
+        <button id="tRowH" class="ibtn" title="Track height: small, medium, large" onclick="setRowHeight({ S: 'M', M: 'L', L: 'S' }[document.body.dataset.rowh || 'M'])">Rows M</button>
+        <div class="spacer"></div>
+        <button id="tFit" class="ibtn" title="Show the whole edit (\)">Fit</button>
+        <span class="dim">Zoom</span>
+        <input id="tZoom" type="range" min="2" max="400" value="80">
+      </div>
+      <div id="tlscroll"><div id="tlc"></div></div>
+      <div id="graph" class="hidden"></div>
+    </section>
+  </div>
+
+  <!-- ================= other modes are mounted by nexora/app/shell.js ================= -->
+  <div id="ws-image" class="workspace hidden"></div>
+  <div id="ws-assets" class="workspace hidden"></div>
+  <div id="ws-export" class="workspace hidden"></div>
+  <div id="ws-vfx" class="workspace hidden"></div>
+  <div id="ws-planned" class="workspace hidden"></div>
+  </div><!-- wsHost -->
+  </div><!-- studioBody -->
+  <nav id="rail" aria-label="Pages"></nav>
+  </div><!-- studio -->
+</div>
+<div id="modal" class="hidden"></div>
+<div id="menuPop" class="hidden"></div>
+<div id="palette" class="hidden"></div>
+<input id="fileIn" type="file" multiple accept="video/*,image/*,audio/*,.mov,.mxf,.mkv,.avi,.mts,.m2ts,.ts,.wmv,.flv,.mpg,.mpeg,.3gp,.r3d,.braw,.dng,.tif,.tiff,.exr,.dpx,.tga,.psd,.aif,.aiff,.wma,.ac3,.opus" hidden>
+<input id="projIn" type="file" accept=".nexora,.fusion,.json" hidden>
+<input id="srtIn" type="file" accept=".srt,.vtt" hidden>
+<script src="nexora/app/icons.js"></script>
+<!-- NEXORA Edit engine -->
+<script src="fx.js"></script>
+<script src="nexora/core/gpu.js"></script>
+<script src="engine.js"></script>
+<script src="viewport.js"></script>
+<script src="panels.js"></script>
+<script src="timeline.js"></script>
+<script src="vendor/mp4-muxer.js"></script>
+<script src="features.js"></script>
+<script src="main.js"></script>
+<!-- NEXORA core -->
+<script src="nexora/core/schema.js"></script>
+<script src="nexora/core/assets.js"></script>
+<script src="nexora/core/recovery.js"></script>
+<script src="nexora/core/disk.js"></script>
+<script src="nexora/core/projects.js"></script>
+<script src="nexora/core/proxy.js"></script>
+<script src="nexora/core/versions.js"></script>
+<!-- NEXORA Image -->
+<script src="nexora/image/adjust.js"></script>
+<script src="nexora/image/engine.js"></script>
+<script src="nexora/image/filters.js"></script>
+<script src="nexora/image/formats.js"></script>
+<script src="nexora/image/psd.js"></script>
+<script src="nexora/image/tools.js"></script>
+<script src="nexora/image/templates.js"></script>
+<script src="nexora/image/ui.js"></script>
+<!-- NEXORA Motion + VFX -->
+<script src="nexora/motion/motion.js"></script>
+<script src="nexora/vfx/vfx.js"></script>
+<script src="nexora/vfx/ui.js"></script>
+<!-- shell last: mounts workspaces and routes input -->
+<script src="nexora/core/analysis.js"></script>
+<script src="nexora/fxlib/library.js"></script>
+<script src="nexora/fxlib/browser.js"></script>
+<script src="nexora/edit/pro.js"></script>
+<script src="nexora/edit/scopes.js"></script>
+<script src="nexora/edit/color.js"></script>
+<script src="nexora/edit/meters.js"></script>
+<script src="nexora/edit/clipmenu.js"></script>
+<script src="nexora/edit/curves.js"></script>
+<script src="nexora/edit/secondary.js"></script>
+<script src="nexora/edit/reframe.js"></script>
+<script src="nexora/edit/lut.js"></script>
+<script src="nexora/edit/promedia.js"></script>
+<script src="nexora/edit/rendercache.js"></script>
+<script src="nexora/audio/audio.js"></script>
+<script src="nexora/gaming/gaming.js"></script>
+<script src="nexora/ai/ai.js"></script>
+<script src="nexora/vector/vector.js"></script>
+<script src="nexora/three/three.js"></script>
+<script src="nexora/app/connect.js"></script>
+<script src="nexora/edit/doctor.js"></script>
+<script src="nexora/audio/music.js"></script>
+<script src="nexora/ai/copilot.js"></script>
+<script src="nexora/app/account.js"></script>
+<script src="nexora/app/persona.js"></script>
+<script src="nexora/app/shell.js"></script>
+</body>
+</html>

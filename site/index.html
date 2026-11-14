@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>NEXORA Studio — free, open-source video editor</title>
+<meta name="description" content="A free, open-source desktop editor for video, motion, VFX and design. 4K to 8K, ProRes and DNxHR, 220+ GPU effects, 1,590 original music tracks.">
+<meta property="og:title" content="NEXORA Studio">
+<meta property="og:description" content="Free, open-source video editor. Cut on the beat, export up to 8K.">
+<meta property="og:image" content="assets/built-different-poster.jpg">
+<meta name="theme-color" content="#000000">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Crect width='24' height='24' rx='4' fill='%235cb8ff'/%3E%3Cpath d='M6 5h3v14H6zM15 5h3v14h-3zM6 5h3.4L18 19h-3.4z'/%3E%3C/svg%3E">
+<style>
+:root{--bg:#000;--bg1:#07090c;--bg2:#0d1116;--line:#1d232b;--txt:#f1f4f8;--dim:#8b95a1;--acc:#5cb8ff;--glow:0 0 0 1px #5cb8ff80,0 0 24px #5cb8ff55}
+*{box-sizing:border-box}html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--txt);font:16px/1.55 "Segoe UI Variable Text","Segoe UI",system-ui,-apple-system,sans-serif;-webkit-font-smoothing:antialiased}
+a{color:inherit;text-decoration:none}
+.wrap{max-width:1120px;margin:0 auto;padding:0 24px}
+nav{position:sticky;top:0;z-index:10;background:#000c;backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+nav .wrap{display:flex;align-items:center;gap:28px;height:60px}
+.logo{display:flex;align-items:center;gap:10px;font-weight:700;letter-spacing:2.5px;font-size:14px}
+.mark{width:24px;height:24px;border-radius:4px;background:var(--acc);box-shadow:0 0 16px #5cb8ff88;position:relative}
+.mark::after{content:"";position:absolute;inset:0;background:#000;-webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M6 5h3v14H6zM15 5h3v14h-3zM6 5h3.4L18 19h-3.4z'/%3E%3C/svg%3E") center/contain no-repeat;mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M6 5h3v14H6zM15 5h3v14h-3zM6 5h3.4L18 19h-3.4z'/%3E%3C/svg%3E") center/contain no-repeat}
+nav .links{display:flex;gap:22px;margin-left:auto;font-size:14px;color:#c5ccd6}nav .links a:hover{color:#fff}
+.btn{display:inline-flex;align-items:center;gap:10px;height:46px;padding:0 22px;border-radius:5px;font-weight:600;font-size:15px;border:1px solid var(--line);background:var(--bg2);transition:box-shadow .15s,border-color .15s}
+.btn:hover{border-color:var(--acc);box-shadow:var(--glow)}
+.btn.primary{background:var(--acc);color:#000;border-color:var(--acc)}.btn.primary:hover{box-shadow:0 0 0 1px #5cb8ff,0 0 34px #5cb8ffaa}
+.btn small{font-weight:400;opacity:.75}
+.hero{padding:84px 0 70px;background:radial-gradient(900px 520px at 70% 30%,#0b2238 0%,#000 70%)}
+.hero .wrap{display:grid;grid-template-columns:1.15fr .85fr;gap:56px;align-items:center}
+.eyebrow{color:var(--acc);font-size:13px;letter-spacing:1.8px;text-transform:uppercase;font-weight:600}
+h1{font-size:clamp(40px,6vw,70px);line-height:1.02;margin:14px 0 18px;letter-spacing:-1.5px;font-weight:700}
+h1 em{font-style:normal;color:var(--acc);text-shadow:0 0 30px #5cb8ff80}
+.lead{font-size:19px;color:#c5ccd6;max-width:560px;margin:0 0 30px}
+.cta{display:flex;gap:12px;flex-wrap:wrap}
+.meta{margin-top:16px;color:var(--dim);font-size:13px}
+.phone{justify-self:center;width:300px;aspect-ratio:9/16;border-radius:26px;overflow:hidden;border:1px solid #5cb8ff55;box-shadow:0 0 0 1px #5cb8ff33,0 0 90px #5cb8ff40,0 30px 80px #000;background:#000}
+.phone video{width:100%;height:100%;object-fit:cover;display:block}
+.cap{text-align:center;color:var(--dim);font-size:13px;margin-top:12px}
+section{padding:84px 0;border-top:1px solid var(--line)}
+h2{font-size:clamp(28px,4vw,40px);margin:0 0 10px;letter-spacing:-.6px}
+.sub{color:var(--dim);margin:0 0 40px;max-width:640px}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.card{background:var(--bg1);border:1px solid var(--line);border-radius:6px;padding:22px}
+.card b{display:block;font-size:17px;margin-bottom:6px}.card p{margin:0;color:var(--dim);font-size:14.5px}
+.card .n{color:var(--acc);font-size:13px;font-weight:600;letter-spacing:.6px;margin-bottom:10px;display:block}
+.shots{display:grid;grid-template-columns:repeat(2,1fr);gap:18px}
+figure{margin:0;background:var(--bg1);border:1px solid var(--line);border-radius:6px;overflow:hidden}
+figure img{width:100%;display:block;aspect-ratio:16/9.3;object-fit:cover;object-position:top left}
+figcaption{padding:12px 16px;color:var(--dim);font-size:14px}figcaption b{color:var(--txt);font-weight:600}
+.dl{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.os{background:var(--bg1);border:1px solid var(--line);border-radius:6px;padding:22px;display:flex;flex-direction:column;gap:12px}
+.os.me{border-color:#5cb8ff88;box-shadow:0 0 40px #5cb8ff22}
+.os b{font-size:17px}.os p{margin:0;color:var(--dim);font-size:13.5px;flex:1}.os .btn{justify-content:center;height:42px}
+.tag{display:inline-block;font-size:11px;padding:1px 7px;border-radius:3px;background:#5cb8ff1c;color:var(--acc);margin-left:6px;vertical-align:2px}
+.notes{margin-top:26px;color:var(--dim);font-size:14px;display:grid;grid-template-columns:repeat(3,1fr);gap:18px}.notes b{color:var(--txt)}
+pre{background:var(--bg2);border:1px solid var(--line);border-radius:6px;padding:16px 18px;overflow:auto;font:13.5px Consolas,ui-monospace,monospace;color:#d5dde6;margin:0}
+.src{display:grid;grid-template-columns:1fr 1fr;gap:28px;align-items:start}
+footer{border-top:1px solid var(--line);padding:30px 0 44px;color:var(--dim);font-size:13.5px}footer .wrap{display:flex;gap:20px;flex-wrap:wrap}footer a:hover{color:#fff}
+@media (max-width:900px){.hero .wrap,.src{grid-template-columns:1fr}.grid,.dl,.notes{grid-template-columns:1fr 1fr}.shots{grid-template-columns:1fr}nav .links a:not(.gh){display:none}}
+@media (max-width:560px){.wrap{padding:0 16px}.grid,.dl,.notes{grid-template-columns:1fr}.hero{padding:56px 0}.phone{width:240px}}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+</style>
+</head>
+<body>
+<nav><div class="wrap"><a class="logo" href="#"><span class="mark"></span>NEXORA</a><div class="links"><a href="#features">Features</a><a href="#download">Download</a><a href="#source">Open source</a><a class="gh" data-repo-link href="https://github.com/sysamiryasar/nexora-studio">GitHub</a></div></div></nav>
+
+<header class="hero"><div class="wrap">
+  <div>
+    <div class="eyebrow">Free · Open source · Windows desktop</div>
+    <h1>Edit like every frame <em>earns its place.</em></h1>
+    <p class="lead">NEXORA Studio is a desktop editor for video, motion graphics, VFX and design. Cut on the beat, grade, title and export up to 8K, with no subscription and no watermark.</p>
+    <div class="cta"><a class="btn primary" id="heroDl" data-asset="NEXORA-Studio-win-x64.zip" href="https://github.com/sysamiryasar/nexora-studio/releases/latest/download/NEXORA-Studio-win-x64.zip">Download for Windows <small>· 251 MB</small></a><a class="btn" data-repo-link href="https://github.com/sysamiryasar/nexora-studio">View source</a></div>
+    <div class="meta">MIT licensed. No installer: unzip and run <code>NEXORA Studio.exe</code>.</div>
+  </div>
+  <div><div class="phone"><video src="assets/built-different.mp4" poster="assets/built-different-poster.jpg" autoplay muted loop playsinline preload="metadata"></video></div><div class="cap">“Built Different”, edited entirely in NEXORA</div></div>
+</div></header>
+
+<section id="features"><div class="wrap">
+  <h2>Everything an edit needs</h2>
+  <p class="sub">One project, one timeline, and every mode working on it: Edit, Motion, VFX, Design, Audio, Vector and 3D.</p>
+  <div class="grid">
+    <div class="card"><span class="n">TIMELINE</span><b>Fast with thousands of clips</b><p>Tracks view, J/K/L shuttle, ripple, roll and slip, beat-synced cuts, version history and a Project Doctor that catches flash frames and gaps before export.</p></div>
+    <div class="card"><span class="n">DELIVERY</span><b>4K to 8K, pro codecs</b><p>H.264, HEVC, AV1, Apple ProRes up to 4444 XQ, Avid DNxHR, PNG and TIFF sequences, MP3 and WAV, with a render queue.</p></div>
+    <div class="card"><span class="n">EFFECTS</span><b>220+ GPU effects</b><p>Aura, speed lines, shockwave, glass refraction, light leaks, film looks and more, each with strength and speed variations. 26 colour looks and .cube LUTs.</p></div>
+    <div class="card"><span class="n">MUSIC</span><b>1,590 original tracks</b><p>Phonk, Montagem, Funk, Epic and more, made on your computer and free to use anywhere. Plus Creative Commons search and your own files.</p></div>
+    <div class="card"><span class="n">AI</span><b>An editor that edits</b><p>Describe the edit and the AI cuts, trims, grades and titles on the real timeline. Bring your own key: OpenCode Zen (DeepSeek, GLM, Kimi, Qwen and more) or Anthropic. On-device captions and background removal.</p></div>
+    <div class="card"><span class="n">ACCOUNTS</span><b>Sign in anywhere</b><p>E-mail accounts with verification codes, authenticator-app 2FA and recovery codes. Your password never leaves your computer.</p></div>
+  </div>
+</div></section>
+
+<section><div class="wrap">
+  <h2>Built for speed, styled for focus</h2>
+  <p class="sub">Black, light blue and white. The interface stays out of the way so the picture can do the talking.</p>
+  <div class="shots">
+    <figure><img src="assets/tracks.jpg" alt="The Edit workspace with a tracks timeline" loading="lazy"><figcaption><b>Edit.</b> Tracks, beat sync and a live viewer.</figcaption></figure>
+    <figure><img src="assets/panel.jpg" alt="The effects browser" loading="lazy"><figcaption><b>Effects.</b> One card per look, variations inside.</figcaption></figure>
+    <figure><img src="assets/music.jpg" alt="The music library" loading="lazy"><figcaption><b>Music.</b> Search 1,590 tracks by genre, mood and tempo.</figcaption></figure>
+    <figure><img src="assets/ai.jpg" alt="The AI Editor panel" loading="lazy"><figcaption><b>AI Editor.</b> Ask for the edit, undo it in one click.</figcaption></figure>
+  </div>
+</div></section>
+
+<section id="download"><div class="wrap">
+  <h2>Download</h2>
+  <p class="sub">The latest release from GitHub. Every file is built from the code in the repository.</p>
+  <div class="dl">
+    <div class="os" data-os="win"><b>Windows <span class="tag">Recommended</span></b><p>Windows 10 and 11, 64-bit. Includes FFmpeg for ProRes, DNxHR and software encoding.</p><a class="btn primary" data-asset="NEXORA-Studio-win-x64.zip" href="https://github.com/sysamiryasar/nexora-studio/releases/latest/download/NEXORA-Studio-win-x64.zip">Download .zip</a></div>
+    <div class="os" data-os="macarm"><b>macOS Apple silicon <span class="tag">Preview</span></b><p>M1 and newer. Not yet tested on a Mac, unsigned, and without FFmpeg codecs.</p><a class="btn" data-asset="NEXORA-Studio-mac-arm64.zip" href="https://github.com/sysamiryasar/nexora-studio/releases/latest/download/NEXORA-Studio-mac-arm64.zip">Download .zip</a></div>
+    <div class="os" data-os="macintel"><b>macOS Intel <span class="tag">Preview</span></b><p>Not yet tested on a Mac, unsigned, and without FFmpeg codecs.</p><a class="btn" data-asset="NEXORA-Studio-mac-x64.zip" href="https://github.com/sysamiryasar/nexora-studio/releases/latest/download/NEXORA-Studio-mac-x64.zip">Download .zip</a></div>
+    <div class="os" data-os="linux"><b>Linux x64 <span class="tag">Preview</span></b><p>Not yet tested on Linux, and without FFmpeg codecs.</p><a class="btn" data-asset="NEXORA-Studio-linux-x64.zip" href="https://github.com/sysamiryasar/nexora-studio/releases/latest/download/NEXORA-Studio-linux-x64.zip">Download .zip</a></div>
+  </div>
+  <div class="notes">
+    <div><b>Windows warning.</b> The app is not code-signed yet, so SmartScreen may say "Windows protected your PC". Choose More info, then Run anyway.</div>
+    <div><b>macOS.</b> Unsigned apps are blocked the first time. README-MAC.txt in the download has the two commands that allow it.</div>
+    <div><b>Your files stay yours.</b> Projects live in your Documents folder. Nothing is uploaded unless you use online accounts or the AI Editor.</div>
+  </div>
+</div></section>
+
+<section id="source"><div class="wrap src">
+  <div><h2>Open source</h2><p class="sub" style="margin-bottom:20px">MIT licensed. Read the code, fix a bug, add an effect. FFmpeg and the AI models are downloaded and checksum-verified by a script instead of being stored in git.</p><a class="btn" data-repo-link href="https://github.com/sysamiryasar/nexora-studio">Star it on GitHub</a></div>
+  <pre>git clone https://github.com/<span data-repo-text>sysamiryasar/nexora-studio</span>
+cd nexora-studio
+powershell -ExecutionPolicy Bypass -File scripts\fetch-vendor.ps1
+npm install
+npm start</pre>
+</div></section>
+
+<footer><div class="wrap"><span>NEXORA Studio · MIT License</span><a data-repo-link data-path="/blob/main/THIRD_PARTY_NOTICES.md" href="https://github.com/sysamiryasar/nexora-studio/blob/main/THIRD_PARTY_NOTICES.md">Third-party notices</a><a data-repo-link data-path="/releases" href="https://github.com/sysamiryasar/nexora-studio/releases">All releases</a><a data-repo-link data-path="/issues" href="https://github.com/sysamiryasar/nexora-studio/issues">Report a problem</a></div></footer>
+
+<script>
+/* the repository is named once, here; every link on the page follows it */
+const REPO = 'sysamiryasar/nexora-studio';
+const base = 'https://github.com/' + REPO;
+document.querySelectorAll('[data-repo-link]').forEach(a => a.href = base + (a.dataset.path || ''));
+document.querySelectorAll('[data-repo-text]').forEach(s => s.textContent = REPO);
+document.querySelectorAll('[data-asset]').forEach(a => a.href = base + '/releases/latest/download/' + a.dataset.asset);
+/* highlight the right download for this computer */
+(() => { const ua = navigator.userAgent, p = (navigator.userAgentData && navigator.userAgentData.platform) || navigator.platform || '', os = /Win/i.test(p + ua) ? 'win' : /Mac/i.test(p + ua) ? 'macarm' : /Linux/i.test(p + ua) && !/Android/i.test(ua) ? 'linux' : 'win', card = document.querySelector(`[data-os="${os}"]`); if (card) card.classList.add('me');
+  if (os !== 'win') { const h = document.getElementById('heroDl'), c = card && card.querySelector('[data-asset]'); if (h && c) { h.dataset.asset = c.dataset.asset; h.href = c.href; h.firstChild.textContent = os === 'linux' ? 'Download for Linux ' : 'Download for macOS '; h.querySelector('small').textContent = '· preview'; } } })();
+</script>
+</body>
+</html>

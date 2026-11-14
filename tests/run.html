@@ -1,0 +1,15 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>NEXORA tests</title>
+<style>body{background:#111116;color:#ececf4;font:13px Consolas,monospace;padding:16px}iframe{position:absolute;left:-10000px;top:0;width:1400px;height:900px;border:0}</style>
+<h2>NEXORA Studio — automated tests</h2>
+<pre id="o">Running… (serve the folder over http, e.g. powershell -File serve.ps1)</pre>
+<iframe src="../index.html?selftest=1&ws=home"></iframe>
+<script>
+addEventListener('message', e => {
+  if (!e.data || !e.data.nexoraTests) return;
+  const r = e.data.nexoraTests;
+  document.getElementById('o').textContent = r.lines.join('\n');
+  document.title = (r.fail ? 'FAIL ' : 'PASS ') + r.pass + '/' + (r.pass + r.fail);
+});
+</script>
