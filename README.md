@@ -5,7 +5,7 @@ Start on **Home** (create a project, pick a template, or reopen one from the Pro
 Every mode on the rail works on the same project: Edit, Motion, VFX, Design, Audio, Vector, 3D, Gaming and AI — see [docs/STATUS.md](docs/STATUS.md) for exactly what works and what does not.
 
 ## Download
-Get the latest build from the [Releases page](../../releases/latest) (or the project website, which links to the same files). Windows is the main platform; the macOS and Linux packages are built but not yet tested on real machines. The app is not code-signed yet, so Windows SmartScreen may warn the first time: choose **More info → Run anyway**.
+Get the latest build from **https://nexora-editor.pages.dev** or the [Releases page](../../releases/latest). Windows is the main platform; the macOS and Linux packages are built but not yet tested on real machines. The app is not code-signed yet, so Windows SmartScreen may warn the first time: choose **More info → Run anyway**.
 
 ## Build from source
 ```
