@@ -20,11 +20,18 @@ function binPath() {
   if (BIN !== null) return BIN;
   const exe = process.platform === 'win32' ? 'ffmpeg.exe' : 'ffmpeg';
   const dir = path.join(__dirname, '..', 'vendor', 'ffmpeg', process.platform + '-' + process.arch).replace('app.asar' + path.sep, 'app.asar.unpacked' + path.sep);
-  const p = path.join(dir, exe); BIN = fs.existsSync(p) ? p : ''; return BIN;
+  const p = path.join(dir, exe); if (fs.existsSync(p)) return (BIN = p);
+  // no bundled copy (macOS / Linux builds): use an FFmpeg the user installed (Homebrew, MacPorts, apt, dnf, snap…).
+  // Apps started from the Finder / a desktop launcher get a minimal PATH, so the usual install folders are searched too.
+  const dirs = (process.env.PATH || '').split(path.delimiter).concat(process.platform === 'win32' ? [] : ['/opt/homebrew/bin', '/usr/local/bin', '/opt/local/bin', '/usr/bin', '/snap/bin']);
+  for (const d of dirs) { if (!d) continue; const c = path.join(d, exe); try { if (fs.statSync(c).isFile()) { BIN = c; SYSTEM = true; return BIN; } } catch (e) { } }
+  return (BIN = '');
 }
+let SYSTEM = false;
+const NOFF = process.platform === 'darwin' ? 'FFmpeg was not found. Install it with Homebrew (brew install ffmpeg) and restart NEXORA.' : process.platform === 'linux' ? 'FFmpeg was not found. Install it (for example sudo apt install ffmpeg) and restart NEXORA.' : 'FFmpeg is not bundled with this build.';
 function run(args, opts = {}) {
   return new Promise((res, rej) => {
-    const b = binPath(); if (!b) return rej(new Error('FFmpeg is not bundled with this build.'));
+    const b = binPath(); if (!b) return rej(new Error(NOFF));
     const p = spawn(b, args, { windowsHide: true, stdio: ['ignore', 'pipe', 'pipe'] }); let out = '', err = '';
     p.stdout.on('data', d => { out += d; if (out.length > 4e6) out = out.slice(-2e6); });
     p.stderr.on('data', d => { err += d; if (opts.onErr) opts.onErr(String(d)); if (err.length > 4e6) err = err.slice(-2e6); });
@@ -38,7 +45,7 @@ async function probe() {
   try {
     const v = await run(['-hide_banner', '-version']), e = await run(['-hide_banner', '-encoders']);
     const enc = new Set(); for (const l of e.out.split('\n')) { const m = /^\s[VAS][.A-Z]{5}\s+(\S+)/.exec(l); if (m) enc.add(m[1]); }
-    INFO = { available: true, version: (/ffmpeg version (\S+)/.exec(v.out) || [])[1] || '?', encoders: [...enc] };
+    INFO = { available: true, system: SYSTEM, version: (/ffmpeg version (\S+)/.exec(v.out) || [])[1] || '?', encoders: [...enc] };
   } catch (e) { INFO = { available: false, error: String(e.message || e) }; }
   return INFO;
 }
@@ -101,7 +108,7 @@ function buildArgs(s, wavPath) {
 }
 async function start(spec, wav) {
   const c = CODECS[spec.codec]; if (!c) throw new Error('Unknown codec ' + spec.codec);
-  const info = await probe(); if (!info.available) throw new Error('FFmpeg is not bundled with this build.');
+  const info = await probe(); if (!info.available) throw new Error(NOFF);
   if (!info.encoders.includes(c.enc)) throw new Error('This FFmpeg build has no ' + c.enc + ' encoder.');
   if (!spec.out || !path.isAbsolute(spec.out)) throw new Error('Output path must be absolute');
   let out = spec.out;

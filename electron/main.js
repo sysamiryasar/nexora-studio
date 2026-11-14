@@ -98,6 +98,9 @@ function createWindow() {
   if (!process.argv.includes('--nx-hidden')) win.maximize(); else win.setSize(1600, 960);
   if (process.argv.includes('--nx-selftest')) selfTest(wc);
 }
+/** --nx-skip=<prefix>|<prefix>: leave out tests that cannot work on that machine (e.g. screen capture on a virtual
+    Linux display); they are listed in the output so nothing is skipped silently */
+function skipRe() { const a = process.argv.find(x => x.startsWith('--nx-skip=')); if (!a) return null; const parts = a.slice(10).split('|').filter(Boolean).map(s => s.replace(/[.*+?^${}()[\]\\]/g, '\\$&')); process.stdout.write('NEXORA-SELFTEST skipping: ' + parts.join(' | ') + '\n'); return parts.length ? '^(?!(' + parts.join('|') + '))' : null; }
 /** --nx-selftest: same suite as tests/run.html, inside the real app, in a throw-away project */
 function selfTest(wc) {
   const done = (code, line) => { process.stdout.write(line + '\n'); logLine('selftest', line); setTimeout(() => app.exit(code), 200); };
@@ -107,7 +110,7 @@ function selfTest(wc) {
       const r = await wc.executeJavaScript(`(async () => {
         if (!window.NexoraTests) await new Promise((ok, no) => { const s = document.createElement('script'); s.src = 'tests/tests.js'; s.onload = ok; s.onerror = () => no(new Error('tests.js did not load')); document.body.append(s); });
         await Shell.newProject('video', { name: '__selftest__' });
-        const t = await NexoraTests.run(null);
+        const t = await NexoraTests.run(null, ${(r => r ? 'new RegExp(' + JSON.stringify(r) + ')' : 'null')(skipRe())});
         try { const id = Projects.current.id, f = Projects.current.folder; Shell.go('home'); await Projects.remove(id); if (f) await nxfs.remove(f); } catch (e) { }
         return { pass: t.pass, fail: t.fail, fails: t.lines.filter(l => l.startsWith('FAIL')) };
       })()`, true);

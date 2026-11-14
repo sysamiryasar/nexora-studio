@@ -58,7 +58,11 @@ NXI.tools = (() => {
     const c = NXI.newCanvas(d, d), x = c.getContext('2d'), custom = tipImage(o.tip);
     x.translate(d / 2, d / 2); x.rotate((o.angle || 0) * Math.PI / 180); x.scale(1, (o.roundness || 100) / 100);
     if (custom) { x.drawImage(custom, -d / 2, -d / 2, d, d); x.setTransform(1, 0, 0, 1, 0, 0); x.globalCompositeOperation = 'source-in'; x.fillStyle = color; x.fillRect(0, 0, d, d); }
-    else if (o.pixel) { x.fillStyle = color; x.beginPath(); x.arc(0, 0, Math.max(.5, d / 2), 0, Math.PI * 2); x.fill(); }
+    else if (o.pixel) {   // pencil: a pixel-exact disc (no anti-aliasing on any platform), honouring roundness
+      x.setTransform(1, 0, 0, 1, 0, 0); const id = x.createImageData(d, d), [r, g, b] = hexToRgb(color), R = d / 2, ry = R * (o.roundness || 100) / 100, a = (o.angle || 0) * Math.PI / 180, ca = Math.cos(a), sa = Math.sin(a);
+      for (let py = 0; py < d; py++) for (let px = 0; px < d; px++) { const dx = px + .5 - R, dy = py + .5 - R, u = dx * ca + dy * sa, v = -dx * sa + dy * ca; if (d === 1 || (u * u) / (R * R) + (v * v) / Math.max(.25, ry * ry) <= 1) { const i = (py * d + px) * 4; id.data[i] = r; id.data[i + 1] = g; id.data[i + 2] = b; id.data[i + 3] = 255; } }
+      x.putImageData(id, 0, 0);
+    }
     else { const g = x.createRadialGradient(0, 0, 0, 0, 0, d / 2); g.addColorStop(0, color); g.addColorStop(Math.min(.98, Math.max(0, hard)), color); g.addColorStop(1, rgba(color, 0)); x.fillStyle = g; x.beginPath(); x.arc(0, 0, d / 2, 0, Math.PI * 2); x.fill(); }
     if (tipCache.size > 200) tipCache.clear(); tipCache.set(key, c); return c;
   }
@@ -99,7 +103,8 @@ NXI.tools = (() => {
       const tt = NXI.take(tip.width, tip.height), tc = tt._ctx; tc.drawImage(tip, 0, 0); tc.globalCompositeOperation = 'destination-in';
       const k = o.textureScale / 100, pat = tc.createPattern(S.tex, 'repeat'); pat.setTransform(new DOMMatrix().translate(-(x - tip.width / 2), -(y - tip.height / 2)).scale(k)); tc.fillStyle = pat; tc.fillRect(0, 0, tip.width, tip.height);
       c.globalAlpha = alpha; c.drawImage(tt, x - tip.width / 2, y - tip.height / 2); NXI.give(tt);
-    } else { c.globalAlpha = alpha; c.drawImage(tip, x - tip.width / 2, y - tip.height / 2); }
+    } else if (o.pixel) { c.globalAlpha = alpha; c.drawImage(tip, Math.round(x - tip.width / 2), Math.round(y - tip.height / 2)); }   // whole pixels: no resampling blur
+    else { c.globalAlpha = alpha; c.drawImage(tip, x - tip.width / 2, y - tip.height / 2); }
   }
   function paintTo(p, e) {
     if (!S) return; const o = S.o, sm = o.smoothing ? 1 - Math.min(.9, o.smoothing / 100) : 1;

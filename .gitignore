@@ -1,8 +1,8 @@
 # build output and release packages (published as GitHub Releases, not in git)
 NEXORA-Studio-*/
 *.zip
-release/
-dist/
+/release/
+/dist/
 node_modules/
 
 # large third-party binaries: run scripts/fetch-vendor.ps1 to download and verify them

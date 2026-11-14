@@ -22,6 +22,8 @@ jobs:
         os: [windows-latest, macos-latest, ubuntu-latest]
     runs-on: ${{ matrix.os }}
     timeout-minutes: 45
+    # Windows is the main platform and must pass; macOS and Linux results are reported without blocking a release
+    continue-on-error: ${{ matrix.os != 'windows-latest' }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -30,10 +32,16 @@ jobs:
       - name: Fetch FFmpeg (Windows) and the on-device AI models
         shell: pwsh
         run: ./scripts/fetch-vendor.ps1
+      - name: System FFmpeg (macOS / Linux builds use an installed FFmpeg)
+        if: runner.os != 'Windows'
+        run: |
+          if [ "$RUNNER_OS" = "macOS" ]; then brew install ffmpeg; else sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg; fi
+          ffmpeg -version | head -n 1
       - name: Self-test (Linux, virtual display)
         if: runner.os == 'Linux'
+        # screen capture needs a real desktop session, which a virtual display does not provide
         run: |
-          xvfb-run -a --server-args="-screen 0 1920x1080x24" npx --yes electron@33.2.0 . --no-sandbox --nx-selftest --nx-userdata="$RUNNER_TEMP/nexora"
+          xvfb-run -a --server-args="-screen 0 1920x1080x24" npx --yes electron@33.2.0 . --no-sandbox --nx-selftest --nx-userdata="$RUNNER_TEMP/nexora" "--nx-skip=gaming: real window capture"
       - name: Self-test
         if: runner.os != 'Linux'
         shell: bash
