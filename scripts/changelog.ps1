@@ -7,7 +7,7 @@
 param([switch]$Check)
 $ErrorActionPreference = 'Stop'
 $root = Split-Path -Parent $PSScriptRoot
-$src = [IO.File]::ReadAllText((Join-Path $root 'nexora/app/changelog.js'))
+$src = [IO.File]::ReadAllText((Join-Path $root 'nexora/app/changelog.js')) -replace "`r`n", "`n"
 $json = $src.Substring($src.IndexOf('[')); $json = $json.Substring(0, $json.LastIndexOf(']') + 1)
 $log = $json | ConvertFrom-Json
 $pkg = (Get-Content (Join-Path $root 'package.json') -Raw | ConvertFrom-Json).version
@@ -36,6 +36,6 @@ $files = @{ 'CHANGELOG.md' = $md; 'RELEASE_NOTES.md' = $notes; 'site/changelog.j
 $stale = @()
 foreach ($k in $files.Keys) {
   $p = Join-Path $root $k; $cur = if (Test-Path $p) { [IO.File]::ReadAllText($p) } else { '' }
-  if ($cur -ne $files[$k]) { if ($Check) { $stale += $k } else { [IO.File]::WriteAllText($p, $files[$k], (New-Object Text.UTF8Encoding $false)); "wrote $k" } } else { "ok    $k" }
+  if (($cur -replace "`r`n", "`n") -ne ($files[$k] -replace "`r`n", "`n")) {   # git may check files out with CRLF on Windows if ($Check) { $stale += $k } else { [IO.File]::WriteAllText($p, $files[$k], (New-Object Text.UTF8Encoding $false)); "wrote $k" } } else { "ok    $k" }
 }
 if ($Check -and $stale) { throw "Out of date (run scripts/changelog.ps1): $($stale -join ', ')" }
