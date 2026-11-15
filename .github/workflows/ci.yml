@@ -80,9 +80,33 @@ jobs:
         run: |
           Invoke-WebRequest https://github.com/electron/rcedit/releases/download/v2.0.0/rcedit-x64.exe -OutFile "$env:RUNNER_TEMP/rcedit.exe"
           "rcedit sha256: " + (Get-FileHash "$env:RUNNER_TEMP/rcedit.exe" -Algorithm SHA256).Hash
-      - name: Package
+      - name: Package (portable zips)
         shell: pwsh
         run: ./scripts/package.ps1 -OutDir dist -Rcedit "$env:RUNNER_TEMP/rcedit.exe"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Windows installer (NSIS)
+        shell: pwsh
+        env:
+          CSC_IDENTITY_AUTO_DISCOVERY: 'false'
+        run: |
+          npm install --no-audit --no-fund --no-save electron@33.2.0 electron-builder@25.1.8
+          npx electron-builder --win nsis --x64 --publish never
+          Copy-Item release/NEXORA-Studio-Setup-win-x64.exe dist/
+          "installer: {0:N1} MB" -f ((Get-Item dist/NEXORA-Studio-Setup-win-x64.exe).Length / 1MB)
+      - name: Install it silently and run the full self-test inside the installed app
+        shell: pwsh
+        run: |
+          Start-Process dist/NEXORA-Studio-Setup-win-x64.exe -ArgumentList '/S' -Wait
+          $exe = Join-Path $env:LOCALAPPDATA 'Programs/NEXORA Studio/NEXORA Studio.exe'
+          if (-not (Test-Path $exe)) { throw "installed app not found at $exe" }
+          $vi = (Get-Item $exe).VersionInfo; "installed: $($vi.ProductName) $($vi.ProductVersion)"
+          $start = Join-Path ([Environment]::GetFolderPath('Programs')) 'NEXORA Studio.lnk'; "start menu shortcut: $(Test-Path $start)"
+          $p = Start-Process $exe -ArgumentList '--nx-selftest', "--nx-userdata=$env:RUNNER_TEMP/nx-installed" -PassThru -RedirectStandardOutput "$env:RUNNER_TEMP/installed.out"
+          if (-not $p.WaitForExit(1800000)) { throw 'self-test timed out' }
+          $out = Get-Content "$env:RUNNER_TEMP/installed.out"; $out | Select-String 'NEXORA-SELFTEST|FAIL' | ForEach-Object Line
+          if (-not ($out -match 'NEXORA-SELFTEST (\d+)/\1 passed')) { throw 'self-test of the installed app failed' }
       - name: Publish
         shell: pwsh
         env:
@@ -90,5 +114,6 @@ jobs:
         run: |
           $tag = $env:GITHUB_REF_NAME
           gh release view $tag 2>$null
-          if ($LASTEXITCODE -eq 0) { gh release upload $tag (Get-ChildItem dist/*.zip).FullName --clobber }
-          else { gh release create $tag (Get-ChildItem dist/*.zip).FullName --title "NEXORA Studio $($tag.TrimStart('v'))" --notes-file RELEASE_NOTES.md --latest }
+          $files = (Get-ChildItem dist/*.zip, dist/*.exe).FullName
+          if ($LASTEXITCODE -eq 0) { gh release upload $tag $files --clobber }
+          else { gh release create $tag $files --title "NEXORA Studio $($tag.TrimStart('v'))" --notes-file RELEASE_NOTES.md --latest }

@@ -77,7 +77,7 @@ h2{font-size:clamp(28px,4vw,42px);margin:8px 0 10px;letter-spacing:-.7px;line-he
 .dl{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
 .os{background:var(--bg1);border:1px solid var(--line);border-radius:10px;padding:22px;display:flex;flex-direction:column;gap:12px}
 .os.me{border-color:#5cb8ff88;box-shadow:0 0 40px #5cb8ff22}
-.os b{font-size:17px}.os p{margin:0;color:var(--dim);font-size:13.5px;flex:1}.os .btn{justify-content:center;height:42px}
+.os .alt{text-align:center;font-size:13px;color:var(--dim)}.os .alt:hover{color:#fff}.os b{font-size:17px}.os p{margin:0;color:var(--dim);font-size:13.5px;flex:1}.os .btn{justify-content:center;height:42px}
 .notes{margin-top:26px;color:var(--dim);font-size:14px;display:grid;grid-template-columns:repeat(3,1fr);gap:18px}.notes b{color:var(--txt)}
 /* changelog */
 .cl{max-width:820px;margin:0 auto;display:flex;flex-direction:column;gap:12px}
@@ -112,8 +112,8 @@ footer .wrap{display:flex;gap:22px;flex-wrap:wrap;align-items:center}footer a:ho
   <div><a class="pill" href="#changelog"><b id="verTag">v2.2.0</b><span id="verTitle">What's new</span> →</a></div>
   <h1>The free editor that <em>edits like a pro.</em></h1>
   <p class="lead">NEXORA Studio is an open-source desktop editor for video, colour, motion graphics, VFX and design. One project, one timeline, every tool. No subscription, no watermark.</p>
-  <div class="cta"><a class="btn primary" id="heroDl" data-asset="NEXORA-Studio-win-x64.zip" href="https://github.com/sysamiryasar/nexora-studio/releases/latest/download/NEXORA-Studio-win-x64.zip">Download for Windows <small>· free</small></a><a class="btn" href="#features">See every feature</a></div>
-  <div class="meta">Windows · macOS · Linux &nbsp;·&nbsp; MIT licensed &nbsp;·&nbsp; unzip and run, no installer</div>
+  <div class="cta"><a class="btn primary" id="heroDl" data-asset="NEXORA-Studio-Setup-win-x64.exe" href="https://github.com/sysamiryasar/nexora-studio/releases/latest/download/NEXORA-Studio-Setup-win-x64.exe">Download for Windows <small>· free installer</small></a><a class="btn" href="#features">See every feature</a></div>
+  <div class="meta">Windows installer or portable · macOS · Linux &nbsp;·&nbsp; MIT licensed &nbsp;·&nbsp; free forever</div>
   <div class="shot-hero media" data-full="assets/shots/edit.jpg"><img src="assets/shots/edit.jpg" alt="NEXORA Studio Edit page: viewer, timeline with tracks, inspector and audio meters" fetchpriority="high"></div>
   <div class="stats"><div><b>220+</b><span>GPU effects</span></div><div><b>1,590</b><span>original tracks</span></div><div><b>8K</b><span>ProRes · DNxHR</span></div><div><b>12</b><span>pages, one project</span></div><div><b>MIT</b><span>open source</span></div></div>
 </div></header>
@@ -178,13 +178,13 @@ footer .wrap{display:flex;gap:22px;flex-wrap:wrap;align-items:center}footer a:ho
 <section id="download"><div class="wrap">
   <div class="center"><div class="eyebrow">Download</div><h2>Get NEXORA <span id="dlVer">2.2.0</span></h2><p class="sub">The latest release from GitHub. Every file is built and tested automatically from the open-source code.</p></div>
   <div class="dl">
-    <div class="os" data-os="win"><b>Windows</b><p>Windows 10 and 11, 64-bit. Includes FFmpeg for ProRes, DNxHR and audio export.</p><a class="btn primary" data-asset="NEXORA-Studio-win-x64.zip" href="https://github.com/sysamiryasar/nexora-studio/releases/latest/download/NEXORA-Studio-win-x64.zip">Download .zip</a></div>
+    <div class="os" data-os="win"><b>Windows</b><p>Windows 10 and 11, 64-bit. The installer adds NEXORA to the Start menu and desktop; uninstall from Settings › Apps. Includes FFmpeg.</p><a class="btn primary" data-asset="NEXORA-Studio-Setup-win-x64.exe" href="https://github.com/sysamiryasar/nexora-studio/releases/latest/download/NEXORA-Studio-Setup-win-x64.exe">Download installer (.exe)</a><a class="alt" data-asset="NEXORA-Studio-win-x64.zip" href="https://github.com/sysamiryasar/nexora-studio/releases/latest/download/NEXORA-Studio-win-x64.zip">or portable .zip (no install)</a></div>
     <div class="os" data-os="macarm"><b>macOS Apple silicon</b><p>M1 and newer. Unsigned: README-MAC.txt explains the one-time step. Uses an installed FFmpeg (<code>brew install ffmpeg</code>).</p><a class="btn" data-asset="NEXORA-Studio-mac-arm64.zip" href="https://github.com/sysamiryasar/nexora-studio/releases/latest/download/NEXORA-Studio-mac-arm64.zip">Download .zip</a></div>
     <div class="os" data-os="macintel"><b>macOS Intel</b><p>Unsigned: README-MAC.txt explains the one-time step. Uses an installed FFmpeg.</p><a class="btn" data-asset="NEXORA-Studio-mac-x64.zip" href="https://github.com/sysamiryasar/nexora-studio/releases/latest/download/NEXORA-Studio-mac-x64.zip">Download .zip</a></div>
     <div class="os" data-os="linux"><b>Linux x64</b><p>Unzip and run <code>./nexora-studio</code>. Uses an installed FFmpeg (<code>sudo apt install ffmpeg</code>).</p><a class="btn" data-asset="NEXORA-Studio-linux-x64.zip" href="https://github.com/sysamiryasar/nexora-studio/releases/latest/download/NEXORA-Studio-linux-x64.zip">Download .zip</a></div>
   </div>
   <div class="notes">
-    <div><b>Windows warning.</b> The app is not code-signed yet, so SmartScreen may say "Windows protected your PC". Choose More info, then Run anyway.</div>
+    <div><b>Windows warning.</b> NEXORA is not code-signed yet, so SmartScreen may say "Windows protected your PC" when you open the installer. Choose More info, then Run anyway.</div>
     <div><b>Tested every release.</b> The full self-test runs inside the real app on Windows, macOS and Linux before each release is published.</div>
     <div><b>Your files stay yours.</b> Projects live on your computer. Nothing is uploaded unless you use online accounts or the AI Editor.</div>
   </div>
@@ -216,7 +216,7 @@ document.querySelectorAll('[data-repo-link]').forEach(a => a.href = base + (a.da
 document.querySelectorAll('[data-asset]').forEach(a => a.href = base + '/releases/latest/download/' + a.dataset.asset);
 /* the right download for this computer */
 (() => { const ua = navigator.userAgent, p = (navigator.userAgentData && navigator.userAgentData.platform) || navigator.platform || '', os = /Win/i.test(p + ua) ? 'win' : /Mac/i.test(p + ua) ? 'macarm' : /Linux/i.test(p + ua) && !/Android/i.test(ua) ? 'linux' : 'win', card = document.querySelector(`[data-os="${os}"]`); if (card) card.classList.add('me');
-  if (os !== 'win') { const h = document.getElementById('heroDl'), c = card && card.querySelector('[data-asset]'); if (h && c) { h.href = c.href; h.firstChild.textContent = os === 'linux' ? 'Download for Linux ' : 'Download for macOS '; } } })();
+  if (os !== 'win') { const h = document.getElementById('heroDl'), c = card && card.querySelector('[data-asset]'); if (h && c) { h.href = c.href; h.firstChild.textContent = os === 'linux' ? 'Download for Linux ' : 'Download for macOS '; h.querySelector('small').textContent = '· free'; } } })();
 /* changelog, from the same file the app uses */
 (() => { const L = window.NX_CHANGELOG || [], host = document.getElementById('cl'); if (!L.length) return;
   const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]), fmt = d => { try { return new Date(d + 'T12:00:00').toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' }); } catch (e) { return d; } };

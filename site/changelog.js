@@ -2,9 +2,10 @@ window.NX_CHANGELOG = [
   {
     "version": "2.2.0",
     "date": "2026-11-15",
-    "title": "A real logo, What's new, and a new website",
+    "title": "Windows installer, a real logo, What's new and a new website",
     "items": [
-      "New NEXORA logo and app icon: window, taskbar, splash screen, macOS app and Linux launcher",
+      "Windows installer: NEXORA-Studio-Setup-win-x64.exe installs NEXORA with Start menu and desktop shortcuts; uninstall from Settings › Apps",
+      "New NEXORA logo and app icon: window, taskbar, splash screen, installer, macOS app and Linux launcher",
       "What's new: after an update NEXORA shows what changed, and Help › What's new shows the full history",
       "About NEXORA: version, website, source code and licences in one place",
       "Go to timecode: click a timecode readout and type 01:02:03:04, 1:30:00 or +2:00",
