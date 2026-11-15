@@ -1,11 +1,10 @@
-## What's new in 2.3.0
+## What's new in 2.4.0
 
-- New Blocks page: paint pixel textures (pencil, fill, line, rectangles, mirror, wrap-shift, tiling preview) and build block or item models from boxes with a live 3D preview
-- Export a Minecraft Java resource pack (.zip with pack.mcmeta and icon), a sprite atlas (PNG + JSON) for any engine, OBJ + MTL models, or all textures as PNGs
-- Color page: grade versions A–D per clip, copy the previous clip's grade, and Match still to set a shot's colour and brightness from a reference still
-- Exports only offer video codecs that really encode on this computer (fixes HEVC failing on some Macs)
-- Background removal test made reliable across processors; the full test suite now runs on Windows, macOS and Linux for every release
-- Website download buttons only link files a release really has
+- Update popup: when a new version is out, NEXORA tells you at start (and every 6 hours) with what's new
+- Update now: downloads the new installer inside the app with progress, checks it against the published SHA-256 checksum, installs it over the old version and reopens NEXORA
+- After an update, What's new shows everything that changed
+- Later hides the popup until the next start; Skip this version hides it until a newer one; checks can be turned off in Commands
+- Every release is now tested by installing the previous version and updating it, exactly as the app does
 
 ## Download
 | File | For |

@@ -440,15 +440,31 @@ const NexoraTests = (() => {
   test('updates: version compare and the update notice', async () => {
     if (!window.nxupdate) return;
     const old = localStorage.getItem('nx.update.skip'); localStorage.removeItem('nx.update.skip');
+    const btn = t => [...document.querySelectorAll('#modal button')].find(b => b.textContent === t), modalText = () => document.getElementById('modal').classList.contains('hidden') ? '' : document.getElementById('modal').textContent;
+    // a fake release: a 300 kB "installer" and its checksum file
+    const setup = new Uint8Array(300000); for (let i = 0; i < setup.length; i++) setup[i] = (i * 31 + 7) & 255;
+    const hex = [...new Uint8Array(await crypto.subtle.digest('SHA-256', setup))].map(b => b.toString(16).padStart(2, '0')).join(''), b64 = btoa(String.fromCharCode(...setup.subarray(0, 1))) && (() => { let s = ''; for (let i = 0; i < setup.length; i += 8192) s += String.fromCharCode(...setup.subarray(i, i + 8192)); return btoa(s); })();
+    const rel = (sum, tag) => ({ tag_name: tag || 'v99.0.0', name: 'NEXORA Studio 99.0.0', html_url: 'https://github.com/x/y/releases/tag/v99.0.0', published_at: '2099-01-01T00:00:00Z', body: '## Highlights\n- Faster timeline\n- **New** Color tools',
+      assets: [{ name: 'NEXORA-Studio-Setup-win-x64.exe', size: setup.length, browser_download_url: 'https://example.test/setup.exe' }, { name: 'SHA256SUMS.txt', size: 100, browser_download_url: 'https://example.test/sums' }] });
+    const files = sum => ({ files: { 'https://example.test/setup.exe': { base64: b64 }, 'https://example.test/sums': { text: `${sum}  NEXORA-Studio-Setup-win-x64.exe\n0000000000000000000000000000000000000000000000000000000000000000  NEXORA-Studio-win-x64.zip\n` } } });
     try {
-      await nxupdate.test({ tag_name: 'v99.0.0', name: 'NEXORA Studio 99.0.0', html_url: 'https://github.com/x/y/releases/tag/v99.0.0', body: '## Highlights\n- Faster timeline\n- **New** Color tools' });
-      const r = await Updates.check(false); ok(r.ok && r.newer && r.latest === '99.0.0' && r.notes.length === 2 && r.notes[1] === 'New Color tools', JSON.stringify(r));
-      const bar = document.getElementById('updateBar'); ok(bar && /99\.0\.0 is available/.test(bar.textContent), 'notice shown');
-      [...bar.querySelectorAll('button')].find(b => b.textContent === 'Later').click(); ok(!document.getElementById('updateBar') && localStorage.getItem('nx.update.skip') === '99.0.0', 'Later hides this version');
-      await Updates.check(false); ok(!document.getElementById('updateBar'), 'skipped version stays hidden on automatic checks');
-      await nxupdate.test({ tag_name: 'v0.9.0', html_url: 'x', body: '' }); const s = await Updates.check(false); ok(s.ok && !s.newer, 'older release is not offered');
+      await nxupdate.test(rel(), files(hex));
+      const r = await Updates.check(false); ok(r.ok && r.newer && r.latest === '99.0.0' && r.notes.length === 2 && r.notes[1] === 'New Color tools' && r.canInstall, JSON.stringify(r).slice(0, 300));
+      ok(/NEXORA 99\.0\.0 is available/.test(modalText()) && /Faster timeline/.test(modalText()) && btn('Update now'), 'popup with what\'s new and Update now');
+      const prog = []; const off = nxupdate.onProgress(d => prog.push(d)); const res = await Updates.updateNow(r); off();
+      ok(res && res.ok && res.sha256 === hex, 'downloaded and verified: ' + JSON.stringify(res).slice(0, 200)); ok(prog.length && prog[prog.length - 1].got === setup.length, 'progress reported');
+      const ran = await nxupdate.testRan(); ok(ran && ran.file === res.file && ran.args.join(' ') === '/S --force-run', 'installer would run silently and reopen NEXORA: ' + JSON.stringify(ran));
+      closeModal(); Updates.S.open = false;
+      // a tampered download is rejected and deleted, never run
+      await nxupdate.test(rel(), files('f'.repeat(64))); await Updates.check(false); const bad = await Updates.updateNow(Updates.S.last);
+      ok(bad && !bad.ok && /did not match the published checksum/.test(bad.error) && /did not match/.test(modalText()), 'checksum mismatch refused: ' + (bad && bad.error)); ok(!(await nxupdate.testRan()), 'nothing was run');
+      closeModal(); Updates.S.open = false;
+      // Skip this version: no popup on automatic checks; older and pre-release versions are never offered
+      await nxupdate.test(rel(), files(hex)); await Updates.check(false); btn('Skip this version').click(); ok(localStorage.getItem('nx.update.skip') === '99.0.0' && !modalText(), 'skipped');
+      await Updates.check(false); ok(!modalText(), 'skipped version stays hidden on automatic checks');
+      await nxupdate.test({ tag_name: 'v0.9.0', html_url: 'x', body: '' }); const s = await Updates.check(false); ok(s.ok && !s.newer && !modalText(), 'older release is not offered');
       await nxupdate.test({ tag_name: 'v99.0.0-beta.1', prerelease: true, html_url: 'x', body: '' }); ok(!(await Updates.check(false)).newer, 'pre-releases are not offered');
-    } finally { await nxupdate.test(null); Updates.hide(); if (old == null) localStorage.removeItem('nx.update.skip'); else localStorage.setItem('nx.update.skip', old); }
+    } finally { await nxupdate.test(null); Updates.hide(); Updates.S.open = false; Updates.S.later = null; closeModal(); if (old == null) localStorage.removeItem('nx.update.skip'); else localStorage.setItem('nx.update.skip', old); }
   });
   test('timeline: speed presets keep the source range and ripple later clips', () => {
     const id = 'spd' + uid(); media[id] = { id, name: 's.mp4', kind: 'video', w: 1920, h: 1080, dur: 20 };

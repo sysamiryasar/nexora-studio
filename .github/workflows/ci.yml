@@ -98,6 +98,26 @@ jobs:
           npx electron-builder --win nsis --x64 --publish never --prepackaged "$pre/NEXORA-Studio-win-x64"
           Copy-Item release/NEXORA-Studio-Setup-win-x64.exe dist/
           "installer: {0:N1} MB" -f ((Get-Item dist/NEXORA-Studio-Setup-win-x64.exe).Length / 1MB)
+      - name: Upgrade test (previous release, then this installer over it, as the in-app updater does)
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $prev = Join-Path $env:RUNNER_TEMP 'prev'; New-Item -ItemType Directory -Force $prev | Out-Null
+          gh release download --repo $env:GITHUB_REPOSITORY --pattern NEXORA-Studio-Setup-win-x64.exe --dir $prev 2>$null
+          $old = Join-Path $prev 'NEXORA-Studio-Setup-win-x64.exe'
+          if (-not (Test-Path $old)) { 'no earlier installer published: upgrade test skipped'; exit 0 }
+          Start-Process $old -ArgumentList '/S' -Wait
+          $exe = Join-Path $env:LOCALAPPDATA 'Programs/NEXORA Studio/NEXORA Studio.exe'; $before = (Get-Item $exe).VersionInfo.ProductVersion; "installed first: $before"
+          # exactly what the app runs when you press Update now
+          Start-Process dist/NEXORA-Studio-Setup-win-x64.exe -ArgumentList '/S', '--force-run' -Wait
+          $after = (Get-Item $exe).VersionInfo.ProductVersion; $want = (Get-Content package.json -Raw | ConvertFrom-Json).version
+          "after the update: $after (expected $want)"
+          if (-not $after.StartsWith($want)) { throw "the update did not replace the old version ($after)" }
+          $p = $null; for ($i = 0; $i -lt 20 -and -not $p; $i++) { Start-Sleep 1; $p = Get-Process 'NEXORA Studio' -ErrorAction SilentlyContinue }
+          if (-not $p) { throw 'NEXORA did not reopen after the update' }; "reopened: $($p.Count) process(es)"; $p | Stop-Process -Force
+          $apps = Get-ChildItem 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Uninstall' | ForEach-Object { Get-ItemProperty $_.PSPath } | Where-Object DisplayName -like 'NEXORA Studio*'
+          "uninstall entries: $(@($apps).Count) ($((@($apps) | ForEach-Object DisplayVersion) -join ', '))"; if (@($apps).Count -ne 1) { throw 'expected exactly one installed NEXORA after the update' }
       - name: Install it silently and run the full self-test inside the installed app
         shell: pwsh
         run: |
@@ -110,6 +130,11 @@ jobs:
           if (-not $p.WaitForExit(1800000)) { throw 'self-test timed out' }
           $out = Get-Content "$env:RUNNER_TEMP/installed.out"; $out | Select-String 'NEXORA-SELFTEST|FAIL' | ForEach-Object Line
           if (-not ($out -match 'NEXORA-SELFTEST (\d+)/\1 passed')) { throw 'self-test of the installed app failed' }
+      - name: Checksums (the in-app updater refuses an installer that does not match)
+        shell: pwsh
+        run: |
+          (Get-ChildItem dist/*.zip, dist/*.exe | ForEach-Object { "$((Get-FileHash $_.FullName -Algorithm SHA256).Hash.ToLower())  $($_.Name)" }) -join "`n" | Set-Content dist/SHA256SUMS.txt -NoNewline -Encoding utf8NoBOM
+          Get-Content dist/SHA256SUMS.txt
       - name: Publish
         shell: pwsh
         env:
@@ -117,6 +142,6 @@ jobs:
         run: |
           $tag = $env:GITHUB_REF_NAME
           gh release view $tag 2>$null
-          $files = (Get-ChildItem dist/*.zip, dist/*.exe).FullName
+          $files = (Get-ChildItem dist/*.zip, dist/*.exe, dist/SHA256SUMS.txt).FullName
           if ($LASTEXITCODE -eq 0) { gh release upload $tag $files --clobber }
           else { gh release create $tag $files --title "NEXORA Studio $($tag.TrimStart('v'))" --notes-file RELEASE_NOTES.md --latest }

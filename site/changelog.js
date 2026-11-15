@@ -1,5 +1,17 @@
 window.NX_CHANGELOG = [
   {
+    "version": "2.4.0",
+    "date": "2026-11-16",
+    "title": "One-click updates",
+    "items": [
+      "Update popup: when a new version is out, NEXORA tells you at start (and every 6 hours) with what's new",
+      "Update now: downloads the new installer inside the app with progress, checks it against the published SHA-256 checksum, installs it over the old version and reopens NEXORA",
+      "After an update, What's new shows everything that changed",
+      "Later hides the popup until the next start; Skip this version hides it until a newer one; checks can be turned off in Commands",
+      "Every release is now tested by installing the previous version and updating it, exactly as the app does"
+    ]
+  },
+  {
     "version": "2.3.0",
     "date": "2026-11-16",
     "title": "Blocks: game textures, block models and resource packs",

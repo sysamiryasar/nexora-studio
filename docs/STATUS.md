@@ -2,6 +2,18 @@
 
 _Last updated: milestone 10 (limits removed: pro codecs, render cache, GPU everywhere, PSD, TIFF, real healing / content-aware fill). Every "Available" item below is exercised by `tests/tests.js` (all passing in Chrome and in the packaged Electron 33 app) or by manual real-input testing._
 
+## Milestone 27 (v2.4.0): one-click updates
+- **Popup**: the update popup appears at start and every 6 hours.
+- **Update now** (installed Windows copies):
+  - The main process downloads NEXORA-Studio-Setup-win-x64.exe to `%TEMP%\nexora-update` with progress and cancel.
+  - It checks the file against `SHA256SUMS.txt` from the same release; a mismatch is deleted and never run.
+  - It runs the installer `/S --force-run` and quits. The NSIS installer replaces the old version in place, keeps one uninstall entry and reopens NEXORA, which then shows What's new.
+- **Other copies**: portable zip, macOS and Linux copies get a Download button instead.
+- **Release CI**:
+  - publishes `SHA256SUMS.txt`
+  - runs an **upgrade test**: installs the previous published installer, runs the new one exactly as the app does, and checks the version changed, NEXORA reopened and only one installation remains
+- **Tests**: a fake release covers the popup, download progress, checksum verification, the would-run command, a tampered download being rejected, skipping a version, and older or pre-release versions never being offered.
+
 ## Milestone 26 (v2.3.0): Blocks, grade versions, codec probe
 - **Blocks page** (NEXORA's own game-art tool; no third-party or game assets bundled):
   - **Texture editor**: pencil, eraser, fill, picker, line, rectangles, left–right mirror, wrap-shift, flip and rotate, a palette with recent colours, a 3×3 tiling preview and undo/redo. Starter textures are generated procedurally; you can also import PNGs up to 1024 px.

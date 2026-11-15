@@ -62,7 +62,15 @@ contextBridge.exposeInMainWorld('nxai', {
   test: (op, a) => ipcRenderer.invoke('nxaitest', op, a)
 });
 /* update check (electron/updates.js): reads the latest public release on GitHub */
-contextBridge.exposeInMainWorld('nxupdate', { check: automatic => ipcRenderer.invoke('nxupdate:check', !!automatic), test: rel => ipcRenderer.invoke('nxupdatetest', rel) });
+contextBridge.exposeInMainWorld('nxupdate', {
+  check: automatic => ipcRenderer.invoke('nxupdate:check', !!automatic),
+  download: () => ipcRenderer.invoke('nxupdate:download'),
+  cancel: () => ipcRenderer.invoke('nxupdate:cancel'),
+  install: file => ipcRenderer.invoke('nxupdate:install', file),
+  onProgress: cb => { const f = (_e, d) => cb(d); ipcRenderer.on('nxupdate:progress', f); return () => ipcRenderer.removeListener('nxupdate:progress', f); },
+  // automated tests only (handlers exist only with --nx-hidden)
+  test: (rel, opt) => ipcRenderer.invoke('nxupdatetest', rel, opt), testRan: () => ipcRenderer.invoke('nxupdatetestran')
+});
 contextBridge.exposeInMainWorld('nxcap', {
   sources: () => ipcRenderer.invoke('nxcap:sources'),
   choose: id => ipcRenderer.invoke('nxcap:choose', id),
