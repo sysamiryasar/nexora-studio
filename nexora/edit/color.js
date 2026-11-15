@@ -142,6 +142,41 @@ const ColorPage = (() => {
     commit(); requestRender(); build(); return { offset: ['r', 'g', 'b'].map(c => f.p['o' + c]), lift: f.p.lm, gain: f.p.km, range: [Math.round(lo * 100), Math.round(hi * 100)] };
   }
 
+  /* ---------- grade versions · previous clip · match to still ----------
+     Versions: up to four complete grades per clip (A–D); switching stores the current one and restores the other,
+     a new version starts as a copy. Previous clip: copies the Color-page grade of the clip before it.
+     Match to still: sets the primaries so this shot's colour cast and brightness range match a grabbed still,
+     measured without this clip's grade (NEXORA's own take on shot matching). */
+  const COLOR_FX = ['primaries', 'curves', 'secondary'];
+  const colorFx = L => L.fx.filter(f => COLOR_FX.includes(f.type));
+  const cloneFx = (list, fresh) => list.map(f => { const c = JSON.parse(JSON.stringify(f)); if (fresh) c.id = uid(); return c; });
+  function setColorFx(L, list) { const keep = L.fx.filter(f => !COLOR_FX.includes(f.type)), mine = list.slice().sort((a, b) => COLOR_FX.indexOf(a.type) - COLOR_FX.indexOf(b.type)); L.fx = [...mine, ...keep]; }
+  function useVersion(L, v) {
+    const gv = L.gradeVersions || (L.gradeVersions = { active: 'A', saved: {} }); if (gv.active === v) return gv;
+    gv.saved[gv.active] = cloneFx(colorFx(L)); setColorFx(L, gv.saved[v] ? cloneFx(gv.saved[v]) : cloneFx(colorFx(L), true)); gv.active = v;
+    commit(); requestRender(); if (typeof renderTimeline === 'function') renderTimeline(); return gv;
+  }
+  function fromPrevious(L) {
+    const list = clips(), i = list.indexOf(L); for (let k = i - 1; k >= 0; k--) { const src = colorFx(list[k]); if (src.length) { setColorFx(L, cloneFx(src, true)); commit(); requestRender(); return list[k]; } }
+    return null;
+  }
+  function frameStats(st) {
+    const mean = h => { let s = 0, n = 0; for (let v = 0; v < 256; v++) { s += v * h[v]; n += h[v]; } return n ? s / n / 255 : 0; };
+    const pct = (h, q) => { let n = 0; for (let v = 0; v < 256; v++) n += h[v]; let a = 0; for (let v = 0; v < 256; v++) { a += h[v]; if (a >= n * q) return v / 255; } return 1; };
+    const m = [0, 1, 2].map(i => mean(st.hist[i])); return { m, grey: (m[0] + m[1] + m[2]) / 3, lo: pct(st.hist[3], .01), hi: pct(st.hist[3], .99) };
+  }
+  async function matchStill(L, still) {
+    L = L || target(); still = still || (S.wipe && S.stills.find(s => s.id === S.wipe.id)) || S.stills[0]; if (!L || !still) return null;
+    const im = new Image(); im.src = still.url; await im.decode(); const rc = mkCanvas(im.width, im.height); rc.getContext('2d').drawImage(im, 0, 0);
+    const ref = frameStats(Scopes.analyse(rc)), mine = colorFx(L).filter(f => f.on); mine.forEach(f => f.on = false); renderComp(vctx, T); const cur = frameStats(Scopes.analyse(view)); mine.forEach(f => f.on = true);
+    const f = ensureGrade(L); f.on = true; Object.assign(f.p, newFx('primaries').p);
+    // brightness range: v' = v·G + Lf·(1 − v) taking this shot's 1–99 % luma to the still's
+    if (cur.hi - cur.lo > .05 && ref.hi - ref.lo > .05) { const det = cur.lo - cur.hi, G = (ref.lo * (1 - cur.hi) - ref.hi * (1 - cur.lo)) / det, Lf = (cur.lo * ref.hi - cur.hi * ref.lo) / det; f.p.km = clamp(Math.round((G - 1) * 100), -60, 100); f.p.lm = clamp(Math.round(Lf / .4 * 100), -100, 100); }
+    // colour cast relative to grey, on the offset wheel
+    ['r', 'g', 'b'].forEach((c, i) => f.p['o' + c] = clamp(Math.round(((ref.m[i] - ref.grey) - (cur.m[i] - cur.grey)) / .25 * 1000) / 10, -100, 100));
+    commit(); requestRender(); build(); return { ref, cur, offset: ['r', 'g', 'b'].map(c => f.p['o' + c]), lift: f.p.lm, gain: f.p.km };
+  }
+
   /* ---------- page ---------- */
   /* thumbnails: the clip itself rendered alone at its middle frame (graded), 160×90, cached until the clip changes */
   const thumbs = new Map(); let thumbQ = [];
@@ -177,6 +212,12 @@ const ColorPage = (() => {
     const vsel = el('div', { class: 'seg cp-view' }, ...[['prim', 'Primaries'], ['curves', 'Curves'], ['sec', 'Secondary']].map(([k, n]) => el('button', { class: S.view === k ? 'on' : '', onclick: () => { S.view = k; build(); } }, n)));
     const head = el('div', { class: 'phead' }, vsel, el('span', { class: 'dim' }, L ? L.name : 'No clip under the playhead'), el('div', { class: 'spacer' }),
       el('button', { class: 'ibtn', title: 'Grab the viewer as a still to compare against', onclick: grabStill }, Icon('image', 14), 'Grab still'));
+    if (L) {
+      const gv = L.gradeVersions || { active: 'A' };
+      head.append(el('button', { class: 'ibtn', disabled: S.stills.length ? undefined : '', title: "Set this shot's grade to match a still (the one in the wipe, or the newest)", onclick: async () => { const r = await matchStill(L); if (r) toast(`Matched to the still: offset R `+r.offset[0]+` G `+r.offset[1]+` B `+r.offset[2]+(r.gain ? `, gain `+r.gain : '')); } }, 'Match still'),
+        el('button', { class: 'ibtn', title: 'Copy the grade of the clip before this one', onclick: () => { const p = fromPrevious(L); toast(p ? `Grade copied from `+p.name : 'No graded clip before this one'); build(); } }, 'Previous clip'),
+        el('div', { class: 'seg cp-vers', title: 'Grade versions: keep up to four grades on this clip and switch between them' }, ...['A', 'B', 'C', 'D'].map(v => el('button', { class: gv.active === v ? 'on' : '', onclick: () => { useVersion(L, v); build(); toast('Grade version ' + v); } }, v))));
+    }
     S.dock.append(el('div', { class: 'cp-strip' }), head); strip();
     if (!L) { S.dock.append(el('div', { class: 'cp-empty dim' }, 'Select a clip in the strip above or move the playhead over one.')); return; }
     if (S.view === 'curves') {
@@ -230,5 +271,5 @@ const ColorPage = (() => {
   // follow the playhead and selection while the page is open
   let lastKey = '';
   setInterval(() => { if (!S.on) return; const L = target(), k = (L ? L.id : '') + '|' + P.layers.length; if (k !== lastKey) { lastKey = k; build(); } }, 250);
-  return { S, set, build, target, gradeOf, curvesOf, autoBalance, toRGB, toXY, isGraded, grabStill, wipe, pickAt };
+  return { S, set, build, target, gradeOf, curvesOf, autoBalance, toRGB, toXY, isGraded, grabStill, wipe, pickAt, useVersion, fromPrevious, matchStill, colorFx };
 })();

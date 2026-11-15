@@ -1,5 +1,18 @@
 window.NX_CHANGELOG = [
   {
+    "version": "2.3.0",
+    "date": "2026-11-16",
+    "title": "Blocks: game textures, block models and resource packs",
+    "items": [
+      "New Blocks page: paint pixel textures (pencil, fill, line, rectangles, mirror, wrap-shift, tiling preview) and build block or item models from boxes with a live 3D preview",
+      "Export a Minecraft Java resource pack (.zip with pack.mcmeta and icon), a sprite atlas (PNG + JSON) for any engine, OBJ + MTL models, or all textures as PNGs",
+      "Color page: grade versions A–D per clip, copy the previous clip's grade, and Match still to set a shot's colour and brightness from a reference still",
+      "Exports only offer video codecs that really encode on this computer (fixes HEVC failing on some Macs)",
+      "Background removal test made reliable across processors; the full test suite now runs on Windows, macOS and Linux for every release",
+      "Website download buttons only link files a release really has"
+    ]
+  },
+  {
     "version": "2.2.1",
     "date": "2026-11-15",
     "title": "The Windows installer",

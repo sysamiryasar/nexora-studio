@@ -2,6 +2,24 @@
 
 _Last updated: milestone 10 (limits removed: pro codecs, render cache, GPU everywhere, PSD, TIFF, real healing / content-aware fill). Every "Available" item below is exercised by `tests/tests.js` (all passing in Chrome and in the packaged Electron 33 app) or by manual real-input testing._
 
+## Milestone 26 (v2.3.0): Blocks, grade versions, codec probe
+- **Blocks page** (NEXORA's own game-art tool; no third-party or game assets bundled):
+  - **Texture editor**: pencil, eraser, fill, picker, line, rectangles, left–right mirror, wrap-shift, flip and rotate, a palette with recent colours, a 3×3 tiling preview and undo/redo. Starter textures are generated procedurally; you can also import PNGs up to 1024 px.
+  - **Models**: Minecraft-style boxes on a 16-unit grid with automatic face UVs (the game's rules), per-face textures and flat item models. The live three.js preview uses pixel-exact filtering.
+  - **Exports**:
+    - a Java resource pack zip (pack.mcmeta with a selectable pack_format, pack.png, assets/<namespace>/textures and models)
+    - a sprite atlas in TexturePacker hash JSON, packed into the smallest power-of-two square
+    - OBJ + MTL with textures
+    - a zip of all PNGs
+  - Zips come from a dependency-free writer (store method, CRC-32 checked).
+- **Color page**:
+  - grade versions A–D per clip
+  - copy the previous clip's grade
+  - Match still, which solves lift and gain from the 1–99 % luma range and sets the offset wheel from the colour cast relative to grey, measured without the clip's own grade
+- **Export codecs** are offered only after one test frame has actually encoded. This fixes the macOS CI case where HEVC "was supported" but produced nothing.
+- **Website**: the download buttons ask GitHub which files the latest release has, and versions not published yet show as "coming".
+- 231 tests on Windows locally.
+
 ## Milestone 25 (v2.2.0): logo, changelog, website
 - **Logo**: an N whose diagonal is a light-blue blade, on a dark rounded tile (`build/icon.svg`). It is rendered to PNG at 16–1024 px, to `build/icon.ico` (7 sizes) and to `build/icon.icns` (11 sizes, structure checked).
   - In the app: the window and taskbar icon, the splash, the header and Home.

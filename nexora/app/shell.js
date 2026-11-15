@@ -13,19 +13,20 @@ const Shell = (() => {
     audio: { name: 'Audio', icon: 'audio', st: 'ok' },
     vector: { name: 'Vector', icon: 'vector', st: 'ok' },
     '3d': { name: '3D', icon: 'cube', st: 'ok' },
+    blocks: { name: 'Blocks', icon: 'blocks', st: 'ok' },
     gaming: { name: 'Capture', icon: 'capture', st: 'ok' },
     ai: { name: 'AI', icon: 'ai', st: 'ok' },
     assets: { name: 'Assets', icon: 'assets', st: 'ok' },
     export: { name: 'Export', icon: 'export', st: 'ok' }
   };
-  const RAILS = { video: ['edit', 'motion', 'vfx', 'color', 'image', 'audio', 'vector', '3d', 'gaming', 'ai', '|', 'assets', 'export'], image: ['image', 'vector', 'ai', '|', 'assets', 'export'] };
+  const RAILS = { video: ['edit', 'motion', 'vfx', 'color', 'image', 'audio', 'vector', '3d', 'blocks', 'gaming', 'ai', '|', 'assets', 'export'], image: ['image', 'vector', 'blocks', 'ai', '|', 'assets', 'export'] };
   const HOME_PAGES = ['home', 'templates', 'library'];
   const WS = [{ id: 'home', name: 'Home', st: 'ok' }, ...Object.keys(MODES).map(id => Object.assign({ id }, MODES[id]))];
   const S = { active: 'home', tab: 'home', lastStatus: '' };
   const $$ = id => document.getElementById(id);
   const card = (icon, t, s, fn) => el('div', { class: 'ncard', onclick: fn }, el('div', { class: 'ic' }, Icon(icon, 22)), el('b', {}, t), el('small', {}, s));
   const kind = () => Projects.current ? Projects.current.kind : 'video';
-  const MODS = () => ({ audio: typeof AudioMix !== 'undefined' && AudioMix, gaming: typeof Gaming !== 'undefined' && Gaming, ai: typeof AIMode !== 'undefined' && AIMode, vector: typeof VectorMode !== 'undefined' && VectorMode, '3d': typeof ThreeD !== 'undefined' && ThreeD });
+  const MODS = () => ({ audio: typeof AudioMix !== 'undefined' && AudioMix, gaming: typeof Gaming !== 'undefined' && Gaming, ai: typeof AIMode !== 'undefined' && AIMode, vector: typeof VectorMode !== 'undefined' && VectorMode, '3d': typeof ThreeD !== 'undefined' && ThreeD, blocks: typeof BlocksMode !== 'undefined' && BlocksMode });
 
   /* ---------- routing ---------- */
   function go(id) {

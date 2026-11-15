@@ -13,6 +13,7 @@ const Icon = (() => {
     vfx: '<rect x="3" y="4" width="6" height="5" rx="1"/><rect x="15" y="4" width="6" height="5" rx="1"/><rect x="9" y="15" width="6" height="5" rx="1"/><path d="M9 6.5h6M6 9v3.5a2 2 0 0 0 2 2h1M18 9v3.5a2 2 0 0 1-2 2h-1"/>',
     audio: '<path d="M4 10v4M8 7v10M12 4v16M16 8v8M20 11v2"/>',
     color: '<circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="2"/><path d="M12 3.5v3M12 17.5v3M3.5 12h3M17.5 12h3"/>',
+    blocks: '<path d="M12 3 4 7.5v9L12 21l8-4.5v-9z"/><path d="M4 7.5 12 12l8-4.5M12 12v9"/><path d="M8 5.2v4.6M16 5.2v4.6M8 14.3l-4-2.2M16 14.3l4-2.2" opacity=".55"/>',
     grid: '<rect x="4" y="5" width="16" height="14" rx="1"/><path d="M9.3 5v14M14.7 5v14M4 9.7h16M4 14.3h16"/>',
     vector: '<path d="M12 3 6 13l6 8 6-8z"/><circle cx="12" cy="12.5" r="1.5"/><path d="M12 3v8"/>',
     cube: '<path d="M12 3 4 7.5v9L12 21l8-4.5v-9z"/><path d="M4 7.5 12 12l8-4.5M12 12v9"/>',

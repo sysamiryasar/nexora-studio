@@ -1,8 +1,11 @@
-## What's new in 2.2.1
+## What's new in 2.3.0
 
-- First release with NEXORA-Studio-Setup-win-x64.exe: installs NEXORA with Start menu and desktop shortcuts, uninstall from Settings › Apps
-- The installer is built from the same tested files as the portable app; before publishing, it is installed on a test machine and every test runs inside the installed copy
-- 2.2.0 was not published: its installer left out the AI Editor's library, which those tests caught
+- New Blocks page: paint pixel textures (pencil, fill, line, rectangles, mirror, wrap-shift, tiling preview) and build block or item models from boxes with a live 3D preview
+- Export a Minecraft Java resource pack (.zip with pack.mcmeta and icon), a sprite atlas (PNG + JSON) for any engine, OBJ + MTL models, or all textures as PNGs
+- Color page: grade versions A–D per clip, copy the previous clip's grade, and Match still to set a shot's colour and brightness from a reference still
+- Exports only offer video codecs that really encode on this computer (fixes HEVC failing on some Macs)
+- Background removal test made reliable across processors; the full test suite now runs on Windows, macOS and Linux for every release
+- Website download buttons only link files a release really has
 
 ## Download
 | File | For |

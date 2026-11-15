@@ -245,9 +245,28 @@ async function mixAudio(dur) {
 /* professional codecs: every candidate profile is checked with VideoEncoder.isConfigSupported on this machine */
 const CODEC_NAMES = { avc: 'H.264', hevc: 'H.265 / HEVC', vp9: 'VP9', av1: 'AV1' };
 const CODEC_STRINGS = { avc: ['avc1.640033', 'avc1.4d0033', 'avc1.42003e', 'avc1.640028', 'avc1.42001f'], hevc: ['hvc1.1.6.L153.B0', 'hvc1.1.6.L150.B0', 'hvc1.1.6.L123.B0', 'hev1.1.6.L153.B0'], vp9: ['vp09.00.51.08', 'vp09.00.41.08', 'vp09.00.31.08'], av1: ['av01.0.12M.08', 'av01.0.08M.08', 'av01.0.05M.08'] };
+/* isConfigSupported() can say yes for an encoder that then fails on the first frame (seen with HEVC on virtual Macs
+   without a hardware encoder). So a codec is only offered after it has really encoded one frame at that size; the
+   answer is remembered for the session. */
+const _encProbe = new Map();
+function probeEncode(cfg) {
+  const key = [cfg.codec, cfg.width, cfg.height].join('|'); if (_encProbe.has(key)) return _encProbe.get(key);
+  const p = new Promise(res => {
+    let ok = false, done = false; const finish = v => { if (!done) { done = true; res(v); } };
+    try {
+      const enc = new VideoEncoder({ output: () => { ok = true; }, error: () => finish(false) }); enc.configure(cfg);
+      const w = cfg.width, h = cfg.height, data = new Uint8Array(w * h * 3 / 2); data.fill(128);
+      const vf = new VideoFrame(data, { format: 'I420', codedWidth: w, codedHeight: h, timestamp: 0, duration: 33333 });
+      enc.encode(vf, { keyFrame: true }); vf.close();
+      enc.flush().then(() => { try { enc.close(); } catch (e) { } finish(ok); }, () => finish(false));
+      setTimeout(() => finish(false), 8000);
+    } catch (e) { finish(false); }
+  });
+  _encProbe.set(key, p); return p;
+}
 async function pickCodec(k, W, H, mbps, fps) {
   for (const codec of CODEC_STRINGS[k] || []) { const cfg = { codec, width: W, height: H, bitrate: mbps * 1e6, framerate: fps }; if (k === 'avc') cfg.avc = { format: 'avc' }; if (k === 'hevc') cfg.hevc = { format: 'hevc' };
-    try { if ((await VideoEncoder.isConfigSupported(cfg)).supported) return cfg; } catch (e) { } }
+    try { if ((await VideoEncoder.isConfigSupported(cfg)).supported && await probeEncode(cfg)) return cfg; } catch (e) { } }
   return null;
 }
 async function supportedCodecs(W, H, fps) { const out = []; for (const k of Object.keys(CODEC_STRINGS)) if (await pickCodec(k, W & ~1, H & ~1, 12, fps)) out.push(k); return out; }

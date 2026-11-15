@@ -87,7 +87,7 @@ h2{font-size:clamp(28px,4vw,42px);margin:8px 0 10px;letter-spacing:-.7px;line-he
 .rel summary b{font-size:19px;color:#fff}.rel summary .d{color:var(--dim);font-size:14px}.rel summary .t{color:#c5ccd6;flex:1;min-width:200px}
 .rel summary::after{content:"+";color:var(--acc);font-size:20px;margin-left:auto}.rel[open] summary::after{content:"−"}
 .rel ul{margin:0;padding:0 26px 20px 44px;color:#c5ccd6;line-height:1.7}
-.rel.latest{border-color:#5cb8ff66;box-shadow:0 0 40px #5cb8ff1a}.rel .new{background:var(--acc);color:#000;font-size:11px;font-weight:700;padding:2px 8px;border-radius:3px;letter-spacing:.5px}
+.rel.latest{border-color:#5cb8ff66;box-shadow:0 0 40px #5cb8ff1a}.rel.soon{opacity:.6}.rel.soon .new{background:#2a3442;color:#c5ccd6}.rel .new{background:var(--acc);color:#000;font-size:11px;font-weight:700;padding:2px 8px;border-radius:3px;letter-spacing:.5px}
 /* source */
 pre{background:var(--bg2);border:1px solid var(--line);border-radius:8px;padding:16px 18px;overflow:auto;font:13.5px Consolas,ui-monospace,monospace;color:#d5dde6;margin:0}
 .src{display:grid;grid-template-columns:1fr 1fr;gap:32px;align-items:start}
@@ -104,7 +104,7 @@ footer .wrap{display:flex;gap:22px;flex-wrap:wrap;align-items:center}footer a:ho
 <body>
 <nav><div class="wrap">
   <a class="logo" href="#"><img src="assets/logo.svg" alt="">NEXORA <small>Studio</small></a>
-  <div class="links"><a href="#features">Features</a><a href="#color">Color</a><a href="#everything">Everything</a><a href="#changelog">Changelog</a><a class="keep" href="#download">Download</a><a class="keep" data-repo-link href="https://github.com/sysamiryasar/nexora-studio">GitHub</a></div>
+  <div class="links"><a href="#features">Features</a><a href="#color">Color</a><a href="#blocks">Blocks</a><a href="#everything">Everything</a><a href="#changelog">Changelog</a><a class="keep" href="#download">Download</a><a class="keep" data-repo-link href="https://github.com/sysamiryasar/nexora-studio">GitHub</a></div>
 </div></nav>
 
 <header class="hero"><div class="wrap">
@@ -115,11 +115,11 @@ footer .wrap{display:flex;gap:22px;flex-wrap:wrap;align-items:center}footer a:ho
   <div class="cta"><a class="btn primary" id="heroDl" data-asset="NEXORA-Studio-Setup-win-x64.exe" href="https://github.com/sysamiryasar/nexora-studio/releases/latest/download/NEXORA-Studio-Setup-win-x64.exe">Download for Windows <small>· free installer</small></a><a class="btn" href="#features">See every feature</a></div>
   <div class="meta">Windows installer or portable · macOS · Linux &nbsp;·&nbsp; MIT licensed &nbsp;·&nbsp; free forever</div>
   <div class="shot-hero media" data-full="assets/shots/edit.jpg"><img src="assets/shots/edit.jpg" alt="NEXORA Studio Edit page: viewer, timeline with tracks, inspector and audio meters" fetchpriority="high"></div>
-  <div class="stats"><div><b>220+</b><span>GPU effects</span></div><div><b>1,590</b><span>original tracks</span></div><div><b>8K</b><span>ProRes · DNxHR</span></div><div><b>12</b><span>pages, one project</span></div><div><b>MIT</b><span>open source</span></div></div>
+  <div class="stats"><div><b>220+</b><span>GPU effects</span></div><div><b>1,590</b><span>original tracks</span></div><div><b>8K</b><span>ProRes · DNxHR</span></div><div><b>13</b><span>pages, one project</span></div><div><b>MIT</b><span>open source</span></div></div>
 </div></header>
 
 <section id="features"><div class="wrap">
-  <div class="center"><div class="eyebrow">Features</div><h2>Everything an edit needs, in one place</h2><p class="sub">Edit, Color, Motion, VFX, Design, Audio, Vector, 3D, Capture and AI all work on the same project and the same timeline.</p></div>
+  <div class="center"><div class="eyebrow">Features</div><h2>Everything an edit needs, in one place</h2><p class="sub">Edit, Color, Motion, VFX, Design, Audio, Vector, 3D, Blocks, Capture and AI all work on the same project and the same timeline.</p></div>
 
   <div class="feat"><div class="media" data-full="assets/shots/edit.jpg"><img loading="lazy" src="assets/shots/edit.jpg" alt="Edit page"></div><div>
     <div class="eyebrow">Edit</div><h3>A professional timeline</h3><p>Titled panels, timecode everywhere and the pages along the bottom, laid out like a finishing suite.</p>
@@ -161,16 +161,29 @@ footer .wrap{display:flex;gap:22px;flex-wrap:wrap;align-items:center}footer a:ho
   </div>
 </div></section>
 
+<section id="blocks"><div class="wrap">
+  <div class="center"><div class="eyebrow">New in 2.3 · Blocks</div><h2>Make game textures, block models and resource packs</h2><p class="sub">A pixel editor and a box-model editor with a live 3D preview, built into NEXORA. Export a Minecraft resource pack, or atlases and OBJ models for any engine.</p></div>
+  <div class="feat"><div class="media" data-full="assets/shots/blocks-tex.jpg"><img loading="lazy" src="assets/shots/blocks-tex.jpg" alt="Blocks pixel texture editor"></div><div>
+    <div class="eyebrow">Textures</div><h3>Pixel-perfect texture painting</h3><p>Paint 16×16 up to 1024×1024 textures with tools made for game art, and see the seams before you ship.</p>
+    <ul><li>Pencil, eraser, fill, colour picker, line and rectangles, left–right mirror</li><li>Wrap-shift by one pixel and a 3×3 tiling preview to hide seams</li><li>Palette, recent colours, flip, rotate, undo / redo</li><li>Start blank or from NEXORA&#39;s own stone, planks, ore, grass and metal starters, or import your PNGs</li></ul></div></div>
+  <div class="feat flip"><div class="media" data-full="assets/shots/blocks-model.jpg"><img loading="lazy" src="assets/shots/blocks-model.jpg" alt="Blocks 3D model editor"></div><div>
+    <div class="eyebrow">Models</div><h3>Build block and item models</h3><p>Stack boxes on a 16-unit grid, give every face a texture, and orbit the result live in 3D.</p>
+    <ul><li>Minecraft-style boxes with automatic face UVs</li><li>Flat item models from a single texture</li><li>Exports Java Edition model JSON, or OBJ + MTL for Blender, Unity, Godot and Unreal</li></ul></div></div>
+  <div class="feat"><div class="media" data-full="assets/shots/blocks-pack.jpg"><img loading="lazy" src="assets/shots/blocks-pack.jpg" alt="Pack and export"></div><div>
+    <div class="eyebrow">Export</div><h3>Ready for the game</h3><p>One click turns your textures and models into files a game loads.</p>
+    <ul><li>Minecraft Java resource pack .zip with pack.mcmeta and pack icon: drop it in resourcepacks</li><li>Your own namespace for a mod&#39;s assets (the mod&#39;s code is up to you)</li><li>Sprite atlas PNG + JSON (TexturePacker layout) for Phaser, PixiJS, Godot, Unity and more</li></ul></div></div>
+</div></section>
+
 <section id="everything"><div class="wrap">
   <div class="center"><div class="eyebrow">Everything included</div><h2>The full list</h2><p class="sub">No plugins to buy. All of this is in the free download.</p></div>
   <div class="all">
     <div><h4>Editing</h4><ul><li>Tracks timeline, 1000s of clips</li><li>J/K/L, ripple, roll, slip</li><li>Insert / overwrite (3-point)</li><li>Lift / extract In–Out</li><li>Clip speed, colour labels</li><li>Go to timecode</li><li>Markers, snapping</li><li>Version history, autosave</li></ul></div>
-    <div><h4>Color</h4><ul><li>Lift / gamma / gain / offset</li><li>Curves (luma + RGB)</li><li>HSL qualifier + windows</li><li>Scopes: waveform, parade, vectorscope, histogram</li><li>Stills + wipe compare</li><li>26 looks, .cube LUTs</li></ul></div>
+    <div><h4>Color</h4><ul><li>Lift / gamma / gain / offset</li><li>Grade versions A–D, match to still</li><li>Curves (luma + RGB)</li><li>HSL qualifier + windows</li><li>Scopes: waveform, parade, vectorscope, histogram</li><li>Stills + wipe compare</li><li>26 looks, .cube LUTs</li></ul></div>
     <div><h4>Effects &amp; motion</h4><ul><li>220+ GPU effects, transitions</li><li>Keyframes + graph editor</li><li>Masks, blend modes, motion blur</li><li>Titles, stickers, shapes</li><li>VFX node graph</li><li>3D scenes</li></ul></div>
     <div><h4>Audio</h4><ul><li>1,590 original music tracks</li><li>Creative Commons search</li><li>Mixer: EQ, comp, pan, reverb</li><li>Loudness to −14 / −16 / −23 LUFS</li><li>Auto-duck music</li><li>Extract audio (MP3, WAV, FLAC, M4A)</li></ul></div>
     <div><h4>Delivery</h4><ul><li>Up to 8K, any frame rate</li><li>H.264, HEVC, AV1</li><li>ProRes 4444, DNxHR</li><li>PNG / TIFF sequences</li><li>Render queue</li><li>9:16, 1:1, 4:5 versions</li></ul></div>
     <div><h4>AI</h4><ul><li>AI Editor (your key)</li><li>OpenCode Zen or Anthropic</li><li>On-device captions</li><li>On-device background removal</li><li>Auto colour balance</li></ul></div>
-    <div><h4>Design &amp; vector</h4><ul><li>Layered image editor</li><li>PSD and TIFF</li><li>Healing, content-aware fill</li><li>Vector drawing</li><li>Screen &amp; window capture</li></ul></div>
+    <div><h4>Design &amp; game art</h4><ul><li>Layered image editor, PSD and TIFF</li><li>Healing, content-aware fill</li><li>Vector drawing</li><li>Blocks: pixel textures, box models</li><li>Minecraft resource packs, atlases, OBJ</li><li>Screen &amp; window capture</li></ul></div>
     <div><h4>App</h4><ul><li>Windows, macOS, Linux</li><li>Accounts with 2FA</li><li>Update notice + changelog</li><li>Command palette (Ctrl+K)</li><li>Proxies, GPU or CPU</li><li>Open source (MIT)</li></ul></div>
   </div>
 </div></section>
@@ -222,7 +235,8 @@ document.querySelectorAll('[data-asset]').forEach(a => a.href = base + '/release
 (async () => {
   try {
     const r = await fetch('https://api.github.com/repos/' + REPO + '/releases/latest', { headers: { Accept: 'application/vnd.github+json' } }); if (!r.ok) return;
-    const rel = await r.json(), have = new Set((rel.assets || []).map(a => a.name)), FALL = { 'NEXORA-Studio-Setup-win-x64.exe': 'NEXORA-Studio-win-x64.zip' };
+    const rel = await r.json(); if (window.__clRelease) window.__clRelease(String(rel.tag_name || '').replace(/^v/, ''));
+    const have = new Set((rel.assets || []).map(a => a.name)), FALL = { 'NEXORA-Studio-Setup-win-x64.exe': 'NEXORA-Studio-win-x64.zip' };
     document.querySelectorAll('[data-asset]').forEach(a => { const n = a.dataset.asset; if (have.has(n)) return; const alt = FALL[n]; if (alt && have.has(alt)) { a.href = base + '/releases/latest/download/' + alt; if (a.classList.contains('btn') && !a.querySelector('small')) a.textContent = 'Download .zip'; const s = a.querySelector('small'); if (s) s.textContent = '· portable .zip'; } else if (!have.has(n)) { a.href = rel.html_url || base + '/releases/latest'; } });
     document.querySelectorAll('.os .alt').forEach(a => { if (a.href.endsWith('.zip') && !have.has('NEXORA-Studio-Setup-win-x64.exe')) a.style.display = 'none'; });
   } catch (e) { }   // offline or rate-limited: the static links stay
@@ -231,7 +245,10 @@ document.querySelectorAll('[data-asset]').forEach(a => a.href = base + '/release
 (() => { const L = window.NX_CHANGELOG || [], host = document.getElementById('cl'); if (!L.length) return;
   const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]), fmt = d => { try { return new Date(d + 'T12:00:00').toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' }); } catch (e) { return d; } };
   host.innerHTML = L.map((r, i) => `<details class="rel${i ? '' : ' latest'}"${i ? '' : ' open'}><summary><b>${esc(r.version)}</b>${i ? '' : '<span class="new">LATEST</span>'}<span class="t">${esc(r.title)}</span><span class="d">${esc(fmt(r.date))}</span></summary><ul>${r.items.map(t => `<li>${esc(t)}</li>`).join('')}</ul></details>`).join('');
-  document.getElementById('verTag').textContent = 'v' + L[0].version; document.getElementById('verTitle').textContent = L[0].title; document.getElementById('dlVer').textContent = L[0].version; })();
+  const top = r => { document.getElementById('verTag').textContent = 'v' + r.version; document.getElementById('verTitle').textContent = r.title; document.getElementById('dlVer').textContent = r.version; }; top(L[0]);
+  /* versions newer than the published release are marked as coming, and the headline shows the published one */
+  const cmp = (a, b) => { const x = a.split('.').map(Number), y = b.split('.').map(Number); for (let i = 0; i < 3; i++) if ((x[i] || 0) !== (y[i] || 0)) return (x[i] || 0) - (y[i] || 0); return 0; };
+  window.__clRelease = v => { if (!/^\d+\.\d+\.\d+$/.test(v)) return; const rels = [...host.querySelectorAll('.rel')]; let shown = null; L.forEach((r, i) => { const el = rels[i], future = cmp(r.version, v) > 0; el.classList.toggle('soon', future); const nw = el.querySelector('.new'); if (nw) nw.textContent = future ? 'COMING' : 'LATEST'; if (!future && !shown) { shown = r; el.classList.add('latest'); el.open = true; const b = el.querySelector('summary b'); if (b && !el.querySelector('.new')) b.insertAdjacentHTML('afterend', '<span class="new">LATEST</span>'); } else if (future) { el.classList.remove('latest'); el.open = false; } }); if (shown) top(shown); }; })();
 /* screenshots open full size */
 (() => { const lb = document.getElementById('lb'), im = lb.querySelector('img');
   document.querySelectorAll('.media[data-full]').forEach(m => m.addEventListener('click', () => { im.src = m.dataset.full; im.alt = (m.querySelector('img') || {}).alt || ''; lb.classList.add('on'); }));
