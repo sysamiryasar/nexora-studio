@@ -1,10 +1,11 @@
-## What's new in 2.4.0
+## What's new in 1.4.0
 
 - Update popup: when a new version is out, NEXORA tells you at start (and every 6 hours) with what's new
 - Update now: downloads the new installer inside the app with progress, checks it against the published SHA-256 checksum, installs it over the old version and reopens NEXORA
 - After an update, What's new shows everything that changed
 - Later hides the popup until the next start; Skip this version hides it until a newer one; checks can be turned off in Commands
 - Every release is now tested by installing the previous version and updating it, exactly as the app does
+- Version numbers now follow major.minor.patch: the first public release is 1.0.0 (earlier builds were numbered 2.x)
 
 ## Download
 | File | For |

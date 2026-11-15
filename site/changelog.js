@@ -1,6 +1,6 @@
 window.NX_CHANGELOG = [
   {
-    "version": "2.4.0",
+    "version": "1.4.0",
     "date": "2026-11-16",
     "title": "One-click updates",
     "items": [
@@ -8,11 +8,12 @@ window.NX_CHANGELOG = [
       "Update now: downloads the new installer inside the app with progress, checks it against the published SHA-256 checksum, installs it over the old version and reopens NEXORA",
       "After an update, What's new shows everything that changed",
       "Later hides the popup until the next start; Skip this version hides it until a newer one; checks can be turned off in Commands",
-      "Every release is now tested by installing the previous version and updating it, exactly as the app does"
+      "Every release is now tested by installing the previous version and updating it, exactly as the app does",
+      "Version numbers now follow major.minor.patch: the first public release is 1.0.0 (earlier builds were numbered 2.x)"
     ]
   },
   {
-    "version": "2.3.0",
+    "version": "1.3.0",
     "date": "2026-11-16",
     "title": "Blocks: game textures, block models and resource packs",
     "items": [
@@ -20,26 +21,17 @@ window.NX_CHANGELOG = [
       "Export a Minecraft Java resource pack (.zip with pack.mcmeta and icon), a sprite atlas (PNG + JSON) for any engine, OBJ + MTL models, or all textures as PNGs",
       "Color page: grade versions A–D per clip, copy the previous clip's grade, and Match still to set a shot's colour and brightness from a reference still",
       "Exports only offer video codecs that really encode on this computer (fixes HEVC failing on some Macs)",
-      "Background removal test made reliable across processors; the full test suite now runs on Windows, macOS and Linux for every release",
+      "Background removal test made reliable across processors; the full test suite runs on Windows, macOS and Linux for every release",
       "Website download buttons only link files a release really has"
     ]
   },
   {
-    "version": "2.2.1",
-    "date": "2026-11-15",
-    "title": "The Windows installer",
-    "items": [
-      "First release with NEXORA-Studio-Setup-win-x64.exe: installs NEXORA with Start menu and desktop shortcuts, uninstall from Settings › Apps",
-      "The installer is built from the same tested files as the portable app; before publishing, it is installed on a test machine and every test runs inside the installed copy",
-      "2.2.0 was not published: its installer left out the AI Editor's library, which those tests caught"
-    ]
-  },
-  {
-    "version": "2.2.0",
+    "version": "1.2.0",
     "date": "2026-11-15",
     "title": "Windows installer, a real logo, What's new and a new website",
     "items": [
       "Windows installer: NEXORA-Studio-Setup-win-x64.exe installs NEXORA with Start menu and desktop shortcuts; uninstall from Settings › Apps",
+      "The installer is built from the same tested files as the portable app, installed on a test machine and checked with every test before it is published",
       "New NEXORA logo and app icon: window, taskbar, splash screen, installer, macOS app and Linux launcher",
       "What's new: after an update NEXORA shows what changed, and Help › What's new shows the full history",
       "About NEXORA: version, website, source code and licences in one place",
@@ -50,11 +42,11 @@ window.NX_CHANGELOG = [
     ]
   },
   {
-    "version": "2.1.0",
+    "version": "1.1.0",
     "date": "2026-11-14",
     "title": "Update notice, automatic builds, secondary grading",
     "items": [
-      "Update notice: NEXORA tells you when a newer version is out (once a day, can be turned off)",
+      "Update notice: NEXORA tells you when a newer version is out",
       "Every release is built and tested automatically on Windows, macOS and Linux",
       "Secondary grading on the Color page: pick a colour, limit it with an ellipse or rectangle window, check it with Show matte",
       "One-click 9:16, 1:1 and 4:5 versions of an edit, with the original left untouched",
@@ -62,7 +54,7 @@ window.NX_CHANGELOG = [
     ]
   },
   {
-    "version": "2.0.0",
+    "version": "1.0.0",
     "date": "2026-11-14",
     "title": "First public release",
     "items": [

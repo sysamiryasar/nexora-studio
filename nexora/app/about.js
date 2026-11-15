@@ -28,14 +28,22 @@ const About = (() => {
         el('div', { class: 'ab-links' }, link('Website', SITE), link('Source code', REPO), link('Releases', REPO + '/releases'), link('Licences', REPO + '/blob/main/THIRD_PARTY_NOTICES.md'), el('button', { class: 'ibtn', onclick: () => { closeModal(); whatsNew(); } }, 'Changelog')))),
       [['Close', closeModal, true]]);
   }
+  /** which What's new to show, given the version used last time → show releases newer than the returned version, or null.
+      Fresh install / same version / a real downgrade: nothing. The early builds were numbered 2.x and became 1.x, so
+      coming from a 2.x build counts as an update: it shows the newest version's changes. */
+  function sinceFor(seen, log) {
+    const v = (log[0] || {}).version; if (!v || !seen || seen === v) return null;
+    if (cmp(v, seen) > 0) return seen;
+    return /^2\./.test(seen) && cmp(seen, '2.4.0') <= 0 ? ((log[1] || {}).version || null) : null;
+  }
   /** first start after an update: show the changes since the version last used (never on a fresh install or in tests) */
   async function onStart() {
     try { if (window.nxauth && (await nxauth.status()).testMode) return null; } catch (e) { }   // automated test runs
     const v = version(), seen = get('nx.seenVersion'); if (!v) return null;
-    set('nx.seenVersion', v); if (!seen || cmp(v, seen) <= 0) return null;
-    setTimeout(() => { if (document.getElementById('modal').classList.contains('hidden') && !document.getElementById('authGate')) whatsNew(seen); }, 1600);
-    return seen;
+    set('nx.seenVersion', v); const since = sinceFor(seen, LOG()); if (!since) return null;
+    setTimeout(() => { if (document.getElementById('modal').classList.contains('hidden') && !document.getElementById('authGate')) whatsNew(since); }, 1600);
+    return since;
   }
   const commands = () => [{ title: "Help: What's new (changelog)", run: () => whatsNew() }, { title: 'Help: About NEXORA Studio', run: about }];
-  return { version, whatsNew, about, onStart, commands, cmp };
+  return { version, whatsNew, about, onStart, commands, cmp, sinceFor };
 })();

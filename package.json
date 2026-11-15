@@ -1,7 +1,7 @@
 {
   "name": "nexora-studio",
   "productName": "NEXORA Studio",
-  "version": "2.4.0",
+  "version": "1.4.0",
   "description": "NEXORA Studio — unified creative suite: video editing, layered image editing, motion, shared assets",
   "main": "electron/main.js",
   "repository": { "type": "git", "url": "https://github.com/sysamiryasar/nexora-studio.git" },

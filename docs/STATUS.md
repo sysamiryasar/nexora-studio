@@ -2,7 +2,7 @@
 
 _Last updated: milestone 10 (limits removed: pro codecs, render cache, GPU everywhere, PSD, TIFF, real healing / content-aware fill). Every "Available" item below is exercised by `tests/tests.js` (all passing in Chrome and in the packaged Electron 33 app) or by manual real-input testing._
 
-## Milestone 27 (v2.4.0): one-click updates
+## Milestone 27 (v1.4.0): one-click updates
 - **Popup**: the update popup appears at start and every 6 hours.
 - **Update now** (installed Windows copies):
   - The main process downloads NEXORA-Studio-Setup-win-x64.exe to `%TEMP%\nexora-update` with progress and cancel.
@@ -14,7 +14,7 @@ _Last updated: milestone 10 (limits removed: pro codecs, render cache, GPU every
   - runs an **upgrade test**: installs the previous published installer, runs the new one exactly as the app does, and checks the version changed, NEXORA reopened and only one installation remains
 - **Tests**: a fake release covers the popup, download progress, checksum verification, the would-run command, a tampered download being rejected, skipping a version, and older or pre-release versions never being offered.
 
-## Milestone 26 (v2.3.0): Blocks, grade versions, codec probe
+## Milestone 26 (v1.3.0): Blocks, grade versions, codec probe
 - **Blocks page** (NEXORA's own game-art tool; no third-party or game assets bundled):
   - **Texture editor**: pencil, eraser, fill, picker, line, rectangles, left–right mirror, wrap-shift, flip and rotate, a palette with recent colours, a 3×3 tiling preview and undo/redo. Starter textures are generated procedurally; you can also import PNGs up to 1024 px.
   - **Models**: Minecraft-style boxes on a 16-unit grid with automatic face UVs (the game's rules), per-face textures and flat item models. The live three.js preview uses pixel-exact filtering.
@@ -32,7 +32,7 @@ _Last updated: milestone 10 (limits removed: pro codecs, render cache, GPU every
 - **Website**: the download buttons ask GitHub which files the latest release has, and versions not published yet show as "coming".
 - 231 tests on Windows locally.
 
-## Milestone 25 (v2.2.0): logo, changelog, website
+## Milestone 25 (v1.2.0): logo, changelog, website
 - **Logo**: an N whose diagonal is a light-blue blade, on a dark rounded tile (`build/icon.svg`). It is rendered to PNG at 16–1024 px, to `build/icon.ico` (7 sizes) and to `build/icon.icns` (11 sizes, structure checked).
   - In the app: the window and taskbar icon, the splash, the header and Home.
   - In the packages: the Windows `.exe` icon and metadata (set by rcedit in CI), the macOS app icon, and the Linux PNG plus `.desktop` file.
@@ -42,7 +42,7 @@ _Last updated: milestone 10 (limits removed: pro codecs, render cache, GPU every
 - **Test runs** with `--nx-userdata` keep their project folders inside that folder, never in the user's Documents.
 - **Website rebuilt**: logo, every feature with fresh screenshots (click to enlarge), a full feature list, and the changelog rendered from the same file as the app.
 
-## Milestone 24 (v2.1.0): update notice, automatic builds
+## Milestone 24 (v1.1.0): update notice, automatic builds
 - **Update notice**: once a day the desktop app reads the latest public release from GitHub (no account, no identifiers, generic User-Agent). If it is newer, a small bar offers What's new, Download and Later; Later hides that version only. Check manually with "Help: Check for updates" in the command palette, where automatic checks can also be turned off. Pre-releases are never offered.
 - **Self-test mode**: `--nx-selftest` runs the whole suite inside the real app, prints the result and exits with 0 when everything passes. `--nx-userdata=<folder>` keeps a test run's settings and library away from the user's own.
 - **Packaging script**: `scripts/package.ps1` builds all four zips from Electron's official builds, checked against Electron's checksums.

@@ -24,6 +24,13 @@ FFmpeg and the on-device AI models are too large for git, so `scripts/fetch-vend
 The website lives in `site/` and is static HTML, deployable to Cloudflare Pages with no build command and `site` as the output folder.
 
 ## Releasing
+Versions are **MAJOR.MINOR.PATCH**:
+- **PATCH** (1.4.**1**): small fixes, no new features
+- **MINOR** (1.**5**.0): an update with new features
+- **MAJOR** (**2**.0.0): a revamp of the whole app; this is rare
+
+The first public release is 1.0.0. (The earliest builds on GitHub were numbered 2.0.0–2.3.0; they correspond to 1.0.0–1.3.0.)
+
 Version history lives in `nexora/app/changelog.js` (the app's What's new). Add the new version at the top, set the same version in `package.json`, run `pwsh scripts/changelog.ps1` (writes CHANGELOG.md, RELEASE_NOTES.md and the website copy), commit, then tag `vX.Y.Z`: GitHub Actions tests on Windows, macOS and Linux, builds the four zips with the NEXORA icon and publishes the release.
 
 ## License

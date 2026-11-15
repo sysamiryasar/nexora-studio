@@ -425,8 +425,15 @@ const NexoraTests = (() => {
     const L = window.NX_CHANGELOG; ok(Array.isArray(L) && L.length >= 3, 'entries');
     for (let i = 0; i < L.length; i++) { const r = L[i]; ok(/^\d+\.\d+\.\d+$/.test(r.version) && /^\d{4}-\d\d-\d\d$/.test(r.date) && r.title && r.items.length, 'entry ' + r.version); if (i) ok(About.cmp(L[i - 1].version, r.version) > 0, 'newest first'); }
     if (window.nxupdate) { await nxupdate.test({ tag_name: 'v0.0.1', html_url: 'x', body: '' }); try { const r = await nxupdate.check(false); ok(r.current === About.version(), `package.json ${r.current} = changelog ${About.version()}`); } finally { await nxupdate.test(null); } }
-    About.whatsNew('2.0.0'); let m = document.querySelector('#modal .wn'); ok(m && m.querySelectorAll('.wn-rel').length === L.filter(r => About.cmp(r.version, '2.0.0') > 0).length, "What's new lists only newer versions"); closeModal();
+    About.whatsNew('1.0.0'); let m = document.querySelector('#modal .wn'); ok(m && m.querySelectorAll('.wn-rel').length === L.filter(r => About.cmp(r.version, '1.0.0') > 0).length, "What's new lists only newer versions"); closeModal();
     About.about(); m = document.querySelector('#modal .ab'); ok(m && m.textContent.includes('Version ' + About.version()), 'About shows the version'); closeModal();
+  });
+  test("about: What's new after updating, including from a renumbered 2.x build", async () => {
+    const L = window.NX_CHANGELOG, f = s => About.sinceFor(s, L);
+    ok(L[0].version === '1.4.0' || About.cmp(L[0].version, '1.4.0') > 0, 'numbering starts at 1.x');
+    ok(f(null) === null, 'fresh install: nothing'); ok(f(L[0].version) === null, 'same version: nothing'); ok(f(L[1].version) === L[1].version, 'normal update: changes since the old version');
+    ok(f('2.3.0') === L[1].version && f('2.2.1') === L[1].version, 'from a 2.x build: the newest version\'s changes'); ok(f('9.0.0') === null && f('2.9.0') === null, 'a real downgrade: nothing');
+    ok(/sinceFor\(seen, LOG\(\)\)/.test(About.onStart.toString()), 'onStart uses this rule');
   });
   test('about: the logo loads and is the brand mark', async () => {
     const img = new Image(); img.src = 'nexora/app/logo.svg'; await img.decode(); ok(img.naturalWidth > 0, 'logo.svg decodes');
