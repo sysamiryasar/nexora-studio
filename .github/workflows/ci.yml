@@ -29,6 +29,10 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 20
+      - name: Changelog files match nexora/app/changelog.js and package.json
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: ./scripts/changelog.ps1 -Check
       - name: Fetch FFmpeg (Windows) and the on-device AI models
         shell: pwsh
         run: ./scripts/fetch-vendor.ps1
@@ -71,9 +75,14 @@ jobs:
         shell: pwsh
         run: |
           $v = (Get-Content package.json -Raw | ConvertFrom-Json).version; if ("v$v" -ne $env:GITHUB_REF_NAME) { throw "package.json says $v but the tag is $env:GITHUB_REF_NAME" }
+      - name: rcedit (puts the NEXORA icon and name into the Windows .exe)
+        shell: pwsh
+        run: |
+          Invoke-WebRequest https://github.com/electron/rcedit/releases/download/v2.0.0/rcedit-x64.exe -OutFile "$env:RUNNER_TEMP/rcedit.exe"
+          "rcedit sha256: " + (Get-FileHash "$env:RUNNER_TEMP/rcedit.exe" -Algorithm SHA256).Hash
       - name: Package
         shell: pwsh
-        run: ./scripts/package.ps1 -OutDir dist
+        run: ./scripts/package.ps1 -OutDir dist -Rcedit "$env:RUNNER_TEMP/rcedit.exe"
       - name: Publish
         shell: pwsh
         env:

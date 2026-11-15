@@ -207,6 +207,7 @@ const Shell = (() => {
       el('div', { class: 'hn-sep' }), el('div', { class: 'hn-sec' }, 'Management'),
       item('library', 'Library', () => go('library'), page === 'library'), item('import', 'Import project file', () => $$('projIn').click()),
       el('div', { class: 'spacer' }),
+      typeof About !== 'undefined' ? el('button', { class: 'hn-item hn-new', title: 'What changed in each version', onclick: () => About.whatsNew() }, Icon('star', 18), "What's new", el('span', { class: 'hn-ver' }, 'v' + About.version())) : null,
       item('command', 'Commands', openPalette), item('theme', 'Accent theme', toggleTheme), typeof Account !== 'undefined' ? Account.navItem() : null);
   }
   /** redraws Home after the account changes (per-account projects, name in the corner) */
@@ -339,7 +340,7 @@ const Shell = (() => {
     if (!$$('studio').classList.contains('hidden')) RAILS[kind()].filter(id => id !== '|').forEach(id => out.push({ title: 'Mode: ' + MODES[id].name + (MODES[id].st === 'plan' ? ' (in development)' : ''), run: () => go(id) }));
     if (typeof Account !== 'undefined' && Account.on) out.push({ title: 'Account: Profile and security', run: () => Account.S.user ? Account.page('profile') : Account.openSignIn() });
     if (typeof Copilot !== 'undefined') out.push({ title: 'AI Editor: Open panel', run: () => Copilot.toggle(true) });
-    out.push({ title: 'Project: Doctor (check before export)', run: () => { go('edit'); Doctor.open(); } }, { title: 'Project: Version history', run: () => Versions.dialog() }, ...(typeof Reframe !== 'undefined' && kind() === 'video' ? Reframe.commands() : []), { title: 'Export: Render queue', run: () => RenderQueue.open() }, { title: 'Help: Keyboard shortcuts', run: () => Persona.shortcuts() }, { title: 'Help: System check', run: () => Doctor.systemDialog() }, ...(typeof Updates !== 'undefined' ? Updates.commands() : []));
+    out.push({ title: 'Project: Doctor (check before export)', run: () => { go('edit'); Doctor.open(); } }, { title: 'Project: Version history', run: () => Versions.dialog() }, ...(typeof Reframe !== 'undefined' && kind() === 'video' ? Reframe.commands() : []), { title: 'Export: Render queue', run: () => RenderQueue.open() }, { title: 'Help: Keyboard shortcuts', run: () => Persona.shortcuts() }, { title: 'Help: System check', run: () => Doctor.systemDialog() }, ...(typeof Updates !== 'undefined' ? Updates.commands() : []), ...(typeof About !== 'undefined' ? About.commands() : []));
     out.push({ title: 'Audio: Open music library', run: () => { go('edit'); leftTab = 'audio'; Browser.S.audioPane = 'music'; buildLeft(); } }, { title: 'Audio: Extract audio from selected clip', run: () => { go('edit'); Music.extractDialog(); } });
     out.push({ title: 'Project: Export project file (.nexora)', run: saveProject }, { title: 'Project: Import project file…', run: () => $$('projIn').click() }, { title: 'Theme: toggle accent (light blue ↔ white)', run: toggleTheme }, { title: 'Developer: Run automated self-tests', run: runSelfTests },
       { title: `Performance: ${GPU.S.enabled ? 'Disable' : 'Enable'} GPU effects (now ${GPU.status()})`, run: () => { GPU.setEnabled(!GPU.S.enabled); toast('Effects now render on ' + GPU.status()); } },
@@ -382,7 +383,7 @@ const Shell = (() => {
     Icon.decorate(); Connect.quickAdd();
     $$('btnHome').onclick = () => go('home');
     $$('btnPalette').onclick = openPalette; $$('btnTheme').onclick = toggleTheme; $$('btnAI').onclick = () => Copilot.toggle();
-    Persona.opening(); Persona.guard(); Account.init(); Account.paintBadge(); $$('saveState').onclick = () => Versions.dialog(); $$('saveState').title = 'Version history';
+    Persona.opening(); Persona.guard(); Account.init(); if (typeof About !== 'undefined') About.onStart(); Account.paintBadge(); $$('saveState').onclick = () => Versions.dialog(); $$('saveState').title = 'Version history';
     const _sc = window.structChanged; window.structChanged = function (...a) { const r = _sc.apply(this, a); Persona.emptyStage(); return r; };
     $$('bProxy').onclick = () => { Proxies.setUse(!Proxies.S.use); syncProxyBtn(); toast(Proxies.S.use ? 'Proxy playback on (export still uses originals)' : 'Proxy playback off'); };
     $$('perfRead').onclick = () => { GPU.setEnabled(!GPU.S.enabled); Perf.paint(); toast('Effects now render on ' + GPU.status()); };

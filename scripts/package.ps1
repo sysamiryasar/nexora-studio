@@ -5,7 +5,7 @@
 # the symlinks inside Electron Framework.framework are kept byte-for-byte (works on Windows, macOS and Linux).
 # Run scripts/fetch-vendor.ps1 first (FFmpeg goes into the Windows zip only).
 # Usage:  pwsh scripts/package.ps1 [-OutDir dist]
-param([string]$OutDir = 'dist', [string]$Electron = '33.2.0')
+param([string]$OutDir = 'dist', [string]$Electron = '33.2.0', [string]$Rcedit = '')
 $ErrorActionPreference = 'Stop'; $ProgressPreference = 'SilentlyContinue'
 Add-Type -AssemblyName System.IO.Compression, System.IO.Compression.FileSystem
 $root = Split-Path -Parent $PSScriptRoot
@@ -34,7 +34,7 @@ function Get-Electron($plat) {
 function Copy-Stream($from, $to) { $s = $from.Open(); $d = $to.Open(); try { $s.CopyTo($d) } finally { $s.Dispose(); $d.Dispose() } }
 function Add-File($zip, $path, $name, $mode) { $e = $zip.CreateEntry($name, [IO.Compression.CompressionLevel]::Optimal); $e.ExternalAttributes = ($mode -shl 16); $d = $e.Open(); $s = [IO.File]::OpenRead($path); try { $s.CopyTo($d) } finally { $s.Dispose(); $d.Dispose() } }
 function Add-Text($zip, $name, $text, $mode) { $e = $zip.CreateEntry($name); $e.ExternalAttributes = ($mode -shl 16); $w = New-Object IO.StreamWriter($e.Open(), (New-Object Text.UTF8Encoding($false))); $w.Write($text); $w.Dispose() }
-function Build($src, $dest, $map, $appPrefix, $patch, $extra, $skipFfmpeg) {
+function Build($src, $dest, $map, $appPrefix, $patch, $extra, $skipFfmpeg, $replace = @{}, $files = @{}) {
   if (Test-Path $dest) { Remove-Item $dest -Force }
   $in = [IO.Compression.ZipFile]::OpenRead($src); $zip = [IO.Compression.ZipFile]::Open($dest, 'Create'); $n = 0
   try {
@@ -42,29 +42,43 @@ function Build($src, $dest, $map, $appPrefix, $patch, $extra, $skipFfmpeg) {
       $name = & $map $e.FullName; if (-not $name) { continue }
       if ($patch -and $patch.ContainsKey($e.FullName)) { $r = New-Object IO.StreamReader($e.Open()); $txt = $r.ReadToEnd(); $r.Dispose(); $txt = & $patch[$e.FullName] $txt; Add-Text $zip $name $txt ($e.ExternalAttributes -shr 16); $n++; continue }
       $ne = $zip.CreateEntry($name, [IO.Compression.CompressionLevel]::Optimal); $ne.ExternalAttributes = $e.ExternalAttributes; $ne.LastWriteTime = $e.LastWriteTime
-      if ($e.FullName.EndsWith('/')) { continue }; Copy-Stream $e $ne; $n++
+      if ($e.FullName.EndsWith('/')) { continue }
+      if ($replace.ContainsKey($e.FullName)) { $s = [IO.File]::OpenRead($replace[$e.FullName]); $d = $ne.Open(); try { $s.CopyTo($d) } finally { $s.Dispose(); $d.Dispose() }; $n++; continue }
+      Copy-Stream $e $ne; $n++
     }
     foreach ($f in $appFiles) {
       $rel = $f.FullName.Substring($app.Length + 1).Replace('\', '/'); if ($skipFfmpeg -and $rel.StartsWith('vendor/ffmpeg/')) { continue }
       $mode = if ($rel -match '\.exe$') { 0x81ED } else { 0x81A4 }; Add-File $zip $f.FullName ($appPrefix + $rel) $mode; $n++
     }
     foreach ($k in $extra.Keys) { Add-Text $zip $k $extra[$k] 0x81A4; $n++ }
+    foreach ($k in $files.Keys) { Add-File $zip $files[$k] $k 0x81A4; $n++ }
   } finally { $in.Dispose(); $zip.Dispose() }
   "{0}: {1} entries, {2:N1} MB" -f (Split-Path $dest -Leaf), $n, ((Get-Item $dest).Length / 1MB)
 }
 try {
   # ---- Windows x64: electron.exe → NEXORA Studio.exe, default app removed ----
-  $W = 'NEXORA-Studio-win-x64/'
-  Build (Get-Electron 'win32-x64') (Join-Path $out 'NEXORA-Studio-win-x64.zip') { param($p) if ($p -eq 'resources/default_app.asar') { $null } elseif ($p -eq 'electron.exe') { $W + 'NEXORA Studio.exe' } else { $W + $p } } ($W + 'resources/app/') $null @{} $false
+  $W = 'NEXORA-Studio-win-x64/'; $winZip = Get-Electron 'win32-x64'; $winReplace = @{}
+  # the .exe's own icon and name (Explorer, taskbar, Alt+Tab): set with Electron's rcedit when -Rcedit points to it
+  if ($Rcedit) {
+    $z = [IO.Compression.ZipFile]::OpenRead($winZip); $exe = Join-Path $work 'NEXORA Studio.exe'
+    try { [IO.Compression.ZipFileExtensions]::ExtractToFile(($z.Entries | Where-Object FullName -eq 'electron.exe'), $exe, $true) } finally { $z.Dispose() }
+    $ver = (Get-Content (Join-Path $root 'package.json') -Raw | ConvertFrom-Json).version
+    & $Rcedit $exe --set-icon (Join-Path $root 'build/icon.ico') --set-version-string ProductName 'NEXORA Studio' --set-version-string FileDescription 'NEXORA Studio' --set-version-string CompanyName 'NEXORA Studio contributors' --set-version-string OriginalFilename 'NEXORA Studio.exe' --set-version-string InternalName 'NEXORA Studio' --set-version-string LegalCopyright 'MIT License' --set-file-version $ver --set-product-version $ver
+    if ($LASTEXITCODE) { throw "rcedit failed ($LASTEXITCODE)" }
+    $vi = (Get-Item $exe).VersionInfo; if ($vi.ProductName -ne 'NEXORA Studio') { throw "exe metadata not applied: $($vi.ProductName)" }
+    "exe: icon and metadata set ($($vi.ProductName) $($vi.ProductVersion))"; $winReplace['electron.exe'] = $exe
+  } else { 'exe: default Electron icon (pass -Rcedit <path to rcedit-x64.exe> to set the NEXORA icon)' }
+  Build $winZip (Join-Path $out 'NEXORA-Studio-win-x64.zip') { param($p) if ($p -eq 'resources/default_app.asar') { $null } elseif ($p -eq 'electron.exe') { $W + 'NEXORA Studio.exe' } else { $W + $p } } ($W + 'resources/app/') $null @{} $false $winReplace
   # ---- Linux x64 ----
   $L = 'NEXORA-Studio-linux-x64/'
   Build (Get-Electron 'linux-x64') (Join-Path $out 'NEXORA-Studio-linux-x64.zip') { param($p) if ($p -eq 'resources/default_app.asar') { $null } elseif ($p -eq 'electron') { $L + 'nexora-studio' } else { $L + $p } } ($L + 'resources/app/') $null @{
-    ($L + 'README-LINUX.txt') = "NEXORA Studio for Linux (x64)`n`nunzip NEXORA-Studio-linux-x64.zip`ncd NEXORA-Studio-linux-x64 && ./nexora-studio`n`nIf it exits with a sandbox error (Ubuntu 23.10+ restricts unprivileged user namespaces), either run`n  sudo chown root:root chrome-sandbox && sudo chmod 4755 chrome-sandbox`nonce, or start it with ./nexora-studio --no-sandbox.`nSystem-audio capture is not available on Linux (screen video + microphone work).`n" } $true
+    ($L + 'README-LINUX.txt') = "NEXORA Studio for Linux (x64)`n`nunzip NEXORA-Studio-linux-x64.zip`ncd NEXORA-Studio-linux-x64 && ./nexora-studio`n`nIf it exits with a sandbox error (Ubuntu 23.10+ restricts unprivileged user namespaces), either run`n  sudo chown root:root chrome-sandbox && sudo chmod 4755 chrome-sandbox`nonce, or start it with ./nexora-studio --no-sandbox.`nSystem-audio capture is not available on Linux (screen video + microphone work).`n`nMenu entry with the NEXORA icon: edit the two paths in nexora-studio.desktop to where you unzipped NEXORA,`nthen copy it to ~/.local/share/applications/.`nFFmpeg (ProRes, DNxHR, audio export): sudo apt install ffmpeg`n"
+    ($L + 'nexora-studio.desktop') = "[Desktop Entry]`nType=Application`nName=NEXORA Studio`nComment=Video, colour, motion, VFX and design editor`nExec=/opt/NEXORA-Studio-linux-x64/nexora-studio %F`nIcon=/opt/NEXORA-Studio-linux-x64/nexora-studio.png`nTerminal=false`nCategories=AudioVideo;Video;AudioVideoEditing;Graphics;`nStartupWMClass=NEXORA Studio`n" } $true @{} @{ ($L + 'nexora-studio.png') = (Join-Path $root 'build/icon.png') }
   # ---- macOS (Apple silicon + Intel) ----
   foreach ($arch in 'arm64', 'x64') {
     $M = 'NEXORA Studio.app/'
     $plist = @{ 'Electron.app/Contents/Info.plist' = { param($t) $t -replace '(<key>CFBundleDisplayName</key>\s*<string>)Electron(</string>)', '$1NEXORA Studio$2' -replace '(<key>CFBundleName</key>\s*<string>)Electron(</string>)', '$1NEXORA Studio$2' } }
     Build (Get-Electron "darwin-$arch") (Join-Path $out "NEXORA-Studio-mac-$arch.zip") { param($p) if ($p -eq 'Electron.app/Contents/Resources/default_app.asar') { $null } elseif ($p.StartsWith('Electron.app/')) { $M + $p.Substring(13) } else { $p } } ($M + 'Contents/Resources/app/') $plist @{
-      'README-MAC.txt' = "NEXORA Studio for macOS ($arch)`n`nThis build is not signed with an Apple Developer ID. macOS will block it the first time:`n  1. Move 'NEXORA Studio.app' to Applications.`n  2. Run in Terminal:`n       xattr -cr '/Applications/NEXORA Studio.app'`n       codesign --force --deep --sign - '/Applications/NEXORA Studio.app'`n     (the second line re-signs it locally; adding NEXORA to Electron's bundle changes its contents)`n  3. Open it normally (or right-click > Open).`nSystem audio in screen recordings needs macOS 13 or later.`n" } $true
+      'README-MAC.txt' = "NEXORA Studio for macOS ($arch)`n`nThis build is not signed with an Apple Developer ID. macOS will block it the first time:`n  1. Move 'NEXORA Studio.app' to Applications.`n  2. Run in Terminal:`n       xattr -cr '/Applications/NEXORA Studio.app'`n       codesign --force --deep --sign - '/Applications/NEXORA Studio.app'`n     (the second line re-signs it locally; adding NEXORA to Electron's bundle changes its contents)`n  3. Open it normally (or right-click > Open).`nSystem audio in screen recordings needs macOS 13 or later.`nFFmpeg (ProRes, DNxHR, audio export): brew install ffmpeg`n" } $true @{ 'Electron.app/Contents/Resources/electron.icns' = (Join-Path $root 'build/icon.icns') }   # the app's Finder / Dock icon
   }
 } finally { Remove-Item -Recurse -Force $work -ErrorAction SilentlyContinue }

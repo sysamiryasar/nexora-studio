@@ -1,4 +1,8 @@
+<p align="center"><img src="build/icon.svg" width="128" height="128" alt="NEXORA Studio"></p>
+
 # NEXORA Studio
+
+**Website and downloads: https://nexora-editor.pages.dev** · [Changelog](CHANGELOG.md) · [Releases](../../releases)
 
 One application, many creative workspaces sharing one project and one asset library.
 Start on **Home** (create a project, pick a template, or reopen one from the Projects grid). Inside a project, a vertical **mode rail** switches between **Edit**, **Motion**, **VFX** and **Design** on the same project; every project autosaves to a local library.
@@ -18,6 +22,9 @@ npm start
 FFmpeg and the on-device AI models are too large for git, so `scripts/fetch-vendor.ps1` downloads them and checks every file against a fixed SHA-256. Online sign-in uses a Google Apps Script backend: copy `electron/gas.config.example.json` to `electron/gas.config.json` with your own deployment URL (setup in [docs/ACCOUNTS.md](docs/ACCOUNTS.md)), or leave it out and the app runs with local accounts only.
 
 The website lives in `site/` and is static HTML, deployable to Cloudflare Pages with no build command and `site` as the output folder.
+
+## Releasing
+Version history lives in `nexora/app/changelog.js` (the app's What's new). Add the new version at the top, set the same version in `package.json`, run `pwsh scripts/changelog.ps1` (writes CHANGELOG.md, RELEASE_NOTES.md and the website copy), commit, then tag `vX.Y.Z`: GitHub Actions tests on Windows, macOS and Linux, builds the four zips with the NEXORA icon and publishes the release.
 
 ## License
 NEXORA Studio is MIT licensed ([LICENSE](LICENSE)). Bundled components keep their own licenses, listed in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md); the Windows release includes FFmpeg under GPL v3.

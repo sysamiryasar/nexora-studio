@@ -188,6 +188,24 @@ body.color-page #over{opacity:0;pointer-events:none}
 .mp-list td{padding:4px 6px;border-bottom:1px solid #0b0c0e;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#c9d0d8}
 .mp-list td.mono{font:10.5px Consolas,monospace}.mp-list .mp-n{color:#fff}
 .mp-list tr{cursor:pointer}.mp-list tbody tr:hover td{background:var(--bg3)}.mp-list tr.on td{background:var(--accsoft)}
+.tc-click{cursor:text}.tc-click:hover{text-shadow:0 0 14px #5cb8ffb3}
+.tc-edit{font:inherit;color:#fff;background:#000;border:1px solid var(--acc);border-radius:2px;padding:0 4px;height:22px;box-shadow:var(--glow-s);letter-spacing:inherit}
+/* What's new / About */
+.hn-ver{margin-left:auto;font:10.5px Consolas,monospace;color:var(--acc);padding:1px 6px;border:1px solid #5cb8ff4d;border-radius:2px}
+.wn{width:min(560px,80vw);max-height:62vh;overflow:auto;display:flex;flex-direction:column;gap:8px;user-select:text}
+.wn-rel{border:1px solid var(--line);border-radius:3px;background:var(--bg1)}
+.wn-rel>summary{padding:8px 12px;background:none}.wn-rel>summary b{color:#fff}
+.wn-rel ul{margin:0;padding:2px 16px 12px 30px;line-height:1.55;color:#c9d0d8}
+.wn-foot{margin:4px 0 0;font-size:12px}.wn-foot a{color:var(--acc)}
+.ab{display:flex;gap:20px;align-items:flex-start;width:min(520px,80vw)}.ab img{flex:none;filter:drop-shadow(0 0 18px #5cb8ff59)}
+.ab-name{font-size:18px;color:#fff}.ab-ver{font:12px Consolas,monospace;color:var(--acc);margin:2px 0 8px}.ab p{margin:0 0 12px;line-height:1.45}
+.ab-links{display:flex;flex-wrap:wrap;gap:6px}
+/* logo: the app icon everywhere the brand mark appears */
+.brand-mark{background:url('app/logo.svg') center/contain no-repeat!important;box-shadow:none!important;border-radius:0!important;width:22px;height:22px}
+.brand-mark::after{display:none!important}
+#splash .sp-logo{display:block;filter:drop-shadow(0 0 24px #5cb8ff73);animation:sp-pop .55s cubic-bezier(.2,1.4,.4,1) both}
+@keyframes sp-pop{from{opacity:0;transform:scale(.82) rotate(-4deg)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){#splash .sp-logo{animation:none}}
 /* update notice */
 #updateBar{position:fixed;left:12px;bottom:58px;z-index:500;width:min(520px,calc(100vw - 24px));display:flex;flex-wrap:wrap;align-items:center;gap:8px;padding:10px 12px;background:#0d0e10;border:1px solid #5cb8ff66;border-radius:4px;box-shadow:0 12px 40px #000c,0 0 24px #5cb8ff26;font-size:12.5px;animation:au-in .3s ease-out}
 #updateBar b{color:#fff;font-weight:600}#updateBar button{height:26px;padding:0 10px}

@@ -2,6 +2,16 @@
 
 _Last updated: milestone 10 (limits removed: pro codecs, render cache, GPU everywhere, PSD, TIFF, real healing / content-aware fill). Every "Available" item below is exercised by `tests/tests.js` (all passing in Chrome and in the packaged Electron 33 app) or by manual real-input testing._
 
+## Milestone 25 (v2.2.0): logo, changelog, website
+- **Logo**: an N whose diagonal is a light-blue blade, on a dark rounded tile (`build/icon.svg`). It is rendered to PNG at 16–1024 px, to `build/icon.ico` (7 sizes) and to `build/icon.icns` (11 sizes, structure checked).
+  - In the app: the window and taskbar icon, the splash, the header and Home.
+  - In the packages: the Windows `.exe` icon and metadata (set by rcedit in CI), the macOS app icon, and the Linux PNG plus `.desktop` file.
+- **Changelog**: `nexora/app/changelog.js` is the single source. `scripts/changelog.ps1` writes CHANGELOG.md, RELEASE_NOTES.md and `site/changelog.js`, and CI fails if they drift or `package.json` disagrees.
+  - The app shows What's new on the first start after an update, never on a fresh install. Help › What's new / About and the Home sidebar link open it any time.
+- **Go to timecode**: click a timecode readout and type an absolute timecode or a +/- offset.
+- **Test runs** with `--nx-userdata` keep their project folders inside that folder, never in the user's Documents.
+- **Website rebuilt**: logo, every feature with fresh screenshots (click to enlarge), a full feature list, and the changelog rendered from the same file as the app.
+
 ## Milestone 24 (v2.1.0): update notice, automatic builds
 - **Update notice**: once a day the desktop app reads the latest public release from GitHub (no account, no identifiers, generic User-Agent). If it is newer, a small bar offers What's new, Download and Later; Later hides that version only. Check manually with "Help: Check for updates" in the command palette, where automatic checks can also be turned off. Pre-releases are never offered.
 - **Self-test mode**: `--nx-selftest` runs the whole suite inside the real app, prints the result and exits with 0 when everything passes. `--nx-userdata=<folder>` keeps a test run's settings and library away from the user's own.

@@ -36,7 +36,8 @@ async function retry(fn, n = 12) { for (let i = 0; ; i++) { try { return await f
 /* file-system calls used by the project/media layer (see electron/preload.js) */
 function registerIpc() {
   const h = (ch, fn) => ipcMain.handle('nxfs:' + ch, (_e, ...a) => fn(...a));
-  h('defaultRoot', () => path.join(app.getPath('documents'), 'NEXORA Projects'));
+  // with --nx-userdata (test runs, CI) project folders stay inside that folder too, never in the user's Documents
+  h('defaultRoot', () => process.argv.some(a => a.startsWith('--nx-userdata=')) ? path.join(app.getPath('userData'), 'NEXORA Projects') : path.join(app.getPath('documents'), 'NEXORA Projects'));
   h('pickFolder', async o => { const r = await dialog.showOpenDialog(BrowserWindow.getFocusedWindow(), { title: o.title || 'Choose folder', defaultPath: o.defaultPath, properties: ['openDirectory', 'createDirectory'] }); return r.canceled ? null : r.filePaths[0]; });
   h('pickFiles', async o => { const r = await dialog.showOpenDialog(BrowserWindow.getFocusedWindow(), { title: o.title || 'Choose file', defaultPath: o.defaultPath, filters: o.filters, properties: o.multi ? ['openFile', 'multiSelections'] : ['openFile'] }); return r.canceled ? [] : r.filePaths; });
   h('stat', async p => { try { const s = await fsp.stat(p); return { exists: true, size: s.size, mtime: s.mtimeMs, isDir: s.isDirectory() }; } catch (e) { return { exists: false }; } });
@@ -83,7 +84,7 @@ app.on('will-quit', () => logLine('will-quit'));
 function createWindow() {
   const win = new BrowserWindow({
     width: 1600, height: 960, minWidth: 1000, minHeight: 640,
-    backgroundColor: '#050507', title: 'NEXORA Studio', autoHideMenuBar: true,
+    backgroundColor: '#050507', title: 'NEXORA Studio', autoHideMenuBar: true, icon: path.join(__dirname, 'icons', process.platform === 'win32' ? 'icon.ico' : 'icon.png'),
     // --nx-hidden: automated test runs render off-screen instead of popping a window over the user's desktop
     show: !process.argv.includes('--nx-hidden'), paintWhenInitiallyHidden: true,
     webPreferences: { contextIsolation: true, nodeIntegration: false, sandbox: true, backgroundThrottling: false, preload: path.join(__dirname, 'preload.js') }

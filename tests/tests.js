@@ -362,6 +362,22 @@ const NexoraTests = (() => {
       ok(cloneLayer(L).label === 'navy', 'label survives duplicate');
     } finally { removeLayer(L.id); document.getElementById('menuPop').classList.add('hidden'); }
   });
+  test('about: changelog is well formed, newest first, and matches the app version', async () => {
+    const L = window.NX_CHANGELOG; ok(Array.isArray(L) && L.length >= 3, 'entries');
+    for (let i = 0; i < L.length; i++) { const r = L[i]; ok(/^\d+\.\d+\.\d+$/.test(r.version) && /^\d{4}-\d\d-\d\d$/.test(r.date) && r.title && r.items.length, 'entry ' + r.version); if (i) ok(About.cmp(L[i - 1].version, r.version) > 0, 'newest first'); }
+    if (window.nxupdate) { await nxupdate.test({ tag_name: 'v0.0.1', html_url: 'x', body: '' }); try { const r = await nxupdate.check(false); ok(r.current === About.version(), `package.json ${r.current} = changelog ${About.version()}`); } finally { await nxupdate.test(null); } }
+    About.whatsNew('2.0.0'); let m = document.querySelector('#modal .wn'); ok(m && m.querySelectorAll('.wn-rel').length === L.filter(r => About.cmp(r.version, '2.0.0') > 0).length, "What's new lists only newer versions"); closeModal();
+    About.about(); m = document.querySelector('#modal .ab'); ok(m && m.textContent.includes('Version ' + About.version()), 'About shows the version'); closeModal();
+  });
+  test('about: the logo loads and is the brand mark', async () => {
+    const img = new Image(); img.src = 'nexora/app/logo.svg'; await img.decode(); ok(img.naturalWidth > 0, 'logo.svg decodes');
+    const b = document.querySelector('.brand-mark'); ok(b && /logo\.svg/.test(getComputedStyle(b).backgroundImage), 'brand mark uses the logo');
+  });
+  test('timeline: go to timecode parses absolute and relative input', () => {
+    const p = s => GotoTC.parse(s, 30); ok(Math.abs(p('00:00:02:15') - 2.5) < 1e-9, 'HH:MM:SS:FF'); ok(Math.abs(p('1:00:00') - 60) < 1e-9, 'M:SS:FF'); ok(Math.abs(p('3:00') - 3) < 1e-9, 'SS:FF');
+    ok(p('+2:00').rel === 2 && Math.abs(p('-15').rel + .5) < 1e-9, 'relative'); ok(p('01.02.03.04') > 3723 && p('abc') === null && p('') === null, 'dots ok, junk refused');
+    const T0 = T; try { seek(1); const s = document.getElementById('tlTC'); GotoTC.edit(s); const inp = s.querySelector('input'); ok(inp, 'readout turns into a field'); inp.value = '+1:00'; inp.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter' })); ok(Math.abs(T - Math.min(P.dur, 2)) < .02 && !s.querySelector('input'), 'jumped and closed: ' + T); } finally { seek(T0); }
+  });
   test('updates: version compare and the update notice', async () => {
     if (!window.nxupdate) return;
     const old = localStorage.getItem('nx.update.skip'); localStorage.removeItem('nx.update.skip');

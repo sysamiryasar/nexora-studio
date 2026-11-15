@@ -4,139 +4,228 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>NEXORA Studio — free, open-source video editor</title>
-<meta name="description" content="A free, open-source desktop editor for video, motion, VFX and design. 4K to 8K, ProRes and DNxHR, 220+ GPU effects, 1,590 original music tracks.">
+<meta name="description" content="A free, open-source desktop editor for video, colour, motion, VFX and design. Pro timeline, Color page with wheels, curves and secondaries, 220+ GPU effects, 1,590 original music tracks, AI editor, exports up to 8K.">
 <meta property="og:title" content="NEXORA Studio">
-<meta property="og:description" content="Free, open-source video editor. Cut on the beat, export up to 8K.">
-<meta property="og:image" content="assets/built-different-poster.jpg">
+<meta property="og:description" content="Free, open-source video editor. Cut on the beat, grade like a colourist, export up to 8K.">
+<meta property="og:image" content="assets/shots/edit.jpg">
 <meta name="theme-color" content="#000000">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Crect width='24' height='24' rx='4' fill='%235cb8ff'/%3E%3Cpath d='M6 5h3v14H6zM15 5h3v14h-3zM6 5h3.4L18 19h-3.4z'/%3E%3C/svg%3E">
+<link rel="icon" href="favicon.ico" sizes="any">
+<link rel="icon" href="assets/logo.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="assets/icon-180.png">
 <style>
-:root{--bg:#000;--bg1:#07090c;--bg2:#0d1116;--line:#1d232b;--txt:#f1f4f8;--dim:#8b95a1;--acc:#5cb8ff;--glow:0 0 0 1px #5cb8ff80,0 0 24px #5cb8ff55}
+:root{--bg:#000;--bg1:#07090c;--bg2:#0d1116;--bg3:#141a21;--line:#1d232b;--txt:#f1f4f8;--dim:#8b95a1;--acc:#5cb8ff;--acc2:#9ad6ff;--glow:0 0 0 1px #5cb8ff80,0 0 24px #5cb8ff55}
 *{box-sizing:border-box}html{scroll-behavior:smooth}
-body{margin:0;background:var(--bg);color:var(--txt);font:16px/1.55 "Segoe UI Variable Text","Segoe UI",system-ui,-apple-system,sans-serif;-webkit-font-smoothing:antialiased}
-a{color:inherit;text-decoration:none}
-.wrap{max-width:1120px;margin:0 auto;padding:0 24px}
-nav{position:sticky;top:0;z-index:10;background:#000c;backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
-nav .wrap{display:flex;align-items:center;gap:28px;height:60px}
-.logo{display:flex;align-items:center;gap:10px;font-weight:700;letter-spacing:2.5px;font-size:14px}
-.mark{width:24px;height:24px;border-radius:4px;background:var(--acc);box-shadow:0 0 16px #5cb8ff88;position:relative}
-.mark::after{content:"";position:absolute;inset:0;background:#000;-webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M6 5h3v14H6zM15 5h3v14h-3zM6 5h3.4L18 19h-3.4z'/%3E%3C/svg%3E") center/contain no-repeat;mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M6 5h3v14H6zM15 5h3v14h-3zM6 5h3.4L18 19h-3.4z'/%3E%3C/svg%3E") center/contain no-repeat}
+body{margin:0;background:var(--bg);color:var(--txt);font:16px/1.6 "Segoe UI Variable Text","Segoe UI",system-ui,-apple-system,sans-serif;-webkit-font-smoothing:antialiased}
+a{color:inherit;text-decoration:none}img{max-width:100%}
+.wrap{max-width:1180px;margin:0 auto;padding:0 24px}
+code{font:.9em Consolas,ui-monospace,monospace;background:var(--bg2);border:1px solid var(--line);padding:1px 6px;border-radius:3px}
+/* nav */
+nav{position:sticky;top:0;z-index:20;background:#000000d9;backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+nav .wrap{display:flex;align-items:center;gap:26px;height:62px}
+.logo{display:flex;align-items:center;gap:11px;font-weight:700;letter-spacing:2.6px;font-size:14px}.logo img{width:32px;height:32px;filter:drop-shadow(0 0 10px #5cb8ff55)}
+.logo small{font-weight:500;letter-spacing:.4px;color:var(--dim);font-size:12px}
 nav .links{display:flex;gap:22px;margin-left:auto;font-size:14px;color:#c5ccd6}nav .links a:hover{color:#fff}
-.btn{display:inline-flex;align-items:center;gap:10px;height:46px;padding:0 22px;border-radius:5px;font-weight:600;font-size:15px;border:1px solid var(--line);background:var(--bg2);transition:box-shadow .15s,border-color .15s}
+.btn{display:inline-flex;align-items:center;gap:10px;height:46px;padding:0 22px;border-radius:6px;font-weight:600;font-size:15px;border:1px solid var(--line);background:var(--bg2);transition:box-shadow .15s,border-color .15s,transform .15s}
 .btn:hover{border-color:var(--acc);box-shadow:var(--glow)}
-.btn.primary{background:var(--acc);color:#000;border-color:var(--acc)}.btn.primary:hover{box-shadow:0 0 0 1px #5cb8ff,0 0 34px #5cb8ffaa}
-.btn small{font-weight:400;opacity:.75}
-.hero{padding:84px 0 70px;background:radial-gradient(900px 520px at 70% 30%,#0b2238 0%,#000 70%)}
-.hero .wrap{display:grid;grid-template-columns:1.15fr .85fr;gap:56px;align-items:center}
+.btn.primary{background:var(--acc);color:#000;border-color:var(--acc)}.btn.primary:hover{box-shadow:0 0 0 1px #5cb8ff,0 0 34px #5cb8ffaa;transform:translateY(-1px)}
+.btn small{font-weight:400;opacity:.75}.btn.sm{height:36px;padding:0 14px;font-size:13.5px}
+/* hero */
+.hero{position:relative;padding:76px 0 40px;overflow:hidden;background:radial-gradient(1000px 560px at 50% 0%,#0b2238 0%,#000 70%)}
+.hero .wrap{text-align:center}
+.hero-logo{width:120px;height:120px;filter:drop-shadow(0 0 40px #5cb8ff66);animation:float 6s ease-in-out infinite}
+@keyframes float{50%{transform:translateY(-6px)}}
+.pill{display:inline-flex;align-items:center;gap:8px;margin:22px 0 0;padding:5px 12px 5px 6px;border:1px solid #5cb8ff4d;border-radius:999px;font-size:13px;color:#c5ccd6;background:#5cb8ff12}
+.pill b{background:var(--acc);color:#000;border-radius:999px;padding:1px 9px;font-size:12px}.pill:hover{border-color:var(--acc)}
+h1{font-size:clamp(40px,6.4vw,76px);line-height:1.02;margin:18px auto 16px;letter-spacing:-1.8px;font-weight:700;max-width:920px}
+h1 em{font-style:normal;color:var(--acc);text-shadow:0 0 34px #5cb8ff80}
+.lead{font-size:19px;color:#c5ccd6;max-width:680px;margin:0 auto 28px}
+.cta{display:flex;gap:12px;flex-wrap:wrap;justify-content:center}
+.meta{margin-top:14px;color:var(--dim);font-size:13px}
+.shot-hero{margin:52px auto 0;max-width:1120px;border-radius:12px;overflow:hidden;border:1px solid #5cb8ff40;box-shadow:0 0 0 1px #5cb8ff26,0 0 120px #5cb8ff2e,0 40px 120px #000;background:#000}
+.shot-hero img{display:block;width:100%}
+.stats{display:grid;grid-template-columns:repeat(5,1fr);gap:1px;background:var(--line);border:1px solid var(--line);border-radius:10px;overflow:hidden;margin:56px auto 0;max-width:1000px}
+.stats div{background:var(--bg1);padding:18px 10px;text-align:center}.stats b{display:block;font-size:24px;color:#fff;font-variant-numeric:tabular-nums}.stats span{font-size:13px;color:var(--dim)}
+/* sections */
+section{padding:92px 0;border-top:1px solid var(--line)}
 .eyebrow{color:var(--acc);font-size:13px;letter-spacing:1.8px;text-transform:uppercase;font-weight:600}
-h1{font-size:clamp(40px,6vw,70px);line-height:1.02;margin:14px 0 18px;letter-spacing:-1.5px;font-weight:700}
-h1 em{font-style:normal;color:var(--acc);text-shadow:0 0 30px #5cb8ff80}
-.lead{font-size:19px;color:#c5ccd6;max-width:560px;margin:0 0 30px}
-.cta{display:flex;gap:12px;flex-wrap:wrap}
-.meta{margin-top:16px;color:var(--dim);font-size:13px}
-.phone{justify-self:center;width:300px;aspect-ratio:9/16;border-radius:26px;overflow:hidden;border:1px solid #5cb8ff55;box-shadow:0 0 0 1px #5cb8ff33,0 0 90px #5cb8ff40,0 30px 80px #000;background:#000}
-.phone video{width:100%;height:100%;object-fit:cover;display:block}
-.cap{text-align:center;color:var(--dim);font-size:13px;margin-top:12px}
-section{padding:84px 0;border-top:1px solid var(--line)}
-h2{font-size:clamp(28px,4vw,40px);margin:0 0 10px;letter-spacing:-.6px}
-.sub{color:var(--dim);margin:0 0 40px;max-width:640px}
-.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
-.card{background:var(--bg1);border:1px solid var(--line);border-radius:6px;padding:22px}
-.card b{display:block;font-size:17px;margin-bottom:6px}.card p{margin:0;color:var(--dim);font-size:14.5px}
-.card .n{color:var(--acc);font-size:13px;font-weight:600;letter-spacing:.6px;margin-bottom:10px;display:block}
-.shots{display:grid;grid-template-columns:repeat(2,1fr);gap:18px}
-figure{margin:0;background:var(--bg1);border:1px solid var(--line);border-radius:6px;overflow:hidden}
-figure img{width:100%;display:block;aspect-ratio:16/9.3;object-fit:cover;object-position:top left}
-figcaption{padding:12px 16px;color:var(--dim);font-size:14px}figcaption b{color:var(--txt);font-weight:600}
+h2{font-size:clamp(28px,4vw,42px);margin:8px 0 10px;letter-spacing:-.7px;line-height:1.12}
+.sub{color:var(--dim);margin:0 0 44px;max-width:680px;font-size:17px}
+.center{text-align:center}.center .sub{margin-left:auto;margin-right:auto}
+/* feature rows */
+.feat{display:grid;grid-template-columns:1.25fr .75fr;gap:48px;align-items:center;margin:0 0 84px}
+.feat:last-child{margin-bottom:0}
+.feat.flip{grid-template-columns:.75fr 1.25fr}.feat.flip .media{order:2}
+.media{border-radius:10px;overflow:hidden;border:1px solid var(--line);background:#000;box-shadow:0 24px 70px #000;cursor:zoom-in;transition:border-color .2s,box-shadow .2s}
+.media:hover{border-color:#5cb8ff66;box-shadow:0 0 50px #5cb8ff26,0 24px 70px #000}
+.media img{display:block;width:100%}
+.feat h3{font-size:28px;margin:6px 0 10px;letter-spacing:-.4px;line-height:1.15}
+.feat p{color:#c5ccd6;margin:0 0 14px}
+.feat ul{margin:0;padding:0;list-style:none;display:grid;gap:7px;color:#c5ccd6;font-size:15px}
+.feat li{padding-left:22px;position:relative}.feat li::before{content:"";position:absolute;left:2px;top:.62em;width:8px;height:8px;border-radius:2px;background:var(--acc);box-shadow:0 0 8px var(--acc)}
+.tag{display:inline-block;font-size:11px;padding:2px 8px;border-radius:3px;background:#5cb8ff1c;color:var(--acc);font-weight:600;letter-spacing:.4px;vertical-align:3px;margin-left:8px}
+/* small grid */
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+.card{background:var(--bg1);border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.card .media{border:0;border-radius:0;box-shadow:none;border-bottom:1px solid var(--line)}
+.card .txt{padding:18px 20px 20px}.card h4{margin:0 0 6px;font-size:18px}.card p{margin:0;color:var(--dim);font-size:14.5px}
+/* everything list */
+.all{display:grid;grid-template-columns:repeat(4,1fr);gap:18px}
+.all div{background:var(--bg1);border:1px solid var(--line);border-radius:10px;padding:20px}
+.all h4{margin:0 0 10px;font-size:15px;color:var(--acc);letter-spacing:.4px;text-transform:uppercase}
+.all ul{margin:0;padding-left:18px;color:#c5ccd6;font-size:14px;line-height:1.7}
+/* download */
 .dl{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
-.os{background:var(--bg1);border:1px solid var(--line);border-radius:6px;padding:22px;display:flex;flex-direction:column;gap:12px}
+.os{background:var(--bg1);border:1px solid var(--line);border-radius:10px;padding:22px;display:flex;flex-direction:column;gap:12px}
 .os.me{border-color:#5cb8ff88;box-shadow:0 0 40px #5cb8ff22}
 .os b{font-size:17px}.os p{margin:0;color:var(--dim);font-size:13.5px;flex:1}.os .btn{justify-content:center;height:42px}
-.tag{display:inline-block;font-size:11px;padding:1px 7px;border-radius:3px;background:#5cb8ff1c;color:var(--acc);margin-left:6px;vertical-align:2px}
 .notes{margin-top:26px;color:var(--dim);font-size:14px;display:grid;grid-template-columns:repeat(3,1fr);gap:18px}.notes b{color:var(--txt)}
-pre{background:var(--bg2);border:1px solid var(--line);border-radius:6px;padding:16px 18px;overflow:auto;font:13.5px Consolas,ui-monospace,monospace;color:#d5dde6;margin:0}
-.src{display:grid;grid-template-columns:1fr 1fr;gap:28px;align-items:start}
-footer{border-top:1px solid var(--line);padding:30px 0 44px;color:var(--dim);font-size:13.5px}footer .wrap{display:flex;gap:20px;flex-wrap:wrap}footer a:hover{color:#fff}
-@media (max-width:900px){.hero .wrap,.src{grid-template-columns:1fr}.grid,.dl,.notes{grid-template-columns:1fr 1fr}.shots{grid-template-columns:1fr}nav .links a:not(.gh){display:none}}
-@media (max-width:560px){.wrap{padding:0 16px}.grid,.dl,.notes{grid-template-columns:1fr}.hero{padding:56px 0}.phone{width:240px}}
-@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+/* changelog */
+.cl{max-width:820px;margin:0 auto;display:flex;flex-direction:column;gap:12px}
+.rel{background:var(--bg1);border:1px solid var(--line);border-radius:10px}
+.rel summary{cursor:pointer;list-style:none;padding:18px 22px;display:flex;align-items:baseline;gap:12px;flex-wrap:wrap}
+.rel summary::-webkit-details-marker{display:none}
+.rel summary b{font-size:19px;color:#fff}.rel summary .d{color:var(--dim);font-size:14px}.rel summary .t{color:#c5ccd6;flex:1;min-width:200px}
+.rel summary::after{content:"+";color:var(--acc);font-size:20px;margin-left:auto}.rel[open] summary::after{content:"−"}
+.rel ul{margin:0;padding:0 26px 20px 44px;color:#c5ccd6;line-height:1.7}
+.rel.latest{border-color:#5cb8ff66;box-shadow:0 0 40px #5cb8ff1a}.rel .new{background:var(--acc);color:#000;font-size:11px;font-weight:700;padding:2px 8px;border-radius:3px;letter-spacing:.5px}
+/* source */
+pre{background:var(--bg2);border:1px solid var(--line);border-radius:8px;padding:16px 18px;overflow:auto;font:13.5px Consolas,ui-monospace,monospace;color:#d5dde6;margin:0}
+.src{display:grid;grid-template-columns:1fr 1fr;gap:32px;align-items:start}
+footer{border-top:1px solid var(--line);padding:34px 0 48px;color:var(--dim);font-size:13.5px}
+footer .wrap{display:flex;gap:22px;flex-wrap:wrap;align-items:center}footer a:hover{color:#fff}footer img{width:22px;height:22px}
+/* lightbox */
+#lb{position:fixed;inset:0;z-index:50;background:#000e;display:none;align-items:center;justify-content:center;padding:24px;cursor:zoom-out}
+#lb.on{display:flex}#lb img{max-width:100%;max-height:100%;border-radius:8px;border:1px solid #5cb8ff55;box-shadow:0 0 80px #5cb8ff33}
+@media (max-width:960px){.feat,.feat.flip,.src{grid-template-columns:1fr;gap:24px}.feat.flip .media{order:0}.grid3,.dl,.notes,.all{grid-template-columns:1fr 1fr}.stats{grid-template-columns:repeat(3,1fr)}nav .links a:not(.keep){display:none}}
+@media (max-width:600px){.wrap{padding:0 16px}.grid3,.dl,.notes,.all{grid-template-columns:1fr}.stats{grid-template-columns:1fr 1fr}.hero{padding:52px 0 30px}.hero-logo{width:92px;height:92px}section{padding:64px 0}}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}.hero-logo{animation:none}}
 </style>
 </head>
 <body>
-<nav><div class="wrap"><a class="logo" href="#"><span class="mark"></span>NEXORA</a><div class="links"><a href="#features">Features</a><a href="#download">Download</a><a href="#source">Open source</a><a class="gh" data-repo-link href="https://github.com/sysamiryasar/nexora-studio">GitHub</a></div></div></nav>
+<nav><div class="wrap">
+  <a class="logo" href="#"><img src="assets/logo.svg" alt="">NEXORA <small>Studio</small></a>
+  <div class="links"><a href="#features">Features</a><a href="#color">Color</a><a href="#everything">Everything</a><a href="#changelog">Changelog</a><a class="keep" href="#download">Download</a><a class="keep" data-repo-link href="https://github.com/sysamiryasar/nexora-studio">GitHub</a></div>
+</div></nav>
 
 <header class="hero"><div class="wrap">
-  <div>
-    <div class="eyebrow">Free · Open source · Windows desktop</div>
-    <h1>Edit like every frame <em>earns its place.</em></h1>
-    <p class="lead">NEXORA Studio is a desktop editor for video, motion graphics, VFX and design. Cut on the beat, grade, title and export up to 8K, with no subscription and no watermark.</p>
-    <div class="cta"><a class="btn primary" id="heroDl" data-asset="NEXORA-Studio-win-x64.zip" href="https://github.com/sysamiryasar/nexora-studio/releases/latest/download/NEXORA-Studio-win-x64.zip">Download for Windows <small>· 251 MB</small></a><a class="btn" data-repo-link href="https://github.com/sysamiryasar/nexora-studio">View source</a></div>
-    <div class="meta">MIT licensed. No installer: unzip and run <code>NEXORA Studio.exe</code>.</div>
-  </div>
-  <div><div class="phone"><video src="assets/built-different.mp4" poster="assets/built-different-poster.jpg" autoplay muted loop playsinline preload="metadata"></video></div><div class="cap">“Built Different”, edited entirely in NEXORA</div></div>
+  <img class="hero-logo" src="assets/logo.svg" alt="NEXORA logo">
+  <div><a class="pill" href="#changelog"><b id="verTag">v2.2.0</b><span id="verTitle">What's new</span> →</a></div>
+  <h1>The free editor that <em>edits like a pro.</em></h1>
+  <p class="lead">NEXORA Studio is an open-source desktop editor for video, colour, motion graphics, VFX and design. One project, one timeline, every tool. No subscription, no watermark.</p>
+  <div class="cta"><a class="btn primary" id="heroDl" data-asset="NEXORA-Studio-win-x64.zip" href="https://github.com/sysamiryasar/nexora-studio/releases/latest/download/NEXORA-Studio-win-x64.zip">Download for Windows <small>· free</small></a><a class="btn" href="#features">See every feature</a></div>
+  <div class="meta">Windows · macOS · Linux &nbsp;·&nbsp; MIT licensed &nbsp;·&nbsp; unzip and run, no installer</div>
+  <div class="shot-hero media" data-full="assets/shots/edit.jpg"><img src="assets/shots/edit.jpg" alt="NEXORA Studio Edit page: viewer, timeline with tracks, inspector and audio meters" fetchpriority="high"></div>
+  <div class="stats"><div><b>220+</b><span>GPU effects</span></div><div><b>1,590</b><span>original tracks</span></div><div><b>8K</b><span>ProRes · DNxHR</span></div><div><b>12</b><span>pages, one project</span></div><div><b>MIT</b><span>open source</span></div></div>
 </div></header>
 
 <section id="features"><div class="wrap">
-  <h2>Everything an edit needs</h2>
-  <p class="sub">One project, one timeline, and every mode working on it: Edit, Motion, VFX, Design, Audio, Vector and 3D.</p>
-  <div class="grid">
-    <div class="card"><span class="n">TIMELINE</span><b>Fast with thousands of clips</b><p>Tracks view, J/K/L shuttle, ripple, roll and slip, beat-synced cuts, version history and a Project Doctor that catches flash frames and gaps before export.</p></div>
-    <div class="card"><span class="n">DELIVERY</span><b>4K to 8K, pro codecs</b><p>H.264, HEVC, AV1, Apple ProRes up to 4444 XQ, Avid DNxHR, PNG and TIFF sequences, MP3 and WAV, with a render queue.</p></div>
-    <div class="card"><span class="n">EFFECTS</span><b>220+ GPU effects</b><p>Aura, speed lines, shockwave, glass refraction, light leaks, film looks and more, each with strength and speed variations. 26 colour looks and .cube LUTs.</p></div>
-    <div class="card"><span class="n">MUSIC</span><b>1,590 original tracks</b><p>Phonk, Montagem, Funk, Epic and more, made on your computer and free to use anywhere. Plus Creative Commons search and your own files.</p></div>
-    <div class="card"><span class="n">AI</span><b>An editor that edits</b><p>Describe the edit and the AI cuts, trims, grades and titles on the real timeline. Bring your own key: OpenCode Zen (DeepSeek, GLM, Kimi, Qwen and more) or Anthropic. On-device captions and background removal.</p></div>
-    <div class="card"><span class="n">ACCOUNTS</span><b>Sign in anywhere</b><p>E-mail accounts with verification codes, authenticator-app 2FA and recovery codes. Your password never leaves your computer.</p></div>
+  <div class="center"><div class="eyebrow">Features</div><h2>Everything an edit needs, in one place</h2><p class="sub">Edit, Color, Motion, VFX, Design, Audio, Vector, 3D, Capture and AI all work on the same project and the same timeline.</p></div>
+
+  <div class="feat"><div class="media" data-full="assets/shots/edit.jpg"><img loading="lazy" src="assets/shots/edit.jpg" alt="Edit page"></div><div>
+    <div class="eyebrow">Edit</div><h3>A professional timeline</h3><p>Titled panels, timecode everywhere and the pages along the bottom, laid out like a finishing suite.</p>
+    <ul><li>Tracks view, J / K / L shuttle, ripple, roll and slip, three-point editing</li><li>Hours:minutes:seconds:frames on the viewer, timeline and ruler; click to type a timecode</li><li>Track height S / M / L, snapping, markers, In / Out, render cache</li><li>Stereo program meters and a Project Doctor that catches flash frames and gaps</li></ul></div></div>
+
+  <div class="feat flip"><div class="media" data-full="assets/shots/clipmenu.jpg"><img loading="lazy" src="assets/shots/clipmenu.jpg" alt="Clip right-click menu"></div><div>
+    <div class="eyebrow">Clips</div><h3>Right-click does the work</h3><p>Every clip has the commands you reach for most, plus speed and colour labels.</p>
+    <ul><li>Split, duplicate, delete, ripple delete, enable, mute, lock</li><li>Speed presets from 25 % to 4×; later clips move so nothing overlaps</li><li>Eight colour labels to organise the edit, saved with the project</li><li>Grade in Color, freeze frame, show in Media Pool</li></ul></div></div>
+
+  <div class="feat" id="color"><div class="media" data-full="assets/shots/color.jpg"><img loading="lazy" src="assets/shots/color.jpg" alt="Color page with wheels and vectorscope"></div><div>
+    <div class="eyebrow">Color <span class="tag">GPU</span></div><h3>Grade like a colourist</h3><p>A dedicated Color page on the same timeline: the viewer, a clip strip with graded thumbnails, scopes on the right.</p>
+    <ul><li>Lift, Gamma, Gain and Offset wheels with master levels</li><li>Contrast, saturation, temperature and tint; Auto balance from the frame</li><li>Waveform, RGB parade, vectorscope and histogram</li><li>Copy, paste or apply a grade to every clip; bypass and reset</li></ul></div></div>
+
+  <div class="feat flip"><div class="media" data-full="assets/shots/curves.jpg"><img loading="lazy" src="assets/shots/curves.jpg" alt="Curves and split-screen wipe"></div><div>
+    <div class="eyebrow">Color</div><h3>Curves and before / after</h3><p>Shape luma and each channel with smooth curves, then compare against a still with a split-screen wipe.</p>
+    <ul><li>Luma, red, green and blue curves over the frame's histogram</li><li>Grab stills and drag a wipe line between still and live grade</li><li>Same result on the GPU and the CPU, checked by tests</li></ul></div></div>
+
+  <div class="feat"><div class="media" data-full="assets/shots/secondary.jpg"><img loading="lazy" src="assets/shots/secondary.jpg" alt="Secondary qualifier and window"></div><div>
+    <div class="eyebrow">Color</div><h3>Secondaries: grade one part</h3><p>Pick a colour in the viewer, keep it to an area, and change only that.</p>
+    <ul><li>HSL qualifier with hue band, saturation and luma ranges</li><li>Ellipse or rectangle windows with soft edges, inside or outside</li><li>Show matte to see exactly what is selected</li></ul></div></div>
+
+  <div class="grid3">
+    <div class="card"><div class="media" data-full="assets/shots/effects.jpg"><img loading="lazy" src="assets/shots/effects.jpg" alt="Effects library"></div><div class="txt"><h4>220+ GPU effects</h4><p>Aura, speed lines, shockwave, glass, light leaks and film looks, each with variations. 26 colour looks and .cube LUTs.</p></div></div>
+    <div class="card"><div class="media" data-full="assets/shots/music.jpg"><img loading="lazy" src="assets/shots/music.jpg" alt="Music library"></div><div class="txt"><h4>1,590 original tracks</h4><p>Phonk, Montagem, funk, cinematic and more, made on your computer and free to use anywhere. Beat-synced cuts.</p></div></div>
+    <div class="card"><div class="media" data-full="assets/shots/guides.jpg"><img loading="lazy" src="assets/shots/guides.jpg" alt="Viewer guides and crop frames"></div><div class="txt"><h4>Guides and crop frames</h4><p>Action and title safe, thirds, centre cross, and frames that show what a 9:16, 1:1 or 4:5 cut-down keeps.</p></div></div>
+  </div>
+
+  <div class="feat flip" style="margin-top:84px"><div class="media" data-full="assets/shots/ai.jpg"><img loading="lazy" src="assets/shots/ai.jpg" alt="AI Editor panel"></div><div>
+    <div class="eyebrow">AI</div><h3>An editor that edits</h3><p>Describe the edit and the AI cuts, trims, grades and titles on the real timeline. One button undoes the whole request.</p>
+    <ul><li>Your own key: OpenCode Zen (DeepSeek, GLM, Kimi, Qwen, free models) or Anthropic</li><li>Keys are checked before saving and encrypted by your OS</li><li>On-device captions (Whisper) and background removal, no upload</li></ul></div></div>
+
+  <div class="grid3">
+    <div class="card"><div class="media" data-full="assets/shots/motion.jpg"><img loading="lazy" src="assets/shots/motion.jpg" alt="Motion"></div><div class="txt"><h4>Motion</h4><p>Keyframes with a graph editor, easing, animation presets and compositions you can place in the edit.</p></div></div>
+    <div class="card"><div class="media" data-full="assets/shots/vfx.jpg"><img loading="lazy" src="assets/shots/vfx.jpg" alt="VFX node graph"></div><div class="txt"><h4>VFX nodes</h4><p>A node graph for compositing: generators, merges, glows, keys and groups, rendered into the timeline.</p></div></div>
+    <div class="card"><div class="media" data-full="assets/shots/audio.jpg"><img loading="lazy" src="assets/shots/audio.jpg" alt="Audio mixer"></div><div class="txt"><h4>Audio mixer</h4><p>EQ, compressor, pan and reverb per clip; master limiter; loudness measured to ITU BS.1770 and normalised.</p></div></div>
+    <div class="card"><div class="media" data-full="assets/shots/threed.jpg"><img loading="lazy" src="assets/shots/threed.jpg" alt="3D"></div><div class="txt"><h4>3D scenes</h4><p>Build lit 3D scenes with animated cameras and objects, and drop them on the timeline like any clip.</p></div></div>
+    <div class="card"><div class="media" data-full="assets/shots/export.jpg"><img loading="lazy" src="assets/shots/export.jpg" alt="Export"></div><div class="txt"><h4>Export up to 8K</h4><p>H.264, HEVC, AV1, ProRes 4444, DNxHR, image sequences, a render queue, and one-click 9:16, 1:1 or 4:5 versions.</p></div></div>
+    <div class="card"><div class="media" data-full="assets/shots/whatsnew.jpg"><img loading="lazy" src="assets/shots/whatsnew.jpg" alt="What's new"></div><div class="txt"><h4>Always up to date</h4><p>NEXORA tells you when a new version is out and shows what changed. Every release is tested on Windows, macOS and Linux.</p></div></div>
   </div>
 </div></section>
 
-<section><div class="wrap">
-  <h2>Built for speed, styled for focus</h2>
-  <p class="sub">Black, light blue and white. The interface stays out of the way so the picture can do the talking.</p>
-  <div class="shots">
-    <figure><img src="assets/tracks.jpg" alt="The Edit workspace with a tracks timeline" loading="lazy"><figcaption><b>Edit.</b> Tracks, beat sync and a live viewer.</figcaption></figure>
-    <figure><img src="assets/panel.jpg" alt="The effects browser" loading="lazy"><figcaption><b>Effects.</b> One card per look, variations inside.</figcaption></figure>
-    <figure><img src="assets/music.jpg" alt="The music library" loading="lazy"><figcaption><b>Music.</b> Search 1,590 tracks by genre, mood and tempo.</figcaption></figure>
-    <figure><img src="assets/ai.jpg" alt="The AI Editor panel" loading="lazy"><figcaption><b>AI Editor.</b> Ask for the edit, undo it in one click.</figcaption></figure>
+<section id="everything"><div class="wrap">
+  <div class="center"><div class="eyebrow">Everything included</div><h2>The full list</h2><p class="sub">No plugins to buy. All of this is in the free download.</p></div>
+  <div class="all">
+    <div><h4>Editing</h4><ul><li>Tracks timeline, 1000s of clips</li><li>J/K/L, ripple, roll, slip</li><li>Insert / overwrite (3-point)</li><li>Lift / extract In–Out</li><li>Clip speed, colour labels</li><li>Go to timecode</li><li>Markers, snapping</li><li>Version history, autosave</li></ul></div>
+    <div><h4>Color</h4><ul><li>Lift / gamma / gain / offset</li><li>Curves (luma + RGB)</li><li>HSL qualifier + windows</li><li>Scopes: waveform, parade, vectorscope, histogram</li><li>Stills + wipe compare</li><li>26 looks, .cube LUTs</li></ul></div>
+    <div><h4>Effects &amp; motion</h4><ul><li>220+ GPU effects, transitions</li><li>Keyframes + graph editor</li><li>Masks, blend modes, motion blur</li><li>Titles, stickers, shapes</li><li>VFX node graph</li><li>3D scenes</li></ul></div>
+    <div><h4>Audio</h4><ul><li>1,590 original music tracks</li><li>Creative Commons search</li><li>Mixer: EQ, comp, pan, reverb</li><li>Loudness to −14 / −16 / −23 LUFS</li><li>Auto-duck music</li><li>Extract audio (MP3, WAV, FLAC, M4A)</li></ul></div>
+    <div><h4>Delivery</h4><ul><li>Up to 8K, any frame rate</li><li>H.264, HEVC, AV1</li><li>ProRes 4444, DNxHR</li><li>PNG / TIFF sequences</li><li>Render queue</li><li>9:16, 1:1, 4:5 versions</li></ul></div>
+    <div><h4>AI</h4><ul><li>AI Editor (your key)</li><li>OpenCode Zen or Anthropic</li><li>On-device captions</li><li>On-device background removal</li><li>Auto colour balance</li></ul></div>
+    <div><h4>Design &amp; vector</h4><ul><li>Layered image editor</li><li>PSD and TIFF</li><li>Healing, content-aware fill</li><li>Vector drawing</li><li>Screen &amp; window capture</li></ul></div>
+    <div><h4>App</h4><ul><li>Windows, macOS, Linux</li><li>Accounts with 2FA</li><li>Update notice + changelog</li><li>Command palette (Ctrl+K)</li><li>Proxies, GPU or CPU</li><li>Open source (MIT)</li></ul></div>
   </div>
 </div></section>
 
 <section id="download"><div class="wrap">
-  <h2>Download</h2>
-  <p class="sub">The latest release from GitHub. Every file is built from the code in the repository.</p>
+  <div class="center"><div class="eyebrow">Download</div><h2>Get NEXORA <span id="dlVer">2.2.0</span></h2><p class="sub">The latest release from GitHub. Every file is built and tested automatically from the open-source code.</p></div>
   <div class="dl">
-    <div class="os" data-os="win"><b>Windows <span class="tag">Recommended</span></b><p>Windows 10 and 11, 64-bit. Includes FFmpeg for ProRes, DNxHR and software encoding.</p><a class="btn primary" data-asset="NEXORA-Studio-win-x64.zip" href="https://github.com/sysamiryasar/nexora-studio/releases/latest/download/NEXORA-Studio-win-x64.zip">Download .zip</a></div>
-    <div class="os" data-os="macarm"><b>macOS Apple silicon <span class="tag">Preview</span></b><p>M1 and newer. Not yet tested on a Mac, unsigned, and without FFmpeg codecs.</p><a class="btn" data-asset="NEXORA-Studio-mac-arm64.zip" href="https://github.com/sysamiryasar/nexora-studio/releases/latest/download/NEXORA-Studio-mac-arm64.zip">Download .zip</a></div>
-    <div class="os" data-os="macintel"><b>macOS Intel <span class="tag">Preview</span></b><p>Not yet tested on a Mac, unsigned, and without FFmpeg codecs.</p><a class="btn" data-asset="NEXORA-Studio-mac-x64.zip" href="https://github.com/sysamiryasar/nexora-studio/releases/latest/download/NEXORA-Studio-mac-x64.zip">Download .zip</a></div>
-    <div class="os" data-os="linux"><b>Linux x64 <span class="tag">Preview</span></b><p>Not yet tested on Linux, and without FFmpeg codecs.</p><a class="btn" data-asset="NEXORA-Studio-linux-x64.zip" href="https://github.com/sysamiryasar/nexora-studio/releases/latest/download/NEXORA-Studio-linux-x64.zip">Download .zip</a></div>
+    <div class="os" data-os="win"><b>Windows</b><p>Windows 10 and 11, 64-bit. Includes FFmpeg for ProRes, DNxHR and audio export.</p><a class="btn primary" data-asset="NEXORA-Studio-win-x64.zip" href="https://github.com/sysamiryasar/nexora-studio/releases/latest/download/NEXORA-Studio-win-x64.zip">Download .zip</a></div>
+    <div class="os" data-os="macarm"><b>macOS Apple silicon</b><p>M1 and newer. Unsigned: README-MAC.txt explains the one-time step. Uses an installed FFmpeg (<code>brew install ffmpeg</code>).</p><a class="btn" data-asset="NEXORA-Studio-mac-arm64.zip" href="https://github.com/sysamiryasar/nexora-studio/releases/latest/download/NEXORA-Studio-mac-arm64.zip">Download .zip</a></div>
+    <div class="os" data-os="macintel"><b>macOS Intel</b><p>Unsigned: README-MAC.txt explains the one-time step. Uses an installed FFmpeg.</p><a class="btn" data-asset="NEXORA-Studio-mac-x64.zip" href="https://github.com/sysamiryasar/nexora-studio/releases/latest/download/NEXORA-Studio-mac-x64.zip">Download .zip</a></div>
+    <div class="os" data-os="linux"><b>Linux x64</b><p>Unzip and run <code>./nexora-studio</code>. Uses an installed FFmpeg (<code>sudo apt install ffmpeg</code>).</p><a class="btn" data-asset="NEXORA-Studio-linux-x64.zip" href="https://github.com/sysamiryasar/nexora-studio/releases/latest/download/NEXORA-Studio-linux-x64.zip">Download .zip</a></div>
   </div>
   <div class="notes">
     <div><b>Windows warning.</b> The app is not code-signed yet, so SmartScreen may say "Windows protected your PC". Choose More info, then Run anyway.</div>
-    <div><b>macOS.</b> Unsigned apps are blocked the first time. README-MAC.txt in the download has the two commands that allow it.</div>
-    <div><b>Your files stay yours.</b> Projects live in your Documents folder. Nothing is uploaded unless you use online accounts or the AI Editor.</div>
+    <div><b>Tested every release.</b> The full self-test runs inside the real app on Windows, macOS and Linux before each release is published.</div>
+    <div><b>Your files stay yours.</b> Projects live on your computer. Nothing is uploaded unless you use online accounts or the AI Editor.</div>
   </div>
 </div></section>
 
-<section id="source"><div class="wrap src">
-  <div><h2>Open source</h2><p class="sub" style="margin-bottom:20px">MIT licensed. Read the code, fix a bug, add an effect. FFmpeg and the AI models are downloaded and checksum-verified by a script instead of being stored in git.</p><a class="btn" data-repo-link href="https://github.com/sysamiryasar/nexora-studio">Star it on GitHub</a></div>
-  <pre>git clone https://github.com/<span data-repo-text>sysamiryasar/nexora-studio</span>
-cd nexora-studio
-powershell -ExecutionPolicy Bypass -File scripts\fetch-vendor.ps1
-npm install
-npm start</pre>
+<section id="changelog"><div class="wrap">
+  <div class="center"><div class="eyebrow">Changelog</div><h2>What's new</h2><p class="sub">Every version, newest first. The app shows the same list after it updates.</p></div>
+  <div class="cl" id="cl"></div>
 </div></section>
 
-<footer><div class="wrap"><span>NEXORA Studio · MIT License</span><a data-repo-link data-path="/blob/main/THIRD_PARTY_NOTICES.md" href="https://github.com/sysamiryasar/nexora-studio/blob/main/THIRD_PARTY_NOTICES.md">Third-party notices</a><a data-repo-link data-path="/releases" href="https://github.com/sysamiryasar/nexora-studio/releases">All releases</a><a data-repo-link data-path="/issues" href="https://github.com/sysamiryasar/nexora-studio/issues">Report a problem</a></div></footer>
+<section id="source"><div class="wrap src">
+  <div><div class="eyebrow">Open source</div><h2>Built in the open</h2><p class="sub" style="margin-bottom:22px">MIT licensed. Read the code, fix a bug, add an effect. FFmpeg and the AI models are downloaded and checksum-verified by a script instead of being stored in git.</p><a class="btn" data-repo-link href="https://github.com/sysamiryasar/nexora-studio">View on GitHub</a></div>
+  <pre>git clone https://github.com/<span data-repo-text>sysamiryasar/nexora-studio</span>
+cd nexora-studio
+pwsh scripts/fetch-vendor.ps1
+npx electron@33.2.0 .
 
+# run every test inside the real app
+npx electron@33.2.0 . --nx-selftest</pre>
+</div></section>
+
+<footer><div class="wrap"><img src="assets/logo.svg" alt=""><span>NEXORA Studio · MIT License</span><a data-repo-link data-path="/blob/main/THIRD_PARTY_NOTICES.md" href="https://github.com/sysamiryasar/nexora-studio/blob/main/THIRD_PARTY_NOTICES.md">Third-party notices</a><a data-repo-link data-path="/blob/main/CHANGELOG.md" href="https://github.com/sysamiryasar/nexora-studio/blob/main/CHANGELOG.md">CHANGELOG.md</a><a data-repo-link data-path="/releases" href="https://github.com/sysamiryasar/nexora-studio/releases">All releases</a><a data-repo-link data-path="/issues" href="https://github.com/sysamiryasar/nexora-studio/issues">Report a problem</a></div></footer>
+
+<div id="lb" role="dialog" aria-label="Screenshot"><img alt=""></div>
+<script src="changelog.js"></script>
 <script>
-/* the repository is named once, here; every link on the page follows it */
-const REPO = 'sysamiryasar/nexora-studio';
-const base = 'https://github.com/' + REPO;
+const REPO = 'sysamiryasar/nexora-studio', base = 'https://github.com/' + REPO;
 document.querySelectorAll('[data-repo-link]').forEach(a => a.href = base + (a.dataset.path || ''));
-document.querySelectorAll('[data-repo-text]').forEach(s => s.textContent = REPO);
 document.querySelectorAll('[data-asset]').forEach(a => a.href = base + '/releases/latest/download/' + a.dataset.asset);
-/* highlight the right download for this computer */
+/* the right download for this computer */
 (() => { const ua = navigator.userAgent, p = (navigator.userAgentData && navigator.userAgentData.platform) || navigator.platform || '', os = /Win/i.test(p + ua) ? 'win' : /Mac/i.test(p + ua) ? 'macarm' : /Linux/i.test(p + ua) && !/Android/i.test(ua) ? 'linux' : 'win', card = document.querySelector(`[data-os="${os}"]`); if (card) card.classList.add('me');
-  if (os !== 'win') { const h = document.getElementById('heroDl'), c = card && card.querySelector('[data-asset]'); if (h && c) { h.dataset.asset = c.dataset.asset; h.href = c.href; h.firstChild.textContent = os === 'linux' ? 'Download for Linux ' : 'Download for macOS '; h.querySelector('small').textContent = '· preview'; } } })();
+  if (os !== 'win') { const h = document.getElementById('heroDl'), c = card && card.querySelector('[data-asset]'); if (h && c) { h.href = c.href; h.firstChild.textContent = os === 'linux' ? 'Download for Linux ' : 'Download for macOS '; } } })();
+/* changelog, from the same file the app uses */
+(() => { const L = window.NX_CHANGELOG || [], host = document.getElementById('cl'); if (!L.length) return;
+  const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]), fmt = d => { try { return new Date(d + 'T12:00:00').toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' }); } catch (e) { return d; } };
+  host.innerHTML = L.map((r, i) => `<details class="rel${i ? '' : ' latest'}"${i ? '' : ' open'}><summary><b>${esc(r.version)}</b>${i ? '' : '<span class="new">LATEST</span>'}<span class="t">${esc(r.title)}</span><span class="d">${esc(fmt(r.date))}</span></summary><ul>${r.items.map(t => `<li>${esc(t)}</li>`).join('')}</ul></details>`).join('');
+  document.getElementById('verTag').textContent = 'v' + L[0].version; document.getElementById('verTitle').textContent = L[0].title; document.getElementById('dlVer').textContent = L[0].version; })();
+/* screenshots open full size */
+(() => { const lb = document.getElementById('lb'), im = lb.querySelector('img');
+  document.querySelectorAll('.media[data-full]').forEach(m => m.addEventListener('click', () => { im.src = m.dataset.full; im.alt = (m.querySelector('img') || {}).alt || ''; lb.classList.add('on'); }));
+  lb.addEventListener('click', () => lb.classList.remove('on')); addEventListener('keydown', e => { if (e.key === 'Escape') lb.classList.remove('on'); }); })();
 </script>
 </body>
 </html>

@@ -29,7 +29,7 @@ const Persona = (() => {
     return box;
   }
   /* ---------- opening ---------- */
-  const MARK = `<svg viewBox="0 0 64 64" width="84" height="84"><path class="s1" d="M16 12v40"/><path class="s2" d="M16 12l32 40"/><path class="s3" d="M48 52V12"/><path class="cut" d="M6 40 58 22"/></svg>`;
+  const MARK = `<img class="sp-logo" src="nexora/app/logo.svg" width="112" height="112" alt="">`;
   function opening() {
     if (/selftest/.test(location.search) || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
     const o = el('div', { id: 'splash' }), m = el('div', {}); m.innerHTML = MARK; o.append(m, el('div', { class: 'sp-word' }, 'NEXORA'), el('small', {}, pick(LINES))); document.body.append(o);

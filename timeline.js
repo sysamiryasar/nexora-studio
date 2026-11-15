@@ -12,7 +12,8 @@ const tcFull = t => { const fps = Math.round(P.fps) || 30, f = Math.floor(t * P.
 let tcEls = null;
 function uiTime() {
   if (!tcEls) tcEls = ['tc', 'tcDur', 'tlTC'].map(id => document.getElementById(id));
-  const now = tcFull(T); tcEls[0].textContent = now; tcEls[1].textContent = tcFull(P.dur); if (tcEls[2]) tcEls[2].textContent = now;
+  const now = tcFull(T), put = (e, v) => { if (e && !e.firstElementChild) e.textContent = v; };   // a readout being typed into (go to timecode) is left alone
+  put(tcEls[0], now); put(tcEls[1], tcFull(P.dur)); put(tcEls[2], now);
   const ph = document.getElementById('ph');
   if (ph) { ph.style.transform = `translateX(${T * pps}px)`; if (playing) { const x = HD + T * pps, v = tlscroll.scrollLeft, w = tlscroll.clientWidth; if (x > v + w - 40 || x < v + HD) tlscroll.scrollLeft = x - HD - 60; } }
   if (T !== lastTC) { lastTC = T; const now = performance.now(); if (!playing || now - lastProps > 120) { lastProps = now; uiProps(); drawGraph(); } }   // the inspector does not need 60 updates a second during playback
