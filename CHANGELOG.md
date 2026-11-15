@@ -2,6 +2,14 @@
 
 All notable changes to NEXORA Studio. Downloads: https://nexora-editor.pages.dev
 
+## 2.2.1 - 2026-11-15
+
+**The Windows installer**
+
+- First release with NEXORA-Studio-Setup-win-x64.exe: installs NEXORA with Start menu and desktop shortcuts, uninstall from Settings › Apps
+- The installer is built from the same tested files as the portable app; before publishing, it is installed on a test machine and every test runs inside the installed copy
+- 2.2.0 was not published: its installer left out the AI Editor's library, which those tests caught
+
 ## 2.2.0 - 2026-11-15
 
 **Windows installer, a real logo, What's new and a new website**

@@ -1,13 +1,8 @@
-## What's new in 2.2.0
+## What's new in 2.2.1
 
-- Windows installer: NEXORA-Studio-Setup-win-x64.exe installs NEXORA with Start menu and desktop shortcuts; uninstall from Settings › Apps
-- New NEXORA logo and app icon: window, taskbar, splash screen, installer, macOS app and Linux launcher
-- What's new: after an update NEXORA shows what changed, and Help › What's new shows the full history
-- About NEXORA: version, website, source code and licences in one place
-- Go to timecode: click a timecode readout and type 01:02:03:04, 1:30:00 or +2:00
-- macOS and Linux use an installed FFmpeg (Homebrew, apt …) for ProRes, DNxHR and audio export
-- The pencil draws pixel-sharp edges on every system
-- New website with every feature, screenshots and this changelog
+- First release with NEXORA-Studio-Setup-win-x64.exe: installs NEXORA with Start menu and desktop shortcuts, uninstall from Settings › Apps
+- The installer is built from the same tested files as the portable app; before publishing, it is installed on a test machine and every test runs inside the installed copy
+- 2.2.0 was not published: its installer left out the AI Editor's library, which those tests caught
 
 ## Download
 | File | For |

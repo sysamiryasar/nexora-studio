@@ -1,5 +1,15 @@
 window.NX_CHANGELOG = [
   {
+    "version": "2.2.1",
+    "date": "2026-11-15",
+    "title": "The Windows installer",
+    "items": [
+      "First release with NEXORA-Studio-Setup-win-x64.exe: installs NEXORA with Start menu and desktop shortcuts, uninstall from Settings › Apps",
+      "The installer is built from the same tested files as the portable app; before publishing, it is installed on a test machine and every test runs inside the installed copy",
+      "2.2.0 was not published: its installer left out the AI Editor's library, which those tests caught"
+    ]
+  },
+  {
     "version": "2.2.0",
     "date": "2026-11-15",
     "title": "Windows installer, a real logo, What's new and a new website",

@@ -90,9 +90,12 @@ jobs:
         shell: pwsh
         env:
           CSC_IDENTITY_AUTO_DISCOVERY: 'false'
+        # built from the tested portable app (same files, same icon), so the installer can't miss anything
         run: |
+          Add-Type -AssemblyName System.IO.Compression.FileSystem
+          $pre = Join-Path $env:RUNNER_TEMP 'prepackaged'; [IO.Compression.ZipFile]::ExtractToDirectory((Resolve-Path dist/NEXORA-Studio-win-x64.zip), $pre)
           npm install --no-audit --no-fund --no-save electron@33.2.0 electron-builder@25.1.8
-          npx electron-builder --win nsis --x64 --publish never
+          npx electron-builder --win nsis --x64 --publish never --prepackaged "$pre/NEXORA-Studio-win-x64"
           Copy-Item release/NEXORA-Studio-Setup-win-x64.exe dist/
           "installer: {0:N1} MB" -f ((Get-Item dist/NEXORA-Studio-Setup-win-x64.exe).Length / 1MB)
       - name: Install it silently and run the full self-test inside the installed app
