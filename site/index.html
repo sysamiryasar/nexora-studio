@@ -217,6 +217,16 @@ document.querySelectorAll('[data-asset]').forEach(a => a.href = base + '/release
 /* the right download for this computer */
 (() => { const ua = navigator.userAgent, p = (navigator.userAgentData && navigator.userAgentData.platform) || navigator.platform || '', os = /Win/i.test(p + ua) ? 'win' : /Mac/i.test(p + ua) ? 'macarm' : /Linux/i.test(p + ua) && !/Android/i.test(ua) ? 'linux' : 'win', card = document.querySelector(`[data-os="${os}"]`); if (card) card.classList.add('me');
   if (os !== 'win') { const h = document.getElementById('heroDl'), c = card && card.querySelector('[data-asset]'); if (h && c) { h.href = c.href; h.firstChild.textContent = os === 'linux' ? 'Download for Linux ' : 'Download for macOS '; h.querySelector('small').textContent = '· free'; } } })();
+/* only link files the latest release really has: if a new file (e.g. the installer) is not published yet, Windows
+   buttons fall back to the portable zip instead of a dead link */
+(async () => {
+  try {
+    const r = await fetch('https://api.github.com/repos/' + REPO + '/releases/latest', { headers: { Accept: 'application/vnd.github+json' } }); if (!r.ok) return;
+    const rel = await r.json(), have = new Set((rel.assets || []).map(a => a.name)), FALL = { 'NEXORA-Studio-Setup-win-x64.exe': 'NEXORA-Studio-win-x64.zip' };
+    document.querySelectorAll('[data-asset]').forEach(a => { const n = a.dataset.asset; if (have.has(n)) return; const alt = FALL[n]; if (alt && have.has(alt)) { a.href = base + '/releases/latest/download/' + alt; if (a.classList.contains('btn') && !a.querySelector('small')) a.textContent = 'Download .zip'; const s = a.querySelector('small'); if (s) s.textContent = '· portable .zip'; } else if (!have.has(n)) { a.href = rel.html_url || base + '/releases/latest'; } });
+    document.querySelectorAll('.os .alt').forEach(a => { if (a.href.endsWith('.zip') && !have.has('NEXORA-Studio-Setup-win-x64.exe')) a.style.display = 'none'; });
+  } catch (e) { }   // offline or rate-limited: the static links stay
+})();
 /* changelog, from the same file the app uses */
 (() => { const L = window.NX_CHANGELOG || [], host = document.getElementById('cl'); if (!L.length) return;
   const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]), fmt = d => { try { return new Date(d + 'T12:00:00').toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' }); } catch (e) { return d; } };
