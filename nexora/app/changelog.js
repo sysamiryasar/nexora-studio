@@ -1,5 +1,14 @@
 window.NX_CHANGELOG = [
   {
+    "version": "1.4.1",
+    "date": "2026-11-16",
+    "title": "One-click updates, released",
+    "items": [
+      "First published 1.4 build: 1.4.0's release check stopped on a timing problem in the test script (the app itself was fine), so it was never published",
+      "Includes everything in 1.4.0 below"
+    ]
+  },
+  {
     "version": "1.4.0",
     "date": "2026-11-16",
     "title": "One-click updates",

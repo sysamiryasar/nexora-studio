@@ -108,10 +108,14 @@ jobs:
           $old = Join-Path $prev 'NEXORA-Studio-Setup-win-x64.exe'
           if (-not (Test-Path $old)) { 'no earlier installer published: upgrade test skipped'; exit 0 }
           Start-Process $old -ArgumentList '/S' -Wait
-          $exe = Join-Path $env:LOCALAPPDATA 'Programs/NEXORA Studio/NEXORA Studio.exe'; $before = (Get-Item $exe).VersionInfo.ProductVersion; "installed first: $before"
+          # the NSIS installer hands off to a second process, so wait for the files rather than trusting -Wait
+          $exe = Join-Path $env:LOCALAPPDATA 'Programs/NEXORA Studio/NEXORA Studio.exe'
+          for ($i = 0; $i -lt 120 -and -not (Test-Path $exe); $i++) { Start-Sleep 1 }; if (-not (Test-Path $exe)) { throw 'the previous release did not install' }
+          $before = (Get-Item $exe).VersionInfo.ProductVersion; "installed first: $before"
           # exactly what the app runs when you press Update now
           Start-Process dist/NEXORA-Studio-Setup-win-x64.exe -ArgumentList '/S', '--force-run' -Wait
-          $after = (Get-Item $exe).VersionInfo.ProductVersion; $want = (Get-Content package.json -Raw | ConvertFrom-Json).version
+          $want = (Get-Content package.json -Raw | ConvertFrom-Json).version; $after = ''
+          for ($i = 0; $i -lt 180; $i++) { if (Test-Path $exe) { $after = (Get-Item $exe).VersionInfo.ProductVersion; if ($after.StartsWith($want)) { break } }; Start-Sleep 1 }
           "after the update: $after (expected $want)"
           if (-not $after.StartsWith($want)) { throw "the update did not replace the old version ($after)" }
           $p = $null; for ($i = 0; $i -lt 20 -and -not $p; $i++) { Start-Sleep 1; $p = Get-Process 'NEXORA Studio' -ErrorAction SilentlyContinue }
@@ -122,7 +126,7 @@ jobs:
         shell: pwsh
         run: |
           Start-Process dist/NEXORA-Studio-Setup-win-x64.exe -ArgumentList '/S' -Wait
-          $exe = Join-Path $env:LOCALAPPDATA 'Programs/NEXORA Studio/NEXORA Studio.exe'
+          $exe = Join-Path $env:LOCALAPPDATA 'Programs/NEXORA Studio/NEXORA Studio.exe'; for ($i = 0; $i -lt 120 -and -not (Test-Path $exe); $i++) { Start-Sleep 1 }
           if (-not (Test-Path $exe)) { throw "installed app not found at $exe" }
           $vi = (Get-Item $exe).VersionInfo; "installed: $($vi.ProductName) $($vi.ProductVersion)"
           $start = Join-Path ([Environment]::GetFolderPath('Programs')) 'NEXORA Studio.lnk'; "start menu shortcut: $(Test-Path $start)"

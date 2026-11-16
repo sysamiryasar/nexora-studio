@@ -2,6 +2,13 @@
 
 All notable changes to NEXORA Studio. Downloads: https://nexora-editor.pages.dev
 
+## 1.4.1 - 2026-11-16
+
+**One-click updates, released**
+
+- First published 1.4 build: 1.4.0's release check stopped on a timing problem in the test script (the app itself was fine), so it was never published
+- Includes everything in 1.4.0 below
+
 ## 1.4.0 - 2026-11-16
 
 **One-click updates**
