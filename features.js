@@ -141,9 +141,10 @@ async function loadTF() {
 }
 function progressCb(pm, label) { const seen = {}; return d => { if (d.status === 'progress' && d.file) { seen[d.file] = d.progress || 0; const v = Object.values(seen); pm.set(`${label}: downloading model… ${Math.round(v.reduce((a, b) => a + b, 0) / v.length)}%`, v.reduce((a, b) => a + b, 0) / v.length); } else if (d.status === 'ready') pm.set(label + ': model ready'); }; }
 function captionDialog(L) {
-  const o = { model: 'Xenova/whisper-tiny.en', lang: 'english' };
+  const o = { model: 'Xenova/whisper-tiny.en', lang: 'english', style: 'social' };
   showModal('Auto captions — ' + L.name, el('div', {}, el('div', { class: 'dim' }, 'Speech is transcribed on your computer with Whisper (the model downloads once, then is cached). Results become timed text layers you can restyle.'),
     field('Model', o, 'model', 'select', { opts: ['Xenova/whisper-tiny.en', 'Xenova/whisper-base.en', 'Xenova/whisper-base'], names: v => ({ 'Xenova/whisper-tiny.en': 'Fast · English (built in, works offline)', 'Xenova/whisper-base.en': 'Better · English (downloads ~145 MB once)', 'Xenova/whisper-base': 'Multilingual — 99 languages (built in, works offline)' }[v]) }),
+    field('Style', o, 'style', 'select', { opts: ['social', 'sentences'], names: v => ({ social: 'Social: 1–3 words at a time, spoken word lit up', sentences: 'Sentences: one line per phrase, on a dark box' }[v]) }),
     field('Language', o, 'lang', 'text')), [['Cancel', closeModal], ['Transcribe', () => runCaptions(L, o), true]]);
 }
 async function runCaptions(L, o) {
@@ -156,6 +157,14 @@ async function runCaptions(L, o) {
     const asr = await tf.pipeline('automatic-speech-recognition', o.model, { progress_callback: progressCb(pm, 'Captions') });
     if (cancel) return; pm.set('Transcribing… (this can take a while on CPU)', 60);
     const opts = { return_timestamps: true, chunk_length_s: 30, stride_length_s: 5 }; if (!o.model.endsWith('.en')) { opts.language = o.lang || 'english'; opts.task = 'transcribe'; }
+    if (o.style === 'social') {
+      let words = null, est = false;
+      try { const w = await asr(audio, Object.assign({}, opts, { return_timestamps: 'word' })); words = (w.chunks || []).filter(c => c.text && c.text.trim() && c.timestamp).map(c => ({ text: c.text.trim(), t0: c.timestamp[0] || 0, t1: c.timestamp[1] == null ? (c.timestamp[0] || 0) + .3 : c.timestamp[1] })); } catch (e) { words = null; }
+      if (cancel) return;
+      if (!words || !words.length) { const out = await asr(audio, opts); if (cancel) return; words = Social.fromChunks((out.chunks || []).filter(c => c.text && c.text.trim())); est = true; }
+      if (!words.length) throw new Error('No speech detected.');
+      const made = Social.build(L, words); commit(); structChanged(); toast(`${made.length} social caption layers from ${words.length} words` + (est ? ' (word timing estimated from phrases)' : '')); return;
+    }
     const out = await asr(audio, opts); if (cancel) return;
     const chunks = (out.chunks || []).filter(c => c.text && c.text.trim()); if (!chunks.length) throw new Error('No speech detected.');
     chunks.forEach(c => {

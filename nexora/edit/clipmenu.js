@@ -14,7 +14,7 @@ const ClipMenu = (() => {
     const oldEnd = L.start + L.dur, k = L.speed / s, nd = Math.max(1 / (P.fps || 30), L.dur * k), d = nd - L.dur;
     for (const key in L.kf) L.kf[key].forEach(f => f.t *= k);
     for (const X of P.layers) if (X !== L && X.start >= oldEnd - 1e-4) X.start = Math.max(0, +(X.start + d).toFixed(4));
-    P.markers = (P.markers || []).map(m => m >= oldEnd - 1e-4 ? m + d : m);
+    Markers.mapTimes(m => m >= oldEnd - 1e-4 ? m + d : m);
     L.speed = s; L.dur = +nd.toFixed(4); const end = Math.max(...P.layers.map(x => x.start + x.dur)); if (end > P.dur) P.dur = Math.ceil(end);
     done(`${L.name}: ${Math.round(s * 100)} % speed, now ${nd.toFixed(2)} s`);
   }
@@ -46,7 +46,11 @@ const ClipMenu = (() => {
       if (!it) { pop.append(el('hr')); continue; }
       if (it[0] === 'speed') { const row = el('div', { class: 'cm-speed' }, el('small', {}, 'Speed'));
         for (const s of SPEEDS) row.append(el('button', { class: Math.abs(L.speed - s) < 1e-6 ? 'on' : '', title: `${Math.round(s * 100)} % — later clips move to keep the cut`, onclick: () => { pop.classList.add('hidden'); setSpeed(L, s); } }, s < 1 ? Math.round(s * 100) + '%' : s + '×'));
-        pop.append(row); continue; }
+        pop.append(row);
+        const rr = el('div', { class: 'cm-speed cm-ramp' }, el('small', {}, 'Ramp'));
+        for (const [k, p] of Object.entries(Ramp.PRESETS)) rr.append(el('button', { class: L.ramp && L.ramp.preset === k ? 'on' : '', title: p.name + ': same footage, the speed follows a curve; later clips move', onclick: () => { pop.classList.add('hidden'); Ramp.apply(L, k); } }, p.name.split(' (')[0]));
+        if (L.ramp) rr.append(el('button', { title: 'Put the original clip back', onclick: () => { pop.classList.add('hidden'); Ramp.unramp(L); } }, 'Remove'));
+        pop.append(rr); continue; }
       pop.append(el('button', { disabled: it[3] ? '' : undefined, onclick: () => { pop.classList.add('hidden'); it[1](); } }, it[0], el('kbd', {}, it[2] || '')));
     }
     const sw = el('div', { class: 'cm-labels' }, el('small', {}, 'Clip colour'));

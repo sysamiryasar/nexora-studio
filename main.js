@@ -37,7 +37,7 @@ function menuItems(name) {
       ['Trim start to playhead', () => trimTo(true), '['], ['Trim end to playhead', () => trimTo(false), ']'], sepr,
       ['New null object (for parenting)', () => { addLayer(mkLayer('null', { start: 0, dur: P.dur })); commit(); }, ''], ['Precompose selected layer', () => { const s = selLayer(); if (s) { precompose(s); commit(); } else toast('Select a layer first.'); }, ''], ['Open selected composition', () => { const s = selLayer(); if (s && s.type === 'comp') enterComp(s); }, ''], ['Exit composition', exitComp, ''], sepr,
       ['Track motion…', () => { const s = selLayer(); if (s && s.type === 'video') trackDialog(s); else toast('Select a video layer.'); }, ''], ['Auto captions (AI)…', () => { const s = selLayer(); if (s && (s.type === 'video' || s.type === 'audio')) captionDialog(s); else toast('Select a video or audio layer.'); }, ''], ['Remove background (AI)…', () => { const s = selLayer(); if (s && s.type === 'image') removeBackgroundAI(s); else toast('Select an image layer.'); }, ''], ['Toggle keyframe graph editor', toggleGraph, ''], sepr,
-      ['Freeze frame at playhead', freezeFrame, ''], ['Add marker at playhead', addMarker, 'M'], ['Clear all markers', () => { P.markers = []; commit(); renderTimeline(); }, '']],
+      ['Freeze frame at playhead', freezeFrame, ''], ['Add marker at playhead', addMarker, 'M'], ['Marker list…', () => Markers.openList(), ''], ['Clear all markers', () => Markers.clear(), '']],
     view: [['Fit to window', fitView, ''], ['Zoom 100%', () => { const r = stageWrap.getBoundingClientRect(); zoom = 1; panX = (r.width - P.w) / 2; panY = (r.height - P.h) / 2; applyView(); }, ''], ['Toggle guides', () => { showGuides = !showGuides; requestRender(); }, ''], ['Toggle loop', toggleLoop, ''], sepr, ['Timeline zoom in', () => zoomTl(1.4), '+'], ['Timeline zoom out', () => zoomTl(1 / 1.4), '-']]
   }[name];
 }
@@ -233,7 +233,7 @@ async function toggleVoiceover() {
   } catch (e) { recording = false; toast('Microphone unavailable: ' + e.message); }
 }
 /* ---- markers ---- */
-function addMarker() { P.markers = P.markers || []; if (!P.markers.some(m => Math.abs(m - T) < .02)) P.markers.push(frameQ(T)); P.markers.sort((a, b) => a - b); commit(); renderTimeline(); }
+function addMarker() { Markers.add(T); }
 /* ---- freeze frame ---- */
 async function freezeFrame() {
   const L = selLayer(); if (!L || L.type !== 'video') return toast('Select a video layer, then put the playhead on the frame to freeze.');

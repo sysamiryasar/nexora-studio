@@ -17,7 +17,7 @@ const Pro = (() => {
   const sel = () => selLayer();
   const done = msg => { commit(); structChanged(); if (msg) toast(msg); };
   /** shift every layer that starts at/after t by d seconds (except those in `skip`) */
-  function ripple(t, d, skip) { for (const L of P.layers) if (!(skip && skip.includes(L)) && L.start >= t - eps) L.start = Math.max(0, +(L.start + d).toFixed(4)); P.markers = (P.markers || []).map(m => m >= t - eps ? Math.max(0, m + d) : m); grow(); }
+  function ripple(t, d, skip) { for (const L of P.layers) if (!(skip && skip.includes(L)) && L.start >= t - eps) L.start = Math.max(0, +(L.start + d).toFixed(4)); Markers.mapTimes(m => m >= t - eps ? Math.max(0, m + d) : m); grow(); }
   function grow() { const end = Math.max(1, ...P.layers.map(l => l.start + l.dur)); if (end > P.dur) P.dur = Math.ceil(end); }
 
   /* ---------- transport ---------- */

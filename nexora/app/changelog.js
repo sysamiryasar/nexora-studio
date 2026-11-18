@@ -1,5 +1,17 @@
 window.NX_CHANGELOG = [
   {
+    "version": "1.5.0",
+    "date": "2026-11-17",
+    "title": "Named markers, speed ramps and social captions",
+    "items": [
+      "Markers get names, colours and notes: double-click a marker on the ruler to edit it; names show on the ruler",
+      "Marker list (timeline toolbar › Markers): jump, edit or delete, copy YouTube chapters, export a CSV",
+      "Names and colours stay on their markers through ripple deletes and speed changes, and the AI Editor can add named markers",
+      "Speed ramps: right-click a clip › Ramp: Hero, Montage, Bullet, Speed up, Slow down or Flash. Same footage, the speed follows a curve, later clips move; Remove puts the original clip back",
+      "Social captions: Auto captions › Style › Social makes 1–3 word captions in bold capitals with an outline, a pop-in, and the spoken word lit up in light blue"
+    ]
+  },
+  {
     "version": "1.4.1",
     "date": "2026-11-16",
     "title": "One-click updates, released",

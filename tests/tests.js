@@ -480,6 +480,51 @@ const NexoraTests = (() => {
       ClipMenu.setSpeed(A, 2); ok(Math.abs(A.dur - 2) < 1e-6 && Math.abs(B.start - 2) < 1e-6, 'double speed: ' + A.dur + ' / ' + B.start); }
     finally { removeLayer(A.id); removeLayer(B.id); delete media[id]; P.markers = []; }
   });
+  test('markers: names and colours follow ripple and speed; chapters, CSV, ruler, list', () => {
+    const id = 'mk' + uid(); media[id] = { id, name: 'm.mp4', kind: 'video', w: 1920, h: 1080, dur: 30 };
+    const A = mkLayer('video', { media: id, start: 0, dur: 4 }), B = mkLayer('solid', { start: 4, dur: 2 }); addLayer(A); addLayer(B); const keep = [P.markers, P.markerInfo]; P.markers = []; P.markerInfo = {};
+    try {
+      Markers.add(5, { name: 'Drop', color: 'ice', note: 'bass' }); Markers.add(65.2, { name: 'Outro' });
+      ok(Markers.info(5).name === 'Drop' && Markers.info(5).color === 'ice', 'named');
+      ClipMenu.setSpeed(A, .5); ok(P.markers.includes(9) && Markers.info(9).name === 'Drop' && Markers.info(9).note === 'bass', 'name moved with the speed change: ' + JSON.stringify(P.markerInfo));
+      selId = A.id; Pro.rippleDelete(); ok(P.markers.includes(1) && Markers.info(1).name === 'Drop', 'name moved with ripple delete: ' + P.markers);
+      const ch = Markers.chapters().split('\n'); ok(ch[0] === '0:00 Intro' && ch[1] === '0:01 Drop' && ch.some(l => /^1:0\d Outro$/.test(l)), 'chapters: ' + ch.join(' | '));
+      ok(Markers.csv().split('\r\n')[0] === 'Timecode,Seconds,Name,Colour,Note' && /"Drop",Ice,"bass"/.test(Markers.csv()), 'csv');
+      renderTimeline(); const mk = [...document.querySelectorAll('#tlr .mk, .mk')].find(e => e.querySelector('.mk-lbl') && e.textContent === 'Drop'); ok(mk && mk.style.getPropertyValue('--mkc') === '#8fc9f0', 'ruler shows the name and colour');
+      Markers.openList(); ok(document.querySelectorAll('.mk-list .mk-row').length === P.markers.length, 'list rows'); closeModal(); Markers.S.list = false;
+      Markers.remove(1); ok(!P.markers.includes(1) && !P.markerInfo[Markers.key(1)], 'delete removes its info');
+    } finally { [A, B].forEach(x => P.layers.includes(x) && removeLayer(x.id)); delete media[id]; P.markers = keep[0] || []; P.markerInfo = keep[1] || {}; }
+  });
+  test('speed ramp: same footage, speed follows the curve, ripples, and removes cleanly', () => {
+    const id = 'rp' + uid(); media[id] = { id, name: 'r.mp4', kind: 'video', w: 1920, h: 1080, dur: 30 };
+    const A = mkLayer('video', { media: id, start: 0, dur: 4, srcIn: 2 }), B = mkLayer('solid', { start: 4, dur: 2 }); A.kf.op = [{ t: 4, v: 0, e: 'linear' }]; addLayer(A); addLayer(B); const keepM = P.markers; P.markers = [6];
+    try {
+      const parts = Ramp.apply(A, 'hero'); ok(parts && parts.length === 32, 'steps: ' + (parts && parts.length));
+      const src = parts.reduce((a, p) => a + p.dur * p.speed, 0); ok(Math.abs(src - 4) < .01, 'same source length: ' + src.toFixed(4));
+      ok(Math.abs(parts[0].srcIn - 2) < 1e-6 && Math.abs(parts[31].srcIn + parts[31].dur * parts[31].speed - 6) < .01, 'source range kept');
+      const mid = parts[16], edge = parts[0]; ok(mid.speed < .3 && edge.speed > .95, `slow in the middle (${mid.speed}), normal at the ends (${edge.speed})`);
+      for (let i = 1; i < parts.length; i++) ok(Math.abs(parts[i].start - (parts[i - 1].start + parts[i - 1].dur)) < .002, 'contiguous at ' + i);
+      const end = parts[31].start + parts[31].dur; ok(Math.abs(B.start - end) < .002 && Math.abs(P.markers[0] - (end + 2)) < .002, 'later clip and marker ripple: ' + B.start + ' / ' + P.markers);
+      ok(Math.abs(parts[31].kf.op[0].t - parts[31].dur) < .01, 'last keyframe lands at the new end');
+      ok(parts.every(p => p.ramp.id === parts[0].ramp.id), 'one ramp group');
+      const O = Ramp.unramp(parts[7]); ok(O && P.layers.filter(x => x.ramp).length === 0 && Math.abs(O.dur - 4) < 1e-6 && O.speed === 1 && O.srcIn === 2, 'removed: back to one clip');
+      ok(Math.abs(B.start - 4) < .002 && Math.abs(P.markers[0] - 6) < .002, 'later clips move back: ' + B.start);
+      const again = Ramp.apply(O, 'in'); ok(again[0].speed < again[again.length - 1].speed, 'speed up ramp accelerates'); Ramp.unramp(again[0]);
+    } finally { P.layers.filter(x => x.media === id || x === B).forEach(x => removeLayer(x.id)); delete media[id]; P.markers = keepM || []; }
+  });
+  test('social captions: word groups, pop-in, spoken word lit up', () => {
+    const w = Social.fromChunks([{ text: ' This is really cool. Watch this', timestamp: [1, 3] }, { text: 'now', timestamp: [4, 4.4] }]);
+    ok(w.length === 7 && Math.abs(w[0].t0 - 1) < 1e-6 && Math.abs(w[5].t1 - 3) < 1e-6, 'words share the phrase time: ' + w.length);
+    const g = Social.groups(w); ok(g.map(x => x.map(y => y.text).join(' ')).join('|') === 'This is really|cool.|Watch this|now', 'groups: ' + g.map(x => x.map(y => y.text).join(' ')).join('|'));
+    const id = 'sc' + uid(); media[id] = { id, name: 'v.mp4', kind: 'video', w: 1920, h: 1080, dur: 30 }; const L = mkLayer('video', { media: id, start: 10, dur: 8, speed: 2 }); addLayer(L);
+    try {
+      const made = Social.build(L, w); ok(made.length === 4 && made[0].text.str === 'THIS IS REALLY' && made[0].tin.type === 'pop', 'layers');
+      ok(Math.abs(made[0].start - 10.5) < 1e-3, 'speed-aware start: ' + made[0].start); ok(made[0].start + made[0].dur <= made[1].start + 1e-6, 'no overlap');
+      const t = made[0].start + made[0].text.words[1][0] + .01, c = textCanvas(made[0], t).src, x = c.getContext('2d'), d = x.getImageData(0, 0, c.width, c.height).data; let blue = 0, white = 0;
+      for (let i = 0; i < d.length; i += 4) if (d[i + 3] > 250) { if (d[i] > 120 && d[i] < 160 && d[i + 2] > 230) blue++; else if (d[i] > 245 && d[i + 2] > 245) white++; }
+      ok(blue > 200 && white > 200, `active word drawn light blue (${blue}) among white words (${white})`);
+    } finally { [L, ...P.layers.filter(x => x.social)].forEach(x => removeLayer(x.id)); delete media[id]; }
+  });
   test('timeline: track height S / M / L', () => {
     const L = mkLayer('solid', { start: 0, dur: 2 }); addLayer(L); structChanged();
     try { for (const [k, h] of [['S', 26], ['L', 62], ['M', 38]]) { setRowHeight(k); const lane = document.querySelector('#tlc .row.tk .lane'); ok(lane && lane.offsetHeight === h, `${k}: ${lane && lane.offsetHeight}`); } }

@@ -188,7 +188,9 @@ function textCanvas(L, t) {
   if (L.text.anim && L.text.anim.preset !== 'none' && typeof Motion !== 'undefined') return Motion.animText(L, t);
   const X = L.text, full = X.str; let vis = full.length;
   if (X.typeOn > 0) vis = Math.floor(clamp((t - L.start) / X.typeOn, 0, 1) * full.length);
-  const key = JSON.stringify([X, vis]); if (L._tc && L._tc.key === key) return L._tc.v;
+  // social captions: X.words = [[t0, t1], …] (seconds from the clip start, one per word) colours the spoken word
+  let hi = -1; if (X.words && X.hlColor) { const lt = t - L.start; hi = X.words.findIndex(w => lt >= w[0] && lt < w[1]); if (hi < 0 && X.words.length && lt >= X.words[X.words.length - 1][0]) hi = X.words.length - 1; }
+  const key = JSON.stringify([X, vis, hi]); if (L._tc && L._tc.key === key) return L._tc.v;
   const font = `${X.italic ? 'italic ' : ''}${X.weight} ${X.size}px "${X.font}", sans-serif`;
   _mctx.font = font; if ('letterSpacing' in _mctx) _mctx.letterSpacing = X.spacing + 'px';
   const lines = full.split('\n'), widths = lines.map(l => _mctx.measureText(l).width), lh = X.size * X.lineH;
@@ -204,7 +206,10 @@ function textCanvas(L, t) {
     c.textAlign = 'left';
     if (X.shadow) { c.shadowColor = X.shColor; c.shadowBlur = X.shBlur; c.shadowOffsetX = X.shX; c.shadowOffsetY = X.shY; }
     if (X.strokeW > 0) { c.lineWidth = X.strokeW * 2; c.strokeStyle = X.stroke; c.strokeText(txt, x0, y); c.shadowColor = 'transparent'; }
-    c.fillStyle = X.color; c.fillText(txt, x0, y); c.shadowColor = 'transparent';
+    if (hi >= 0 && lines.length === 1 && vis === full.length) { const ws = txt.split(' '), sw = c.measureText(' ').width; let x = x0;
+      ws.forEach((w, k) => { c.fillStyle = k === hi ? X.hlColor : X.color; c.fillText(w, x, y); x += c.measureText(w).width + sw; }); }
+    else { c.fillStyle = X.color; c.fillText(txt, x0, y); }
+    c.shadowColor = 'transparent';
   });
   const v = { src: cv, w: W, h: H }; L._tc = { key, v }; return v;
 }

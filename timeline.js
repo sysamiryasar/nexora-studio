@@ -66,7 +66,9 @@ function drawRuler(W, t0, t1) {
   rl.append(el('div', { style: `position:absolute;top:0;bottom:0;left:${P.dur * pps}px;width:2px;background:#7cc8ff55` }));
   if (typeof RenderCache !== 'undefined' && RenderCache.segs.size) rl.append(...RenderCache.marks(pps));
   { const r = P.io || {}; if (r.in != null || r.out != null) { const a = r.in ?? 0, b = r.out ?? P.dur; rl.append(el('div', { class: 'iorange', style: `left:${a * pps}px;width:${Math.max(2, (b - a) * pps)}px`, title: `In ${tcFmt(a)} · Out ${tcFmt(b)} (Alt+X clears)` })); } }
-  (P.markers || []).forEach(mt => { if (mt < t0 || mt > t1) return; const mk = el('div', { class: 'mk', style: `left:${mt * pps}px`, title: 'Marker ' + tcFmt(mt) + ' (double-click to delete)' }); mk.onpointerdown = e => e.stopPropagation(); mk.onclick = () => seek(mt); mk.ondblclick = () => { P.markers.splice(P.markers.indexOf(mt), 1); commit(); renderTimeline(); }; rl.append(mk); });
+  (P.markers || []).forEach(mt => { if (mt < t0 || mt > t1) return; const mi = typeof Markers !== 'undefined' ? Markers.info(mt) : { name: '', color: 'sky' }, mc = typeof Markers !== 'undefined' && Markers.COLORS[mi.color] ? Markers.COLORS[mi.color][1] : '';
+    const mk = el('div', { class: 'mk', 'data-t': mt, style: `left:${mt * pps}px` + (mc ? `;--mkc:${mc}` : ''), title: (mi.name ? mi.name + ' · ' : 'Marker ') + tcFmt(mt) + (mi.note ? '\n' + mi.note : '') + '\n(double-click to name, colour or delete)' }, mi.name ? el('span', { class: 'mk-lbl' }, mi.name) : '');
+    mk.onpointerdown = e => e.stopPropagation(); mk.onclick = () => seek(mt); mk.ondblclick = e => { if (typeof Markers !== 'undefined') Markers.edit(mt, e.clientX, e.clientY + 10); else { P.markers.splice(P.markers.indexOf(mt), 1); commit(); renderTimeline(); } }; rl.append(mk); });
   const scrub = e => { seek(Math.max(0, laneX(e, rl))); };
   rl.onpointerdown = e => { rl.setPointerCapture(e.pointerId); scrub(e); rl._d = true; }; rl.onpointermove = e => { if (rl._d) scrub(e); }; rl.onpointerup = () => rl._d = false;
   return rl;
