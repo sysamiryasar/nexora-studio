@@ -269,6 +269,7 @@ const Shell = (() => {
   function renderTemplates() {
     const root = $$('homeMain'); root.innerHTML = '';
     root.append(el('div', { class: 'hsec', style: 'margin-top:4px' }, el('h3', { style: 'font-size:20px' }, 'Templates')), el('div', { class: 'dim', style: 'margin-top:-6px' }, 'Every template is built from editable layers and keyframes — nothing is flattened.'));
+    if (typeof VTemplates !== 'undefined') root.append(...VTemplates.section());
     root.append(el('div', { class: 'hsec' }, el('h3', {}, 'Video & motion')));
     const v = el('div', { class: 'suite' }); root.append(v);
     Motion.TEMPLATES.forEach(t => v.append(templateCard('motion', t.name, t.name.replace(' — stroke draw-on', ''), `${t.dur}s · keyframed composition`)));

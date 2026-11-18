@@ -525,6 +525,42 @@ const NexoraTests = (() => {
       ok(blue > 200 && white > 200, `active word drawn light blue (${blue}) among white words (${white})`);
     } finally { [L, ...P.layers.filter(x => x.social)].forEach(x => removeLayer(x.id)); delete media[id]; }
   });
+  test('shortcuts: remap a key, the old key stops, conflicts clear, reset', () => {
+    const keep = Keymap.user, ev = (key, o = {}) => new KeyboardEvent('keydown', Object.assign({ key, bubbles: true, cancelable: true }, o));
+    ok(Keymap.combo(ev('k', { ctrlKey: true, shiftKey: true })) === 'Ctrl+Shift+K' && Keymap.combo(ev(' ')) === 'Space' && Keymap.combo(ev('+', { shiftKey: true })) === '+' && Keymap.combo(ev('Shift', { shiftKey: true })) === null, 'combo names');
+    const km = [P.markers, P.markerInfo]; P.markers = []; P.markerInfo = {};
+    try {
+      Keymap.reset(); Keymap.set('marker', 'Shift+M'); ok(Keymap.binding('marker') === 'Shift+M', 'bound');
+      Keymap.set('split', 'Shift+M'); ok(Keymap.binding('split') === 'Shift+M' && Keymap.binding('marker') === '', 'conflict: the other command loses the key');
+      Keymap.set('marker', 'Shift+M'); ok(Keymap.binding('split') === '' && Keymap.binding('marker') === 'Shift+M', 'rebound');
+      if (Shell.active === 'edit') { seek(1); document.body.dispatchEvent(ev('M', { shiftKey: true })); ok(P.markers.length === 1, 'new key adds a marker: ' + P.markers); seek(2); document.body.dispatchEvent(ev('m')); ok(P.markers.length === 1, 'old key does nothing now'); }
+      Keymap.set('menu:layer:Marker list…', 'Ctrl+Shift+L'); ok(Keymap.binding('menu:layer:Marker list…') === 'Ctrl+Shift+L', 'menu command bound');
+      Keymap.run('menu:layer:Marker list…'); ok(!document.getElementById('modal').classList.contains('hidden') && document.querySelector('.mk-list'), 'menu command runs'); closeModal(); Markers.S.list = false;
+      Keymap.open(); ok(document.querySelectorAll('.km-row').length === Keymap.ACTIONS.length && document.querySelectorAll('.km-row.changed').length === 3, 'editor lists every command, 3 changed'); closeModal();
+      Keymap.reset(); ok(Keymap.binding('marker') === 'M' && Keymap.binding('split') === 'S', 'reset all');
+    } finally { Keymap.load(keep); P.markers = km[0] || []; P.markerInfo = km[1] || {}; renderTimeline(); }
+  });
+  test('project starters: presets set the format and layers; save as template drops media', () => {
+    const saved = P;
+    try {
+      P = { name: 't', w: 1280, h: 720, fps: 30, dur: 12, bg: '#000000', layers: [], markers: [] };
+      VTemplates.apply(VTemplates.BUILTIN.find(t => t.id === 'shorts')); ok(P.w === 1080 && P.h === 1920 && P.fps === 30 && P.layers.some(L => L.type === 'text' && L.text.str === 'THE HOOK') && Markers.info(25).name === 'Call to action', 'shorts preset');
+      P = { name: 't', w: 1280, h: 720, fps: 30, dur: 12, bg: '#000000', layers: [], markers: [] }; VTemplates.apply(VTemplates.BUILTIN.find(t => t.id === 'cinema'));
+      const bars = P.layers.filter(L => L.type === 'solid'); ok(P.w === 3840 && P.fps === 24 && bars.length === 2 && Math.abs(bars[0].tr.sy / 100 * P.h - (P.h - P.w / 2.39) / 2) < 1, 'cinema bars 2.39:1');
+      const T1 = mkLayer('text', { start: 0, dur: 2 }), V = mkLayer('video', { media: 'nope', start: 0, dur: 2 }); T1.parent = V.id; P.layers.push(T1, V); P.markers = [3]; P.markerInfo = { [Markers.key(3)]: { name: 'X', color: 'ice', note: '' } };
+      const snap = VTemplates.snapshot('Mine'); ok(!snap.layers.some(L => L.type === 'video') && snap.layers.find(L => L.id === T1.id).parent === '' && snap.markers[0] === 3 && snap.markerInfo[Markers.key(3)].name === 'X', 'snapshot: no media, links trimmed, markers kept');
+      P = { name: 't', w: 640, h: 480, fps: 25, dur: 12, bg: '#000000', layers: [], markers: [] }; VTemplates.apply(snap); ok(P.w === 3840 && P.layers.length === snap.layers.length && P.layers.every(L => !snap.layers.some(s => s.id === L.id)) && Markers.info(3).name === 'X', 'applies with fresh ids');
+      const sec = VTemplates.section(); ok(sec[1].querySelectorAll('.scard').length >= VTemplates.BUILTIN.length, 'home section cards');
+    } finally { P = saved; structChanged(); renderTimeline(); }
+  });
+  test('cache manager: lists proxies (also from other projects), deletes them, renders the dialog', async () => {
+    const key = 'zz' + uid() + '@1x1@0';
+    await new Promise((res, rej) => { const r = indexedDB.open('nexora-proxies', 1); r.onupgradeneeded = () => r.result.createObjectStore('p', { keyPath: 'key' }); r.onsuccess = () => { const d = r.result, t = d.transaction('p', 'readwrite'); t.objectStore('p').put({ key, blob: new Blob([new Uint8Array(4321)]), w: 1, h: 1, made: Date.now() }); t.oncomplete = () => { d.close(); res(); }; t.onerror = () => rej(t.error); }; r.onerror = () => rej(r.error); });
+    let row = (await CacheMgr.proxies()).find(x => x.key === key); ok(row && row.bytes === 4321 && row.media === null, 'listed: ' + JSON.stringify(row));
+    const r = await CacheMgr.scan(); ok(typeof r.render.bytes === 'number' && typeof r.models.bytes === 'number', 'scan');
+    await CacheMgr.open(); ok(document.querySelector('.cachem h4') && /Proxies/.test(document.querySelector('.cachem').textContent), 'dialog'); closeModal();
+    await CacheMgr.deleteProxy(key); row = (await CacheMgr.proxies()).find(x => x.key === key); ok(!row, 'deleted'); ok(CacheMgr.fmt(1.5e9) === '1.50 GB' && CacheMgr.fmt(2.5e6) === '2.5 MB', 'sizes');
+  });
   test('timeline: track height S / M / L', () => {
     const L = mkLayer('solid', { start: 0, dur: 2 }); addLayer(L); structChanged();
     try { for (const [k, h] of [['S', 26], ['L', 62], ['M', 38]]) { setRowHeight(k); const lane = document.querySelector('#tlc .row.tk .lane'); ok(lane && lane.offsetHeight === h, `${k}: ${lane && lane.offsetHeight}`); } }

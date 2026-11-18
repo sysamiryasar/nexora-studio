@@ -1,9 +1,13 @@
 ## What's new in 1.6.0
 
-- Multicam: stack your camera angles, put the playhead on them and choose Edit › Create multicam. NEXORA lines the angles up by their sound
+- Multicam: stack your camera angles, put the playhead on them and choose Layer › Create multicam. NEXORA lines the angles up by their sound
 - Cut between angles with keys 1–9, live while it plays, or with the angle buttons in the Inspector; pick which angle's sound you hear
 - Flatten multicam turns your cuts into ordinary clips with one continuous sound track
-- Nested clips: Edit › Nest clips (In to Out), or right-click › Nest clip, turns part of the edit into one clip you can move, trim, grade and speed up; double-click opens it, Unpack puts the clips back
+- Nested clips: Layer › Nest clips (In to Out), or right-click › Nest clip, turns part of the edit into one clip you can move, trim, grade and speed up; double-click opens it, Unpack puts the clips back
+- Keyboard shortcuts editor (View › Keyboard shortcuts): give any Edit command the keys you want, including menu commands that had none; conflicts are cleared for you and Reset puts everything back
+- Project starters (Home › Templates): YouTube video, Short / Reel / TikTok, Instagram post, Cinematic 4K with 2.39:1 bars and Podcast, each at the right size and frame rate with editable titles and named chapter markers
+- Save as template (File menu) keeps your own intro and outro layout, without media, for every new project
+- Proxies & cache (File menu): see and free the space used by proxy copies, rendered previews and downloaded AI models; your projects and media are never touched
 
 ## Download
 | File | For |
