@@ -1583,6 +1583,24 @@ const NexoraTests = (() => {
       const V = mkLayer('video', { media: m.id, start: 0, dur: 2 }); addLayer(V); const A = await Cleanup.clean(V, { amount: .5, hp: 0 }); ok(A.type === 'audio' && V.muted && A.start === V.start && A.cleanOf.video === V.id, 'video gets a clean sound clip'); Cleanup.restore(A); ok(!V.muted && !P.layers.includes(A), 'video restored'); removeLayer(V.id);
     } finally { P.layers.filter(l => l.media && media[l.media] && /noisy/.test(media[l.media].name)).forEach(l => removeLayer(l.id)); if (P.layers.includes(L)) removeLayer(L.id); }
   });
+  test('lab: journal, time machine, edit replay, pacing map, sound link', async () => {
+    const n0 = Lab.frames().length, A = mkLayer('solid', { start: 0, dur: 3 }); addLayer(A); commit(); const B = mkLayer('solid', { start: 3, dur: 12 }); addLayer(B); commit();
+    const made = [A, B];
+    try {
+      ok(Lab.frames().length >= Math.min(n0 + 2, 2), 'journal records changes: ' + Lab.frames().length);
+      const i = hist.i, d = Lab.diff(hist.stack[i - 1], hist.stack[i]); ok(d.add === 1 && Lab.say(d) === '+1 clip', 'diff: ' + Lab.say(d));
+      Lab.goTo(i - 1); ok(!P.layers.some(l => l.id === B.id) && hist.i === i - 1, 'traveled back'); Lab.goTo(i); ok(P.layers.some(l => l.id === B.id), 'and forward');
+      const r = Lab.replay({ paintOnly: 1 }); ok(r && r.cv.width === 1280 && r.frames.length >= 2, 'replay paints'); const px = r.cv.getContext('2d').getImageData(10, 200, 1, 1).data; ok(px[2] > 0, 'clip boxes drawn');
+      const saved = P; let p;
+      try { P = { name: 'pace', w: 1280, h: 720, fps: 30, dur: 40, bg: '#000000', layers: [0, 2, 4, 6].map(s => mkLayer('solid', { start: s, dur: 2 })).concat([mkLayer('solid', { start: 8, dur: 12 })]), markers: [] }; p = await Lab.pacing({ audio: false }); } finally { P = saved; }
+      ok(p.shots.length === 5 && p.cuts.includes(8), 'shots (empty end ignored): ' + p.shots.length);
+      ok(p.flags.some(f => f.kind === 'slow' && Math.abs(f.t - 8) < .01) && p.flags.length === 1, 'the 12 s shot is flagged slow: ' + JSON.stringify(p.flags));
+      const sr = 8000, x = new Float32Array(sr * 4); for (let k = 0; k < x.length; k++) x[k] = (k > sr && k < 2 * sr ? .8 : .005) * Math.sin(k * .3);
+      const m = await importFile(wavFile([x], sr, 'pulse.wav')), S = mkLayer('audio', { media: m.id, start: 0, dur: 4 }); addLayer(S); made.push(S);
+      const keys = await Lab.soundLink(A, S, 's', { amount: 50, smooth: 0 }); const at = t => keys.reduce((b, k) => Math.abs(k.t - t) < Math.abs(b.t - t) ? k : b);
+      ok(keys.length > 20 && at(1.5).v > at(.5).v + 30 && Math.abs(at(.5).v - 100) < 5, `loud part scales up: ${at(.5).v} → ${at(1.5).v}`); ok(A.kf.s === keys, 'written as keyframes');
+    } finally { made.forEach(l => P.layers.includes(l) && removeLayer(l.id)); commit(); }
+  });
   test('beat grid: beats on the ruler follow the music clip; clips snap to them', async () => {
     const sr = 22050, n = sr * 8, x = new Float32Array(n); for (let b = 0; b < 16; b++) { const at = Math.round((.25 + b * .5) * sr); for (let i = 0; i < 600; i++) x[at + i] += Math.sin(i * .35) * Math.exp(-i / 120) * .9; }
     const m = await importFile(wavFile([x], sr, 'click120.wav')), L = mkLayer('audio', { media: m.id, start: 1, dur: 8 }); addLayer(L);

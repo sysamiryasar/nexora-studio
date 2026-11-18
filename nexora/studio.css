@@ -301,3 +301,6 @@ body[data-rowh=L] .clip{box-shadow:inset 0 18px 0 #ffffff14}body[data-rowh=L] .c
 .cachem .cm-row{display:flex;align-items:center;gap:8px;padding:4px 0}.cachem .cm-txt{flex:1;display:flex;flex-direction:column;min-width:0}.cachem .cm-txt small{color:#8a96a3}
 .bk-skin{width:100%;margin-top:10px}.bk-anim .bk-ops{align-items:center}.bk-apv{width:96px;height:96px;image-rendering:pixelated}
 .bt{position:absolute;bottom:0;width:1px;height:5px;background:#8fc9f0;opacity:.55;pointer-events:none}.bt.down{height:9px;opacity:.9}
+.lab{display:flex;flex-direction:column;gap:8px;min-width:560px}.lab canvas{width:100%;border:1px solid var(--line);background:#05080c}
+.lab-tm{width:100%}.lab-tm-info{font:12px Consolas,monospace;color:var(--acc)}.lab-replay{aspect-ratio:16/9}.lab-pace{cursor:pointer}
+.lab-flags{display:flex;flex-direction:column;gap:3px;max-height:22vh;overflow:auto}.lab-flags button{justify-content:flex-start;text-align:left}

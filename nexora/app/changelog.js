@@ -1,5 +1,17 @@
 window.NX_CHANGELOG = [
   {
+    "version": "1.8.0",
+    "date": "2026-11-17",
+    "title": "Lab: experimental tools",
+    "items": [
+      "Lab tools are experimental and may change. Find them in the Edit menu",
+      "Time machine: drag a slider back through every version of your edit, see what changed at each step, and keep the one you like",
+      "Edit replay: an animation of how your edit was built, with counters, which you can save as a WebM video for a \"making of\"",
+      "Pacing map: cuts per 10 seconds, shot lengths and loudness on one chart. Long shots in quiet parts and very frantic stretches are marked; click to jump there",
+      "Sound link: a music or voice clip drives the scale, opacity, rotation or position of another clip, written as keyframes you can edit"
+    ]
+  },
+  {
     "version": "1.7.0",
     "date": "2026-11-17",
     "title": "Voice cleanup, beat grid, animated textures, skins and Bedrock",

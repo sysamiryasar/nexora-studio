@@ -1,10 +1,10 @@
-## What's new in 1.7.0
+## What's new in 1.8.0
 
-- Clean up voice (right-click a clip): removes steady background noise (hiss, hum, fans, room tone) and low rumble on your computer; the original file is kept and Restore original sound switches back
-- Beat grid (right-click a music clip): the beats show on the ruler, clips and trims snap to them, and the grid moves with the music; Beats to markers turns them into markers
-- Blocks: animated textures. Add frames, set the frame time, blend between frames, watch a live preview; the Java pack gets the .png.mcmeta
-- Blocks: player skin preview with wide or slim arms, the outer layer, classic 64×32 skins and an armour texture on top; new Player skin starter texture
-- Blocks: Minecraft Bedrock export (.mcpack) with manifest, block and item textures, flipbook animations and block models as Bedrock geometry
+- Lab tools are experimental and may change. Find them in the Edit menu
+- Time machine: drag a slider back through every version of your edit, see what changed at each step, and keep the one you like
+- Edit replay: an animation of how your edit was built, with counters, which you can save as a WebM video for a "making of"
+- Pacing map: cuts per 10 seconds, shot lengths and loudness on one chart. Long shots in quiet parts and very frantic stretches are marked; click to jump there
+- Sound link: a music or voice clip drives the scale, opacity, rotation or position of another clip, written as keyframes you can edit
 
 ## Download
 | File | For |
