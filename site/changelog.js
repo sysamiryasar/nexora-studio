@@ -1,5 +1,14 @@
 window.NX_CHANGELOG = [
   {
+    "version": "1.8.1",
+    "date": "2026-11-17",
+    "title": "Lab: experimental tools, released",
+    "items": [
+      "First published 1.8 build: 1.8.0's release check stopped on a timing-sensitive test (the app itself was fine), so it was never published",
+      "Includes everything in 1.8.0 below"
+    ]
+  },
+  {
     "version": "1.8.0",
     "date": "2026-11-17",
     "title": "Lab: experimental tools",

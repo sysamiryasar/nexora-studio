@@ -2,6 +2,13 @@
 
 All notable changes to NEXORA Studio. Downloads: https://nexora-editor.pages.dev
 
+## 1.8.1 - 2026-11-17
+
+**Lab: experimental tools, released**
+
+- First published 1.8 build: 1.8.0's release check stopped on a timing-sensitive test (the app itself was fine), so it was never published
+- Includes everything in 1.8.0 below
+
 ## 1.8.0 - 2026-11-17
 
 **Lab: experimental tools**

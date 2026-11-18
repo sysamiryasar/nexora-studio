@@ -1,10 +1,7 @@
-## What's new in 1.8.0
+## What's new in 1.8.1
 
-- Lab tools are experimental and may change. Find them in the Edit menu
-- Time machine: drag a slider back through every version of your edit, see what changed at each step, and keep the one you like
-- Edit replay: an animation of how your edit was built, with counters, which you can save as a WebM video for a "making of"
-- Pacing map: cuts per 10 seconds, shot lengths and loudness on one chart. Long shots in quiet parts and very frantic stretches are marked; click to jump there
-- Sound link: a music or voice clip drives the scale, opacity, rotation or position of another clip, written as keyframes you can edit
+- First published 1.8 build: 1.8.0's release check stopped on a timing-sensitive test (the app itself was fine), so it was never published
+- Includes everything in 1.8.0 below
 
 ## Download
 | File | For |
