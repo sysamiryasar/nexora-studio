@@ -632,6 +632,35 @@ const NexoraTests = (() => {
   });
   /* ---------- milestone 7: connected modes + Audio ---------- */
   function wavFile(chs, sr, name) { const n = chs[0].length, nc = chs.length, b = new ArrayBuffer(44 + n * nc * 2), v = new DataView(b), w = (o, s) => [...s].forEach((c, i) => v.setUint8(o + i, c.charCodeAt(0))); w(0, 'RIFF'); v.setUint32(4, 36 + n * nc * 2, true); w(8, 'WAVEfmt '); v.setUint32(16, 16, true); v.setUint16(20, 1, true); v.setUint16(22, nc, true); v.setUint32(24, sr, true); v.setUint32(28, sr * nc * 2, true); v.setUint16(32, nc * 2, true); v.setUint16(34, 16, true); w(36, 'data'); v.setUint32(40, n * nc * 2, true); let o = 44; for (let i = 0; i < n; i++) for (const c of chs) { v.setInt16(o, clamp(c[i], -1, 1) * 32767, true); o += 2; } return new File([b], name || 'tone.wav', { type: 'audio/wav' }); }
+  test('multicam: angles sync by sound, 1–9 cut, only the live angle draws, flatten makes clips', async () => {
+    const sr = 8000, n = sr * 10, r = mulberry(77), a = new Float32Array(n); for (let k = 0; k < 40; k++) { const at = Math.floor(r() * (n - 400)); for (let i = 0; i < 160; i++) a[at + i] += (r() - .5) * 1.6; }
+    const lag = 1.37, b = new Float32Array(n), r2 = mulberry(5); for (let i = 0; i < n; i++) b[i] = (i - Math.round(lag * sr) >= 0 ? a[i - Math.round(lag * sr)] : 0) * .7 + (r2() - .5) * .02;
+    const ids = ['mcA' + uid(), 'mcB' + uid()]; media[ids[0]] = { id: ids[0], name: 'camA.mp4', kind: 'video', w: 1920, h: 1080, dur: 10, blob: wavFile([a], sr, 'a.wav') }; media[ids[1]] = { id: ids[1], name: 'camB.mp4', kind: 'video', w: 1920, h: 1080, dur: 10, blob: wavFile([b], sr, 'b.wav') };
+    const A = mkLayer('video', { media: ids[0], start: 1, dur: 8 }), B = mkLayer('video', { media: ids[1], start: 1, dur: 8 }); addLayer(B); addLayer(A); let made = [];
+    try {
+      seek(3); const C = await Multicam.fromPlayhead(); ok(C && C.mc && C.comp.layers.length === 2, 'multicam clip made');
+      const [a0, a1] = C.comp.layers, cA = C.comp.layers.find(l => l.media === ids[0]), cB = C.comp.layers.find(l => l.media === ids[1]), off = (cB.srcIn - cB.start) - (cA.srcIn - cA.start); ok(Math.abs(off - lag) < .02, `synced by sound: offset ${off.toFixed(3)} s (true ${lag})`);
+      ok(!a0.muted && a1.muted, 'only angle 1 is heard');
+      Multicam.cut(C, 1, C.start + 2); ok(Multicam.angleAt(C, 1) === 0 && Multicam.angleAt(C, 2.5) === 1, 'cut list: ' + JSON.stringify(C.mc.cuts));
+      ok(Multicam.visible(C, 3).length === 1 && Multicam.visible(C, 3)[0] === a1 && Multicam.visible(C, .5)[0] === a0, 'only the live angle draws');
+      if (Shell.active === 'edit') { seek(C.start + 4); window.dispatchEvent(new KeyboardEvent('keydown', { key: '1', bubbles: true })); ok(Multicam.angleAt(C, 4.01) === 0 && C.mc.cuts.length === 3, 'key 1 cuts back to angle 1: ' + JSON.stringify(C.mc.cuts)); }
+      Multicam.setAudio(C, 1); ok(a0.muted && !a1.muted && C.mc.audio === 1, 'sound from angle 2'); Multicam.setAudio(C, 0);
+      made = Multicam.flatten(C); const v = made.filter(x => x.type === 'video'), s = made.filter(x => x.type === 'audio');
+      ok(!P.layers.includes(C) && v.length === (Shell.active === 'edit' ? 3 : 2) && s.length === 1 && v.every(x => x.muted), 'flattened: ' + made.map(x => x.type + '@' + x.start.toFixed(2)).join(' '));
+      ok(Math.abs(v[0].dur - 2) < .01 && Math.abs(v[1].start - (v[0].start + 2)) < .01 && Math.abs(v[1].srcIn - (a1.srcIn + 2 - a1.start)) < .02 && v[1].media === a1.media, 'cut points and source kept');
+    } finally { P.layers.filter(x => ids.includes(x.media) || (x.mc)).forEach(x => removeLayer(x.id)); ids.forEach(i => delete media[i]); }
+  });
+  test('nest: clips between In and Out become one clip that draws the same; unpack restores', () => {
+    const A = mkLayer('solid', { start: 0, dur: 2 }), B = mkLayer('solid', { start: 1, dur: 3 }), C = mkLayer('solid', { start: 5, dur: 1 }); A.color = '#2f6fb8'; B.color = '#e6eaee'; B.tr.s = 40; addLayer(A); addLayer(B); addLayer(C); C.parent = A.id; const io0 = P.io;
+    const cv = document.createElement('canvas'); cv.width = P.w; cv.height = P.h; const x = cv.getContext('2d', { willReadFrequently: true }), snap = t => { x.clearRect(0, 0, P.w, P.h); renderLayers(x, t, P.layers, P); return x.getImageData(0, 0, P.w, P.h).data; };
+    try {
+      const before = [snap(.5), snap(1.5), snap(3.5)]; P.io = { in: 0, out: 4 }; const N = Nest.fromIO();
+      ok(N && N.comp.layers.length === 2 && N.start === 0 && N.dur === 4 && P.layers.includes(C) && !P.layers.includes(A), 'nested A and B, left C');
+      ok(C.parent === '', 'link across the nest dropped');
+      const after = [snap(.5), snap(1.5), snap(3.5)]; let d = 0; for (let k = 0; k < 3; k++) for (let i = 0; i < before[k].length; i += 97) d = Math.max(d, Math.abs(before[k][i] - after[k][i])); ok(d <= 2, 'draws the same: max diff ' + d);
+      unprecompose(N); ok(P.layers.includes(A) && P.layers.includes(B) && A.start === 0 && B.start === 1, 'unpacked');
+    } finally { [A, B, C].forEach(l => P.layers.includes(l) && removeLayer(l.id)); P.layers.filter(l => l.nest).forEach(l => removeLayer(l.id)); P.io = io0 || { in: null, out: null }; }
+  });
   test('connect: VFX attached to a clip renders in place (pass-through exact, nodes apply)', () => {
     const own = mkLayer('shape', { start: 0, dur: 3 }); Object.assign(own.shape, { w: 400, h: 300, fill: '#3b9bff' }); addLayer(own, true);
     const L = own, prevSel = selId, prevTab = Shell.tab; selId = L.id; seek(L.start + .3);

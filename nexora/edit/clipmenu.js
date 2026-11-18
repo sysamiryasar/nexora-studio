@@ -30,6 +30,8 @@ const ClipMenu = (() => {
       av && [L.muted ? 'Unmute' : 'Mute', () => { L.muted = !L.muted; done(); requestRender(); }],
       [L.locked ? 'Unlock' : 'Lock', () => { L.locked = !L.locked; done(); }],
       ['Mark In / Out to clip', () => { selId = L.id; Pro.markClip(); }, 'X'],
+      ['Nest clip', () => Nest.nest([L])],
+      L.mc && ['Flatten multicam', () => Multicam.flatten(L)],
       null,
       av && ['speed'],
       pic && ['Grade in Color', () => { selId = L.id; if (T < L.start || T >= L.start + L.dur) seek(L.start + Math.min(1, L.dur / 2)); Shell.go('color'); }],

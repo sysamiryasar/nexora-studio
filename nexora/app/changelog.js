@@ -1,5 +1,16 @@
 window.NX_CHANGELOG = [
   {
+    "version": "1.6.0",
+    "date": "2026-11-17",
+    "title": "Multicam and nested clips",
+    "items": [
+      "Multicam: stack your camera angles, put the playhead on them and choose Edit › Create multicam. NEXORA lines the angles up by their sound",
+      "Cut between angles with keys 1–9, live while it plays, or with the angle buttons in the Inspector; pick which angle's sound you hear",
+      "Flatten multicam turns your cuts into ordinary clips with one continuous sound track",
+      "Nested clips: Edit › Nest clips (In to Out), or right-click › Nest clip, turns part of the edit into one clip you can move, trim, grade and speed up; double-click opens it, Unpack puts the clips back"
+    ]
+  },
+  {
     "version": "1.5.0",
     "date": "2026-11-17",
     "title": "Named markers, speed ramps and social captions",

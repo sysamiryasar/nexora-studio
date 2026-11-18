@@ -268,7 +268,7 @@ function contentOfBase(L, t) {
     case 'comp': {
       const src = compSource(L); if (!src || compDepth > 6) return null;
       const w = src.w || RW(), h = src.h || RH(), cv = L._cc && L._cc.width === w && L._cc.height === h ? L._cc : (L._cc = mkCanvas(w, h)), c = cv.getContext('2d');
-      compDepth++; try { resetCtx(c); c.clearRect(0, 0, w, h); atFull(() => renderLayers(c, L.srcIn + (t - L.start) * L.speed, src.layers, src)); } finally { compDepth--; }
+      compDepth++; try { resetCtx(c); c.clearRect(0, 0, w, h); const lt = L.srcIn + (t - L.start) * L.speed; atFull(() => renderLayers(c, lt, L.mc && typeof Multicam !== 'undefined' ? Multicam.visible(L, lt) : src.layers, src)); } finally { compDepth--; }
       return { src: cv, w, h };
     }
   }
