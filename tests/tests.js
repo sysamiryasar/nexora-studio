@@ -411,6 +411,39 @@ const NexoraTests = (() => {
     const m = Blocks.newModel({ kind: 'block', tex: ts[0].id, name: 'Cube' }); m.elements.push(Blocks.newElement({ from: [4, 16, 4], to: [12, 20, 12], tex: ts[1].id })); const o = await Blocks.objZip(m);
     ok((o.obj.match(/^v /gm) || []).length === 48 && (o.obj.match(/^vt /gm) || []).length === 48 && (o.obj.match(/^f /gm) || []).length === 12, 'two boxes: 48 vertices, 12 quads'); ok(/map_Kd textures\/a\.png/.test(o.mtl) && o.files.includes('textures/b.png'), 'materials point at the textures');
   }));
+  test('blocks: animated textures stack frames and write .mcmeta', () => withBlocks(async () => {
+    const t = Blocks.newTexture({ w: 16, template: 'stone', name: 'Lava' }), c = Blocks.canvasOf(t); c._ctx.fillStyle = '#5cb8ff'; c._ctx.fillRect(3, 3, 1, 1);
+    BlocksX.setFrames(t, 3); ok(t.w === 16 && t.h === 48 && BlocksX.frames(t) === 3 && Blocks.canvasOf(t).height === 48, '3 frames, 16×48');
+    const px = (y) => [...Blocks.canvasOf(t)._ctx.getImageData(3, y, 1, 1).data].join(); ok(px(3) === px(19) && px(19) === px(35) && px(3) === '92,184,255,255', 'new frames copy the last one');
+    t.anim.frametime = 4; t.anim.interpolate = true; ok(JSON.stringify(BlocksX.mcmeta(t)) === '{"animation":{"frametime":4,"interpolate":true}}', 'mcmeta');
+    const files = (await unzip((await Blocks.resourcePack()).blob)).map(f => f.name); ok(files.includes(`assets/minecraft/textures/${t.path}.png.mcmeta`), 'pack has the mcmeta: ' + files.join(' '));
+    const pv = mkCanvas(16, 16), x = pv.getContext('2d'); BlocksX.drawFrame(t, x, 4); ok(x.getImageData(3, 3, 1, 1).data[2] === 255, 'preview draws a frame');
+    BlocksX.setFrames(t, 1); ok(t.h === 16 && !t.anim && !BlocksX.mcmeta(t), 'back to a still');
+    let threw = false; try { BlocksX.setFrames(Blocks.newTexture({ w: 512 }), 3); } catch (e) { threw = true; } ok(threw, 'refuses taller than 1024 px');
+  }));
+  test('blocks: skin preview builds the player (wide, slim, classic, armour) and is never exported', () => withBlocks(async () => {
+    const s = Blocks.newTexture({ w: 64, template: 'skin', name: 'My skin', path: 'entity/my_skin' }); ok(s.h === 64, '64×64 skin');
+    const m = BlocksX.skinPreview(s.id); ok(m.skin && m.elements.length === 12, 'body + outer layer: ' + m.elements.length);
+    const head = m.elements[0]; ok(JSON.stringify(Blocks.faceUV(head, 'south')) === '[2,2,4,4]' && JSON.stringify(Blocks.faceUV(head, 'up')) === '[2,0,4,2]', 'head UVs from the skin layout');
+    const ra = () => m.elements.find(e => e.name === 'Right arm'); ok(ra().to[0] - ra().from[0] === 4, 'wide arms');
+    BlocksX.skinPreview(null, { slim: true }); ok(ra().to[0] - ra().from[0] === 3, 'slim arms');
+    const old = Blocks.newTexture({ w: 64, h: 32, name: 'Classic' }); BlocksX.skinPreview(old.id, { slim: false }); ok(m.elements.length === 7, 'classic 64×32: hat only as outer layer: ' + m.elements.length);
+    const la = m.elements.find(e => e.name === 'Left arm'), uvL = Blocks.faceUV(la, 'south'), uvR = Blocks.faceUV(m.elements.find(e => e.name === 'Right arm'), 'south'); ok(uvL[0] === uvR[2] && uvL[2] === uvR[0], 'classic left arm mirrors the right');
+    const arm = Blocks.newTexture({ w: 64, h: 32, name: 'Armour' }); BlocksX.skinPreview(s.id, { armour: arm.id }); ok(m.elements.length === 18 && m.elements.filter(e => / \(armour\)$/.test(e.name)).every(e => e.faces.north.tex === arm.id), 'armour layer: ' + m.elements.length);
+    const files = (await unzip((await Blocks.resourcePack()).blob)).map(f => f.name); ok(!files.some(f => f.includes('preview/skin')), 'preview model is not exported');
+  }));
+  test('blocks: Bedrock .mcpack with manifest, texture lists, flipbooks and geometry', () => withBlocks(async () => {
+    const a = Blocks.newTexture({ w: 16, template: 'ore', name: 'Ruby ore', path: 'block/ruby_ore' }), b = Blocks.newTexture({ w: 16, name: 'Ruby', path: 'item/ruby' }); BlocksX.setFrames(a, 2);
+    const m = Blocks.newModel({ kind: 'block', name: 'Slab', path: 'block/ruby_slab', tex: a.id }); m.elements[0].to = [16, 8, 16];
+    const r1 = await BlocksX.bedrockPack(), r2 = await BlocksX.bedrockPack(), f1 = await unzip(r1.blob), get = n => JSON.parse(new TextDecoder().decode(f1.find(f => f.name === n).data));
+    const man = get('manifest.json'), man2 = JSON.parse(new TextDecoder().decode((await unzip(r2.blob)).find(f => f.name === 'manifest.json').data));
+    ok(man.format_version === 2 && /^[0-9a-f-]{36}$/.test(man.header.uuid) && man.header.uuid !== man.modules[0].uuid && man.modules[0].type === 'resources', 'manifest');
+    ok(man2.header.uuid === man.header.uuid, 'UUIDs stay the same for the project');
+    ok(r1.files.includes('textures/blocks/ruby_ore.png') && r1.files.includes('textures/items/ruby.png') && r1.files.includes('pack_icon.png'), 'texture folders: ' + r1.files.join(' '));
+    const ns = Object.keys(get('textures/terrain_texture.json').texture_data)[0]; ok(get('textures/terrain_texture.json').texture_data[ns].textures === 'textures/blocks/ruby_ore' && Object.values(get('textures/item_texture.json').texture_data)[0].textures === 'textures/items/ruby', 'texture lists');
+    ok(get('textures/flipbook_textures.json')[0].flipbook_texture === 'textures/blocks/ruby_ore', 'flipbook');
+    const geo = get('models/blocks/ruby_slab.geo.json')['minecraft:geometry'][0]; ok(geo.description.identifier === 'geometry.ruby_slab' && JSON.stringify(geo.bones[0].cubes[0].size) === '[16,8,16]' && JSON.stringify(geo.bones[0].cubes[0].origin) === '[-8,0,-8]', 'geometry: ' + JSON.stringify(geo.bones[0].cubes[0]));
+  }));
   test('blocks: the page opens, paints a pixel, shows the 3D preview and the pack files', () => withBlocks(async () => {
     const t = Blocks.newTexture({ w: 16, template: 'blank', name: 'T' }); Shell.go('blocks'); await new Promise(r => setTimeout(r, 200));
     try {
@@ -1535,6 +1568,33 @@ const NexoraTests = (() => {
     try { const L = addMediaLayer(v.m, 0); L.srcIn = .5; L.dur = 2; for (const [fmt, ext, codec] of [['mp3', 'mp3', 'mp3'], ['wav', 'wav', 'pcm_s24le'], ['flac', 'flac', 'flac'], ['aac', 'm4a', 'aac']]) { const out = Disk.join(v.dir, 'x.' + ext), r = await Music.saveAudio(L, { format: fmt, out }); ok(r.size > 500, fmt); const i = await nxff.info(out); ok(i.audio && i.audio.codec === codec && !i.video && Math.abs(i.dur - 2) < .12, fmt + ' ' + JSON.stringify(i)); }
       L.speed = 2; L.dur = 1; const out = Disk.join(v.dir, 'fast.mp3'); await Music.saveAudio(L, { format: 'mp3', out }); const i = await nxff.info(out); ok(Math.abs(i.dur - 1) < .12, 'double speed halves the length: ' + i.dur); removeLayer(L.id); }
     finally { P.layers.length = 0; keep.forEach(l => P.layers.push(l)); P.dur = dur0; structChanged(); delete media[v.m.id]; Disk.dropEls(v.m); await nxfs.remove(v.dir); }
+  });
+  test('voice cleanup: noise drops 12+ dB, the voice stays, new file, restore', async () => {
+    const sr = 16000, n = sr * 4, r = mulberry(9), x = new Float32Array(n), voiced = i => (i >= sr && i < 2 * sr) || (i >= 3 * sr && i < 3.5 * sr);
+    for (let i = 0; i < n; i++) { const t = i / sr; x[i] = (r() * 2 - 1) * .03 + (voiced(i) ? .25 * Math.sin(2 * Math.PI * 220 * t) + .12 * Math.sin(2 * Math.PI * 440 * t) + .06 * Math.sin(2 * Math.PI * 660 * t) : 0); }
+    const rms = (a, s, e) => { let q = 0; for (let i = s * sr; i < e * sr; i++) q += a[i] * a[i]; return 10 * Math.log10(q / ((e - s) * sr)); };
+    const y = Cleanup.process(x, sr, { amount: .7 }), dn = rms(x, .2, .8) - rms(y, .2, .8), dv = rms(x, 1.2, 1.8) - rms(y, 1.2, 1.8);
+    ok(dn > 12, `noise reduced by ${dn.toFixed(1)} dB`); ok(Math.abs(dv) < 2, `voice level kept (${dv.toFixed(2)} dB)`);
+    const m = await importFile(wavFile([x], sr, 'noisy.wav')), L = mkLayer('audio', { media: m.id, start: 2, dur: 3, srcIn: .5 }); addLayer(L);
+    try {
+      const out = await Cleanup.clean(L, { amount: .7, hp: 80 }); ok(out === L && L.media !== m.id && media[L.media] && /clean/.test(media[L.media].name) && L.cleanOf.media === m.id, 'clip plays the new clean file');
+      ok(Math.abs(L.srcIn - .25) < 1e-3, 'same moment of sound: ' + L.srcIn);
+      ok(Cleanup.restore(L) && L.media === m.id && L.srcIn === .5, 'restored');
+      const V = mkLayer('video', { media: m.id, start: 0, dur: 2 }); addLayer(V); const A = await Cleanup.clean(V, { amount: .5, hp: 0 }); ok(A.type === 'audio' && V.muted && A.start === V.start && A.cleanOf.video === V.id, 'video gets a clean sound clip'); Cleanup.restore(A); ok(!V.muted && !P.layers.includes(A), 'video restored'); removeLayer(V.id);
+    } finally { P.layers.filter(l => l.media && media[l.media] && /noisy/.test(media[l.media].name)).forEach(l => removeLayer(l.id)); if (P.layers.includes(L)) removeLayer(L.id); }
+  });
+  test('beat grid: beats on the ruler follow the music clip; clips snap to them', async () => {
+    const sr = 22050, n = sr * 8, x = new Float32Array(n); for (let b = 0; b < 16; b++) { const at = Math.round((.25 + b * .5) * sr); for (let i = 0; i < 600; i++) x[at + i] += Math.sin(i * .35) * Math.exp(-i / 120) * .9; }
+    const m = await importFile(wavFile([x], sr, 'click120.wav')), L = mkLayer('audio', { media: m.id, start: 1, dur: 8 }); addLayer(L);
+    try {
+      const g = await BeatGrid.detect(L); ok(g && Math.abs(g.bpm - 120) < 2, 'tempo ' + (g && g.bpm));
+      const t1 = BeatGrid.times(); ok(t1.length >= 12 && t1.every((t, i) => !i || Math.abs(t - t1[i - 1] - .5) < .03), 'beats every 0.5 s: ' + t1.slice(0, 4));
+      renderTimeline(); ok(document.querySelectorAll('.bt').length > 0, 'ticks on the ruler');
+      L.start += 1; const t2 = BeatGrid.times(); ok(Math.abs(t2[0] - t1[0] - 1) < 1e-3, 'grid moves with the clip');
+      const tgt = t2[3], prevSnap = snapOn; snapOn = true; try { ok(Math.abs(snapTime(tgt + .01, 0, null) - tgt) < 1e-6, 'snaps to a beat'); } finally { snapOn = prevSnap; }
+      const km = P.markers; P.markers = []; ok(BeatGrid.toMarkers(4) === Math.ceil(t2.length / 4) && P.markers.length === Math.ceil(t2.length / 4), 'downbeats to markers'); P.markers = km;
+      BeatGrid.clear(); ok(!P.beatGrid && BeatGrid.times().length === 0, 'cleared');
+    } finally { removeLayer(L.id); delete P.beatGrid; }
   });
   test('music: beat sync cuts video on the beat; audio panel lists the library', async () => {
     const keep = P.layers.slice(), dur0 = P.dur, mk0 = P.markers; P.layers.length = 0; P.markers = []; P.dur = 10;

@@ -40,9 +40,9 @@ const BlocksMode = (() => {
   }
   /* ---------- textures ---------- */
   function texPage(body) {
-    const size = el('select', { title: 'Size in pixels' }, ...[16, 32, 64, 128, 256].map(n => el('option', { value: n }, `${n}×${n}`))), tpl = el('select', { title: 'Start from' }, ...['blank', 'stone', 'planks', 'ore', 'grass', 'metal'].map(n => el('option', { value: n }, n[0].toUpperCase() + n.slice(1))));
+    const size = el('select', { title: 'Size in pixels' }, ...[16, 32, 64, 128, 256].map(n => el('option', { value: n }, `${n}×${n}`))), tpl = el('select', { title: 'Start from' }, ...['blank', 'stone', 'planks', 'ore', 'grass', 'metal', 'skin'].map(n => el('option', { value: n }, n === 'skin' ? 'Player skin (64×64)' : n[0].toUpperCase() + n.slice(1))));
     const file = el('input', { type: 'file', accept: 'image/png,image/*', multiple: '', hidden: '' }); file.onchange = async () => { for (const f of file.files) { try { S.tex = await B.importPNG(f); } catch (e) { toast(e.message); } } file.value = ''; render(); };
-    const left = el('div', { class: 'bk-side' }, el('div', { class: 'bk-new' }, size, tpl, el('button', { class: 'primary', onclick: () => { S.tex = B.newTexture({ w: +size.value, template: tpl.value, seed: Math.random() * 1e6 | 0, name: tpl.value === 'blank' ? undefined : tpl.value[0].toUpperCase() + tpl.value.slice(1) }); S.undo = []; S.redo = []; S.zoom = 0; render(); } }, 'New')),
+    const left = el('div', { class: 'bk-side' }, el('div', { class: 'bk-new' }, size, tpl, el('button', { class: 'primary', onclick: () => { S.tex = B.newTexture({ w: tpl.value === 'skin' ? 64 : +size.value, path: tpl.value === 'skin' ? 'entity/skin_' + (Date.now() % 1e5) : undefined, template: tpl.value, seed: Math.random() * 1e6 | 0, name: tpl.value === 'blank' ? undefined : tpl.value[0].toUpperCase() + tpl.value.slice(1) }); S.undo = []; S.redo = []; S.zoom = 0; render(); } }, 'New')),
       el('button', { class: 'ibtn bk-imp', onclick: () => file.click() }, Icon('import', 14), 'Import PNG'), file, el('div', { class: 'bk-list' }));
     const stage = el('div', { class: 'bk-stage' }); S.cv = el('canvas', { class: 'bk-pix' }); stage.append(S.cv);
     body.append(left, stage, texPanel()); list(); bindPix(stage); requestAnimationFrame(() => { fitZoom(); drawPix(); drawTile(); });
@@ -60,8 +60,21 @@ const BlocksMode = (() => {
       el('div', { class: 'bk-ops' }, el('button', { onclick: undo, title: 'Undo (Ctrl+Z)' }, 'Undo'), el('button', { onclick: redo, title: 'Redo (Ctrl+Y)' }, 'Redo'), el('button', { onclick: () => download(dataBlob(B.canvasOf(t)), B.slug(t.name) + '.png') }, 'Save PNG')),
       el('div', { class: 'vrow' }, el('span', {}, 'Name'), el('input', { value: t.name, onchange: e => { t.name = e.target.value; touch(); list(); } })),
       el('div', { class: 'vrow' }, el('span', {}, 'Path'), el('input', { value: t.path, title: 'Where it goes in a pack, e.g. block/stone or item/ruby', onchange: e => { t.path = e.target.value.replace(/\.png$/i, '').replace(/^\/+/, ''); touch(); list(); } })),
-      el('h5', {}, 'Tiling preview'), S.tile = el('canvas', { class: 'bk-tile', width: 192, height: 192 }));
+      el('h5', {}, 'Tiling preview'), S.tile = el('canvas', { class: 'bk-tile', width: 192, height: 192 }), animPanel(t),
+      t.w === 64 && (t.h === 64 || t.h === 32) ? el('button', { class: 'bk-skin', title: 'Show this texture on a player-shaped model', onclick: () => { S.model = BlocksX.skinPreview(t.id); S.tab = 'model'; touch(); render(); } }, 'Preview as player skin') : '');
     return p;
+  }
+  /* animation: frames stacked top to bottom, a live preview at the game's speed (20 ticks a second) */
+  function animPanel(t) {
+    clearInterval(S.animTimer); const n = BlocksX.frames(t), sq = t.h % t.w === 0, box = el('div', { class: 'bk-anim' }, el('h5', {}, 'Animation'));
+    if (!sq) { box.append(el('div', { class: 'dim bk-note' }, 'Animated textures are square frames stacked top to bottom; this one is not a whole number of frames.')); return box; }
+    const pv = el('canvas', { class: 'bk-tile bk-apv', width: 96, height: 96 }), x = pv.getContext('2d');
+    const set = k => { try { S.undo = []; S.redo = []; BlocksX.setFrames(t, k); S.zoom = 0; render(); } catch (e) { toast(e.message); } };
+    box.append(el('div', { class: 'bk-ops' }, el('span', { class: 'dim' }, n > 1 ? n + ' frames' : 'Still'), el('button', { onclick: () => set(n + 1), title: 'Add a frame below (a copy of the last one)' }, '+ Frame'), el('button', { disabled: n > 1 ? undefined : '', onclick: () => set(n - 1), title: 'Remove the last frame' }, '− Frame')));
+    if (n > 1) { box.append(el('div', { class: 'vrow' }, el('span', {}, 'Frame time'), el('input', { type: 'number', min: 1, max: 200, value: t.anim.frametime, title: 'Game ticks per frame (20 ticks = 1 second)', onchange: e => { t.anim.frametime = clamp(+e.target.value | 0, 1, 200); touch(); render(); } })),
+      el('label', { class: 'au-check' }, el('input', { type: 'checkbox', checked: t.anim.interpolate ? '' : undefined, onchange: e => { t.anim.interpolate = e.target.checked; touch(); } }), 'Blend between frames'), pv);
+      let tick = 0; S.animTimer = setInterval(() => { if (!pv.isConnected) return clearInterval(S.animTimer); tick++; const ft = Math.max(1, t.anim.frametime | 0); BlocksX.drawFrame(t, x, Math.floor(tick / ft), (tick % ft) / ft); }, 50); }
+    return box;
   }
   const dataBlob = c => { const s = atob(c.toDataURL('image/png').split(',')[1]), u = new Uint8Array(s.length); for (let i = 0; i < s.length; i++) u[i] = s.charCodeAt(i); return new Blob([u], { type: 'image/png' }); };
   function swatch() { }
@@ -126,6 +139,11 @@ const BlocksMode = (() => {
     const chg = () => { touch(); redraw3d(); };
     p.append(el('div', { class: 'vrow' }, el('span', {}, 'Name'), el('input', { value: m.name, onchange: e => { m.name = e.target.value; chg(); render(); } })), el('div', { class: 'vrow' }, el('span', {}, 'Path'), el('input', { value: m.path, onchange: e => { m.path = e.target.value.replace(/\.json$/i, ''); chg(); render(); } })));
     if (m.kind === 'item') { p.append(el('h5', {}, 'Item texture'), texSelect(m.item, v => { m.item = v; chg(); })); return p; }
+    if (m.skin) { const re = o => { BlocksX.skinPreview(null, o); chg(); render(); };
+      p.append(el('div', { class: 'dim bk-note' }, 'Preview only: this model is not exported. Paint the skin on the Textures tab and it updates here.'), el('h5', {}, 'Skin'), texSelect(m.skin.skin, v => re({ skin: v })),
+        el('label', { class: 'au-check' }, el('input', { type: 'checkbox', checked: m.skin.slim ? '' : undefined, onchange: e => re({ slim: e.target.checked }) }), 'Slim arms (3 px)'),
+        el('label', { class: 'au-check' }, el('input', { type: 'checkbox', checked: m.skin.outer !== false ? '' : undefined, onchange: e => re({ outer: e.target.checked }) }), 'Outer layer (hat, jacket, sleeves)'),
+        el('h5', {}, 'Armour'), texSelect(m.skin.armour, v => re({ armour: v }), 'No armour'), el('div', { class: 'dim bk-note' }, 'A 64×32 armour texture (helmet, chestplate, boots layout), drawn 1 px out.')); return p; }
     if (!S.el || !m.elements.includes(S.el)) S.el = m.elements[0] || null;
     p.append(el('h5', {}, 'Boxes'), el('div', { class: 'bk-els' }, ...m.elements.map(e => el('button', { class: e === S.el ? 'on' : '', onclick: () => { S.el = e; render(); } }, e.name))),
       el('div', { class: 'bk-ops' }, el('button', { onclick: () => { const e = B.newElement({ name: 'Box ' + (m.elements.length + 1), from: [4, 0, 4], to: [12, 8, 12], tex: S.el && S.el.faces.north.tex }); m.elements.push(e); S.el = e; chg(); render(); } }, '+ Box'),
@@ -174,6 +192,7 @@ const BlocksMode = (() => {
         if (e === S.el && m.kind !== 'item' && m.elements.length > 1) { const edges = new T3.LineSegments(new T3.EdgesGeometry(g), new T3.LineBasicMaterial({ color: 0x9ad6ff })); edges.position.copy(mesh.position); k.group.add(edges); }
       }
     }
+    if (m && m.skin) { k.group.scale.setScalar(.5); k.group.position.y = -.25; }
     k.sc.add(k.group);
     const a = k.az * Math.PI / 180, b = k.el * Math.PI / 180; k.cam.position.set(Math.sin(a) * Math.cos(b) * k.dist, Math.sin(b) * k.dist, Math.cos(a) * Math.cos(b) * k.dist); k.cam.lookAt(0, 0, 0); k.r.render(k.sc, k.cam);
   }
@@ -201,6 +220,8 @@ const BlocksMode = (() => {
         el('div', { class: 'vrow' }, el('span', {}, 'Namespace'), el('input', { value: pk.namespace, title: 'minecraft (override the game) or your mod id', onchange: e => { pk.namespace = B.slug(e.target.value).replace(/[\/]/g, '') || 'minecraft'; chg(); render(); } })),
         el('div', { class: 'vrow' }, el('span', {}, 'Pack icon'), texSelect(pk.icon, v => { pk.icon = v; chg(); }, 'First texture')),
         el('button', { class: 'primary', onclick: () => busy(() => B.resourcePack(), B.slug(pk.name) + '.zip') }, 'Export resource pack (.zip)'), files),
+      el('section', {}, el('h4', {}, 'Minecraft Bedrock'), el('p', { class: 'dim' }, 'A .mcpack resource pack: open it and Minecraft imports it. Textures go to textures/blocks and textures/items (by their path), animations become flipbook textures, and block models are included as Bedrock geometry for custom blocks (the behaviour pack that uses them is up to you).'),
+        el('button', { class: 'primary', onclick: () => busy(() => BlocksX.bedrockPack(), B.slug(pk.name) + '.mcpack') }, 'Export Bedrock pack (.mcpack)')),
       el('section', {}, el('h4', {}, 'Any game or engine'), el('p', { class: 'dim' }, 'For Godot, Unity, Unreal, Phaser, PixiJS, Roblox and others.'),
         el('button', { onclick: () => busy(async () => { const a = await B.atlas(B.slug(pk.name) + '_atlas'); return Zip.build([{ name: a.json.meta.image, data: Uint8Array.from(atob(a.canvas.toDataURL('image/png').split(',')[1]), c => c.charCodeAt(0)) }, { name: a.json.meta.image.replace(/\.png$/, '.json'), data: JSON.stringify(a.json, null, 2) }]); }, B.slug(pk.name) + '_atlas.zip') }, 'Sprite atlas (PNG + JSON)'),
         el('button', { disabled: S.model ? undefined : '', onclick: () => busy(() => B.objZip(S.model), B.slug(S.model.name) + '_obj.zip') }, `Model as OBJ + MTL${S.model ? ' (' + S.model.name + ')' : ''}`),

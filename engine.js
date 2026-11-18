@@ -239,9 +239,11 @@ function getEl(L) {
   // playback may use a low-res proxy; export / exact-frame rendering always get the original (Proxies.active checks that)
   const px = L.type === 'video' && typeof Proxies !== 'undefined' && Proxies.active(m), key = px ? L.id + '#p' : L.id;
   let el = els.get(key);
+  // the clip now points at another file (voice cleanup, relink, undo): start a fresh element
+  if (el && el._mid && el._mid !== L.media) { el.pause(); el.removeAttribute('src'); el.load(); els.delete(key); el = null; }
   if (!el) {
     if (m.missing) return null;
-    el = document.createElement(L.type === 'video' ? 'video' : 'audio'); const src = px ? m.proxyUrl : m.url; if (corsUrl(src)) el.crossOrigin = 'anonymous'; el.src = src; el.preload = 'auto'; el.playsInline = true; el._proxy = px;
+    el = document.createElement(L.type === 'video' ? 'video' : 'audio'); const src = px ? m.proxyUrl : m.url; if (corsUrl(src)) el.crossOrigin = 'anonymous'; el.src = src; el.preload = 'auto'; el.playsInline = true; el._proxy = px; el._mid = L.media;
     el.addEventListener('seeked', requestRender); el.addEventListener('loadeddata', requestRender); els.set(key, el); if (els.size > MEDIA_POOL) evictMedia();
   }
   return el;

@@ -110,7 +110,8 @@ jobs:
           Start-Process $old -ArgumentList '/S' -Wait
           # the NSIS installer hands off to a second process, so wait for the files rather than trusting -Wait
           $exe = Join-Path $env:LOCALAPPDATA 'Programs/NEXORA Studio/NEXORA Studio.exe'
-          for ($i = 0; $i -lt 120 -and -not (Test-Path $exe); $i++) { Start-Sleep 1 }; if (-not (Test-Path $exe)) { throw 'the previous release did not install' }
+          # hosted runners are sometimes slow to unpack; give it five minutes
+          for ($i = 0; $i -lt 300 -and -not (Test-Path $exe); $i++) { Start-Sleep 1 }; if (-not (Test-Path $exe)) { Get-ChildItem (Join-Path $env:LOCALAPPDATA 'Programs') -ErrorAction SilentlyContinue | ForEach-Object Name; throw 'the previous release did not install' }
           $before = (Get-Item $exe).VersionInfo.ProductVersion; "installed first: $before"
           # exactly what the app runs when you press Update now
           Start-Process dist/NEXORA-Studio-Setup-win-x64.exe -ArgumentList '/S', '--force-run' -Wait

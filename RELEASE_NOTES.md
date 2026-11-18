@@ -1,13 +1,10 @@
-## What's new in 1.6.0
+## What's new in 1.7.0
 
-- Multicam: stack your camera angles, put the playhead on them and choose Layer › Create multicam. NEXORA lines the angles up by their sound
-- Cut between angles with keys 1–9, live while it plays, or with the angle buttons in the Inspector; pick which angle's sound you hear
-- Flatten multicam turns your cuts into ordinary clips with one continuous sound track
-- Nested clips: Layer › Nest clips (In to Out), or right-click › Nest clip, turns part of the edit into one clip you can move, trim, grade and speed up; double-click opens it, Unpack puts the clips back
-- Keyboard shortcuts editor (View › Keyboard shortcuts): give any Edit command the keys you want, including menu commands that had none; conflicts are cleared for you and Reset puts everything back
-- Project starters (Home › Templates): YouTube video, Short / Reel / TikTok, Instagram post, Cinematic 4K with 2.39:1 bars and Podcast, each at the right size and frame rate with editable titles and named chapter markers
-- Save as template (File menu) keeps your own intro and outro layout, without media, for every new project
-- Proxies & cache (File menu): see and free the space used by proxy copies, rendered previews and downloaded AI models; your projects and media are never touched
+- Clean up voice (right-click a clip): removes steady background noise (hiss, hum, fans, room tone) and low rumble on your computer; the original file is kept and Restore original sound switches back
+- Beat grid (right-click a music clip): the beats show on the ruler, clips and trims snap to them, and the grid moves with the music; Beats to markers turns them into markers
+- Blocks: animated textures. Add frames, set the frame time, blend between frames, watch a live preview; the Java pack gets the .png.mcmeta
+- Blocks: player skin preview with wide or slim arms, the outer layer, classic 64×32 skins and an armour texture on top; new Player skin starter texture
+- Blocks: Minecraft Bedrock export (.mcpack) with manifest, block and item textures, flipbook animations and block models as Bedrock geometry
 
 ## Download
 | File | For |

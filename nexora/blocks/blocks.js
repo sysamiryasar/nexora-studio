@@ -109,8 +109,8 @@ const Blocks = (() => {
     files.push({ name: 'pack.mcmeta', data: JSON.stringify({ pack: { pack_format: Number(pk.format) || 34, description: String(pk.description || '') } }, null, 2) });
     const icon = s.textures[pk.icon] || Object.values(s.textures)[0];
     if (icon) { const c = await ready(icon), k = mkCanvas(128, 128), x = k.getContext('2d'); x.imageSmoothingEnabled = false; x.drawImage(c, 0, 0, 128, 128); files.push({ name: 'pack.png', data: b64(k.toDataURL('image/png')) }); }
-    for (const t of Object.values(s.textures)) { await ready(t); files.push({ name: `assets/${ns}/textures/${t.path}.png`, data: pngOf(t) }); }
-    for (const m of Object.values(s.models)) files.push({ name: `assets/${ns}/models/${m.path}.json`, data: JSON.stringify(modelJSON(m, ns), null, 2) });
+    for (const t of Object.values(s.textures)) { await ready(t); files.push({ name: `assets/${ns}/textures/${t.path}.png`, data: pngOf(t) }); const mm = typeof BlocksX !== 'undefined' && BlocksX.mcmeta(t); if (mm) files.push({ name: `assets/${ns}/textures/${t.path}.png.mcmeta`, data: JSON.stringify(mm, null, 2) }); }
+    for (const m of Object.values(s.models)) if (!m.skin) files.push({ name: `assets/${ns}/models/${m.path}.json`, data: JSON.stringify(modelJSON(m, ns), null, 2) });
     return { blob: Zip.build(files), files: files.map(f => f.name) };
   }
   /** sprite atlas: shelf packing into the smallest power-of-two square, 1 px padding → { canvas, json } */

@@ -1,5 +1,17 @@
 window.NX_CHANGELOG = [
   {
+    "version": "1.7.0",
+    "date": "2026-11-17",
+    "title": "Voice cleanup, beat grid, animated textures, skins and Bedrock",
+    "items": [
+      "Clean up voice (right-click a clip): removes steady background noise (hiss, hum, fans, room tone) and low rumble on your computer; the original file is kept and Restore original sound switches back",
+      "Beat grid (right-click a music clip): the beats show on the ruler, clips and trims snap to them, and the grid moves with the music; Beats to markers turns them into markers",
+      "Blocks: animated textures. Add frames, set the frame time, blend between frames, watch a live preview; the Java pack gets the .png.mcmeta",
+      "Blocks: player skin preview with wide or slim arms, the outer layer, classic 64×32 skins and an armour texture on top; new Player skin starter texture",
+      "Blocks: Minecraft Bedrock export (.mcpack) with manifest, block and item textures, flipbook animations and block models as Bedrock geometry"
+    ]
+  },
+  {
     "version": "1.6.0",
     "date": "2026-11-17",
     "title": "Multicam, nested clips, your own shortcuts and project starters",
